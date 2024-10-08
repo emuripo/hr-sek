@@ -1,29 +1,40 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Sidebar from './components/SideBar/SideBar.js';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import Sidebar from './components/SideBar/Sidebar';
 import './App.css';
-
-// Componentes de las páginas
-import Dashboard from './pages/Dashboard.js';
-import Empleados from './pages/Empleados.js';  // Actualizamos a Empleados
-import Nomina from './pages/Nomina';  // Actualizamos a Nómina
-import Solicitudes from './pages/Solicitudes';  // Actualizamos a Solicitudes
-import Reportes from './pages/Reportes';  // Actualizamos a Reportes
+import AppRoutes from './routes/AppRoutes'; 
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 function App() {
+  // Estado para verificar si el usuario está autenticado
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Función para manejar el login
+  const handleLogin = () => {
+    setIsAuthenticated(true);  
+  };
+
+  // useEffect para comprobar si el token está en localStorage al cargar la aplicación
+  useEffect(() => {
+    const token = localStorage.getItem('token');  // Verificar si hay un token almacenado
+    if (token) {
+      setIsAuthenticated(true);  // Si hay un token, autenticar automáticamente
+    }
+  }, []);  // Se ejecuta solo una vez al cargar la app
+
   return (
     <Router>
       <div className="app">
-        <Sidebar />
-        <div className="content">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/empleados" element={<Empleados />} />  {/* Nueva ruta */}
-            <Route path="/nomina" element={<Nomina />} />  {/* Nueva ruta */}
-            <Route path="/solicitudes" element={<Solicitudes />} />  {/* Nueva ruta */}
-            <Route path="/reportes" element={<Reportes />} />  {/* Nueva ruta */}
-          </Routes>
-        </div>
+        {!isAuthenticated ? (
+          <AppRoutes onLogin={handleLogin} isAuthenticated={isAuthenticated} />  
+        ) : (
+          <>
+            <Sidebar />
+            <div className="content">
+              <AppRoutes onLogin={handleLogin} isAuthenticated={isAuthenticated} />
+            </div>
+          </>
+        )}
       </div>
     </Router>
   );
