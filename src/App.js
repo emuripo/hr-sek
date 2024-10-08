@@ -8,12 +8,10 @@ import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Función para manejar el login
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
 
-  // Función para manejar el logout
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
@@ -26,7 +24,6 @@ function App() {
     }
   }, []);
 
-  // Asegurarte de que el Sidebar se muestre correctamente al actualizar el estado de autenticación
   return (
     <Router>
       <div className="app">

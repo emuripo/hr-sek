@@ -1,48 +1,38 @@
 import React, { useState } from 'react';
 import { MDBBtn, MDBContainer, MDBRow, MDBCol, MDBInput } from 'mdb-react-ui-kit';
-import '../styles/Login.css'; // Asegúrate de que esta ruta sea correcta
-import { useNavigate } from 'react-router-dom'; // Para redirigir al usuario
+import '../styles/Login.css';
+import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate(); // Para la redirección después del login
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      console.log("Iniciando el proceso de login...");
-
       const response = await fetch('http://localhost:8087/api/Auth/Login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username, // Cambiado de 'email' a 'username'
+          username,
           password,
         }),
       });
 
-      console.log("Respuesta recibida del servidor:", response);
-
       const data = await response.json();
-      console.log("Datos recibidos:", data);
 
       if (response.ok) {
-        // Guardar el token en localStorage
         localStorage.setItem('token', data.token);
-        console.log("Token guardado en localStorage:", data.token);
-        
-        // Redirigir a la página principal/dashboard
-        navigate('/empleados');
+        onLogin();  // Llama a la función para actualizar el estado de autenticación
+        navigate('/empleados'); // Redirige a empleados tras el login
       } else {
-        // Manejar el error
         setErrorMessage('Invalid username or password');
-        console.log("Error de autenticación:", response.status);
       }
     } catch (error) {
-      console.error('Error durante el login:', error);
+      console.error('Error during login:', error);
       setErrorMessage('Error connecting to the server.');
     }
   };
@@ -67,7 +57,7 @@ function Login() {
 
             <MDBInput 
               wrapperClass='mb-4' 
-              label='Username'  // Cambiado de 'Email address' a 'Username'
+              label='Username'
               id='form1' 
               type='text' 
               value={username} 
@@ -75,7 +65,7 @@ function Login() {
             />
             <MDBInput 
               wrapperClass='mb-4' 
-              label='Password' 
+              label='Password'
               id='form2' 
               type='password' 
               value={password} 
