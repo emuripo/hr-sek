@@ -1,35 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Sidebar from './components/SideBar/Sidebar';
+import Sidebar from './components/Sidebar/Sidebar';
 import './App.css';
-import AppRoutes from './routes/AppRoutes'; 
+import AppRoutes from './routes/AppRoutes';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 function App() {
-  // Estado para verificar si el usuario está autenticado
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Función para manejar el login
   const handleLogin = () => {
-    setIsAuthenticated(true);  
+    setIsAuthenticated(true);
   };
 
-  // useEffect para comprobar si el token está en localStorage al cargar la aplicación
-  useEffect(() => {
-    const token = localStorage.getItem('token');  // Verificar si hay un token almacenado
-    if (token) {
-      setIsAuthenticated(true);  // Si hay un token, autenticar automáticamente
-    }
-  }, []);  // Se ejecuta solo una vez al cargar la app
+  // Función para manejar el logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // Asegurarte de que el Sidebar se muestre correctamente al actualizar el estado de autenticación
   return (
     <Router>
       <div className="app">
         {!isAuthenticated ? (
-          <AppRoutes onLogin={handleLogin} isAuthenticated={isAuthenticated} />  
+          <AppRoutes onLogin={handleLogin} isAuthenticated={isAuthenticated} />
         ) : (
           <>
-            <Sidebar />
+            <Sidebar onLogout={handleLogout} />
             <div className="content">
               <AppRoutes onLogin={handleLogin} isAuthenticated={isAuthenticated} />
             </div>

@@ -12,6 +12,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { Link } from 'react-router-dom';
+import Button from '@mui/material/Button';  // Importa el botón
 
 // Importamos iconos de Material UI
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -22,7 +23,7 @@ import ReportIcon from '@mui/icons-material/Assessment';
 
 const drawerWidth = 240;
 
-export default function Sidebar() {
+export default function Sidebar({ onLogout }) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -36,6 +37,10 @@ export default function Sidebar() {
           <Typography variant="h6" noWrap component="div">
             Gestión de Recursos Humanos
           </Typography>
+          {/* Botón de Cerrar sesión */}
+          <Button color="inherit" onClick={onLogout} style={{ marginLeft: 'auto' }}>
+            Cerrar sesión
+          </Button>
         </Toolbar>
       </AppBar>
       
@@ -99,8 +104,6 @@ export default function Sidebar() {
           </ListItem>
         </List>
       </Drawer>
-
-   
     </Box>
   );
 }
