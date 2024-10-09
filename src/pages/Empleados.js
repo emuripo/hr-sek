@@ -1,55 +1,52 @@
+// src/pages/Empleados.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, CircularProgress, Typography,
   TablePagination, TextField
-} from '@mui/material';  // Importamos componentes de Material UI
+} from '@mui/material';
 
 function Empleados() {
   const [empleados, setEmpleados] = useState([]);
-  const [loading, setLoading] = useState(true); // Indicador de carga
-  const [page, setPage] = useState(0); // Estado de la página actual
-  const [rowsPerPage, setRowsPerPage] = useState(5); // Estado para filas por página
-  const [filter, setFilter] = useState(''); // Estado del filtro
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
     async function fetchEmpleados() {
       try {
         const response = await axios.get('http://localhost:8085/api/Empleado');
-        console.log('Datos de empleados:', response.data);  // Verificar estructura de los datos
+        console.log('Datos de empleados:', response.data);
         if (Array.isArray(response.data)) {
-          setEmpleados(response.data);  // Asignar directamente la lista de empleados
+          setEmpleados(response.data);
         } else {
           console.error('Estructura de datos inesperada:', response.data);
         }
       } catch (error) {
         console.error('Error al obtener los empleados:', error);
       } finally {
-        setLoading(false); // Dejar de cargar
+        setLoading(false);
       }
     }
 
     fetchEmpleados();
   }, []);
 
-  // Controlador del cambio de página
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  // Controlador del cambio en el número de filas por página
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  // Controlador del cambio de filtro
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
 
-  // Filtrar empleados basado en el valor del filtro
   const filteredEmpleados = empleados.filter((empleado) =>
     empleado.nombre.toLowerCase().includes(filter.toLowerCase()) ||
     empleado.apellidoUno.toLowerCase().includes(filter.toLowerCase()) ||
@@ -71,7 +68,7 @@ function Empleados() {
       />
 
       {loading ? (
-        <CircularProgress />  // Indicador de carga
+        <CircularProgress />
       ) : (
         <>
           <TableContainer component={Paper}>
@@ -95,7 +92,7 @@ function Empleados() {
               <TableBody>
                 {filteredEmpleados.length > 0 ? (
                   filteredEmpleados
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // Paginación
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((empleado) => (
                       <TableRow key={empleado.idEmpleado}>
                         <TableCell align="center">{empleado.cedula}</TableCell>
@@ -121,7 +118,6 @@ function Empleados() {
             </Table>
           </TableContainer>
 
-          {/* Paginación */}
           <TablePagination
             component="div"
             count={filteredEmpleados.length}

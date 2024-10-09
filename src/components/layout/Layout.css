@@ -1,0 +1,11 @@
+/* src/components/Layout.css */
+.layout {
+    display: flex;
+  }
+  
+  .content {
+    margin-left: 240px; /* Ancho del Sidebar */
+    padding: 20px;
+    flex-grow: 1;
+  }
+  

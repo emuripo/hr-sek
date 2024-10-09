@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+// src/routes/AppRoutes.js
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
+
+// Importar el componente Layout
+import Layout from '../components/layout/Layout';
 
 // Importar las páginas
 import Dashboard from '../pages/Dashboard';
@@ -8,47 +13,27 @@ import Nomina from '../pages/Nomina';
 import Solicitudes from '../pages/Solicitudes';
 import Reportes from '../pages/Reportes';
 import Login from '../pages/Login';
-import '../styles/Login.css';
 
 function AppRoutes() {
-  // Estado para el token y la autenticación
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate(); // Para redirigir al usuario
-
-  // Verificar si el token está en localStorage cuando se monta el componente
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true); // Si hay un token, consideramos al usuario autenticado
-    }
-  }, []);
-
-  // Función para manejar el login exitoso
-  const handleLogin = () => {
-    const token = localStorage.getItem('token'); // Obtiene el token después del login
-    if (token) {
-      setIsAuthenticated(true); // Marca al usuario como autenticado
-      navigate('/'); // Redirigir al dashboard o página principal
-    }
-  };
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <Routes>
       {!isAuthenticated ? (
         <>
-          {/* Rutas para usuarios no autenticados */}
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="*" element={<Navigate to="/login" />} />  
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       ) : (
         <>
-          {/* Rutas para usuarios autenticados */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/empleados" element={<Empleados />} />
-          <Route path="/nomina" element={<Nomina />} />
-          <Route path="/solicitudes" element={<Solicitudes />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/login" element={<Navigate to="/" />} /> {/* Redirige si intenta acceder al login estando autenticado */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/empleados" element={<Empleados />} />
+            <Route path="/nomina" element={<Nomina />} />
+            <Route path="/solicitudes" element={<Solicitudes />} />
+            <Route path="/reportes" element={<Reportes />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
         </>
       )}
     </Routes>
