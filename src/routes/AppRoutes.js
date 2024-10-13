@@ -8,8 +8,8 @@ import Layout from '../components/layout/Layout';
 
 // Importar las páginas
 import Dashboard from '../pages/Dashboard';
-import Empleados from '../pages/Empleados';
-import Nomina from '../pages/Nomina';
+import Empleados from '../pages/empleados/Empleados';
+import Nomina from '../pages/nomina/Nomina';
 import Solicitudes from '../pages/Solicitudes';
 import Reportes from '../pages/Reportes';
 import Login from '../pages/Login';
