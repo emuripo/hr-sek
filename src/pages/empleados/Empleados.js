@@ -19,18 +19,22 @@ function Empleados() {
   const [openEditDialog, setOpenEditDialog] = useState(false); // Controla el diálogo de edición
   const [empleadoParaEditar, setEmpleadoParaEditar] = useState(null); // Almacena el empleado que se editará
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const empleadosData = await getEmpleados();
-        setEmpleados(empleadosData);
-      } catch (error) {
-        console.error('Error al obtener los empleados:', error);
-      } finally {
-        setLoading(false);
-      }
+  // Función para obtener empleados desde la API
+  const fetchEmpleados = async () => {
+    setLoading(true);
+    try {
+      const empleadosData = await getEmpleados();
+      setEmpleados(empleadosData);
+    } catch (error) {
+      console.error('Error al obtener los empleados:', error);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
+  };
+
+  // Llamar a fetchEmpleados al montar el componente
+  useEffect(() => {
+    fetchEmpleados();
   }, []);
 
   const handleChangePage = (event, newPage) => {
@@ -203,6 +207,7 @@ function Empleados() {
           empleadoSeleccionado={empleadoParaEditar}
           setEmpleados={setEmpleados}
           empleados={empleados}
+          refetchEmpleados={fetchEmpleados} // Pasar la función de refrescar empleados
         />
       )}
     </div>

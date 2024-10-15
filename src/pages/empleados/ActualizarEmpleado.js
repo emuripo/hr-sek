@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Select, MenuItem, InputLabel, FormControl, Snackbar, Alert } from '@mui/material';
 import { updateEmpleado } from '../../services/FuncionarioAPI'; // Asume que tienes un servicio para actualizar el empleado
 
-function ActualizarEmpleado({ open, onClose, empleadoSeleccionado, setEmpleados, empleados }) {
+function ActualizarEmpleado({ open, onClose, empleadoSeleccionado, setEmpleados, empleados, refetchEmpleados }) { // Añadir refetchEmpleados
   const [empleado, setEmpleado] = useState({
     cedula: '',
     nombre: '',
@@ -62,6 +62,9 @@ function ActualizarEmpleado({ open, onClose, empleadoSeleccionado, setEmpleados,
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       onClose(); // Cerrar el diálogo después de la actualización
+
+      // Refrescar la tabla de empleados después de la actualización
+      refetchEmpleados(); // Llamamos a la función pasada desde Empleados.js
     } catch (error) {
       console.error('Error al actualizar el empleado:', error);
       setSnackbarMessage('No se pudo actualizar el empleado');
