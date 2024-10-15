@@ -23,3 +23,14 @@ export const createEmpleado = async (empleadoData) => {
     throw error;
   }
 };
+
+// Actualizar empleado
+export const updateEmpleado = async (idEmpleado, empleadoData) => {
+  try {
+    const response = await axios.put(`${API_URL}/${idEmpleado}`, empleadoData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar el empleado con ID ${idEmpleado}:`, error);
+    throw error;
+  }
+};

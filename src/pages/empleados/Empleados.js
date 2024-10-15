@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography, TablePagination, TextField, Fab, IconButton, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography, TablePagination, TextField, IconButton, Button, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import VisibilityIcon from '@mui/icons-material/Visibility'; // Ícono del ojo para ver detalles
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit'; // Ícono de lápiz para editar
 import { getEmpleados } from '../../services/FuncionarioAPI';
-import FormularioEmpleado from './FormularioEmpleado';
+import CrearEmpleado from './CrearEmpleado';
+import ActualizarEmpleado from './ActualizarEmpleado'; // Importa el componente ActualizarEmpleado
 
 function Empleados() {
   const [empleados, setEmpleados] = useState([]);
@@ -14,6 +16,8 @@ function Empleados() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openViewDialog, setOpenViewDialog] = useState(false);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false); // Controla el diálogo de edición
+  const [empleadoParaEditar, setEmpleadoParaEditar] = useState(null); // Almacena el empleado que se editará
 
   useEffect(() => {
     async function fetchData() {
@@ -60,6 +64,16 @@ function Empleados() {
     setSelectedEmpleado(null);
   };
 
+  const handleOpenEditDialog = (empleado) => {
+    setEmpleadoParaEditar(empleado); // Asignar el empleado que se está editando
+    setOpenEditDialog(true); // Abrir el diálogo de edición
+  };
+
+  const handleCloseEditDialog = () => {
+    setOpenEditDialog(false); // Cerrar el diálogo de edición
+    setEmpleadoParaEditar(null); // Limpiar el empleado seleccionado
+  };
+
   const filteredEmpleados = empleados.filter((empleado) =>
     empleado.nombre.toLowerCase().includes(filter.toLowerCase()) ||
     empleado.apellidoUno.toLowerCase().includes(filter.toLowerCase()) ||
@@ -88,13 +102,13 @@ function Empleados() {
             <Table sx={{ minWidth: 650 }} aria-label="Tabla de empleados">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Nombre Completo</TableCell>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Cédula</TableCell>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Correo Electrónico</TableCell>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Teléfono Celular</TableCell>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Salario Base</TableCell>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Fecha Inicio Contrato</TableCell>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Acciones</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Nombre Completo</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Cédula</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Correo Electrónico</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Teléfono Celular</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Salario Base</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Fecha Inicio Contrato</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#263060', color: '#fff', fontWeight: 'bold' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -111,7 +125,10 @@ function Empleados() {
                         <TableCell align="center">{empleado.infoContratoFuncionario?.fechaContratacion || 'Sin fecha de inicio'}</TableCell>
                         <TableCell align="center">
                           <IconButton color="primary" onClick={() => handleOpenViewDialog(empleado)}>
-                            <VisibilityIcon />
+                            <VisibilityIcon sx={{ color: '#f0af00' }} />
+                          </IconButton>
+                          <IconButton color="primary" onClick={() => handleOpenEditDialog(empleado)}>
+                            <EditIcon sx={{ color: '#263060' }} />
                           </IconButton>
                         </TableCell>
                       </TableRow>
@@ -137,16 +154,25 @@ function Empleados() {
         </>
       )}
 
-      <Fab
+      <Button
+        variant="contained"
         color="primary"
-        aria-label="add"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        sx={{
+          backgroundColor: '#f0af00',
+          color: '#fff',
+          fontWeight: 'bold', // Negrita
+          borderRadius: '50px', // Bordes redondeados
+          position: 'fixed',
+          bottom: 16,
+          right: 16
+        }}
         onClick={handleOpenDialog}
+        startIcon={<AddIcon />}
       >
-        <AddIcon />
-      </Fab>
+        Agregar Empleado
+      </Button>
 
-      <FormularioEmpleado open={openDialog} onClose={handleCloseDialog} setEmpleados={setEmpleados} empleados={empleados} />
+      <CrearEmpleado open={openDialog} onClose={handleCloseDialog} setEmpleados={setEmpleados} empleados={empleados} />
 
       {/* Diálogo para ver detalles del empleado */}
       <Dialog open={openViewDialog} onClose={handleCloseViewDialog}>
@@ -168,6 +194,17 @@ function Empleados() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo para editar empleado */}
+      {empleadoParaEditar && (
+        <ActualizarEmpleado
+          open={openEditDialog}
+          onClose={handleCloseEditDialog}
+          empleadoSeleccionado={empleadoParaEditar}
+          setEmpleados={setEmpleados}
+          empleados={empleados}
+        />
+      )}
     </div>
   );
 }
