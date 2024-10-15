@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography, TablePagination, TextField, Fab } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography, TablePagination, TextField, Fab, IconButton, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { getEmpleados } from '../../services/api'; // Asegúrate de tener esta función en api.js
+import VisibilityIcon from '@mui/icons-material/Visibility'; // Ícono del ojo para ver detalles
+import { getEmpleados } from '../../services/FuncionarioAPI';
 import FormularioEmpleado from './FormularioEmpleado';
 
 function Empleados() {
@@ -11,6 +12,8 @@ function Empleados() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filter, setFilter] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [selectedEmpleado, setSelectedEmpleado] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -47,6 +50,16 @@ function Empleados() {
     setOpenDialog(false);
   };
 
+  const handleOpenViewDialog = (empleado) => {
+    setSelectedEmpleado(empleado);
+    setOpenViewDialog(true);
+  };
+
+  const handleCloseViewDialog = () => {
+    setOpenViewDialog(false);
+    setSelectedEmpleado(null);
+  };
+
   const filteredEmpleados = empleados.filter((empleado) =>
     empleado.nombre.toLowerCase().includes(filter.toLowerCase()) ||
     empleado.apellidoUno.toLowerCase().includes(filter.toLowerCase()) ||
@@ -75,10 +88,13 @@ function Empleados() {
             <Table sx={{ minWidth: 650 }} aria-label="Tabla de empleados">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Cédula</TableCell>
                   <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Nombre Completo</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Cédula</TableCell>
                   <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Correo Electrónico</TableCell>
-                  {/* Otras celdas */}
+                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Teléfono Celular</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Salario Base</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Fecha Inicio Contrato</TableCell>
+                  <TableCell align="center" sx={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -87,10 +103,17 @@ function Empleados() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((empleado) => (
                       <TableRow key={empleado.idEmpleado}>
-                        <TableCell align="center">{empleado.cedula}</TableCell>
                         <TableCell align="center">{`${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}`}</TableCell>
+                        <TableCell align="center">{empleado.cedula}</TableCell>
                         <TableCell align="center">{empleado.correoElectronico}</TableCell>
-                        {/* Otras celdas */}
+                        <TableCell align="center">{empleado.numeroCelular}</TableCell>
+                        <TableCell align="center">{empleado.infoContratoFuncionario?.salarioBase?.toFixed(2) || 'Sin salario'}</TableCell>
+                        <TableCell align="center">{empleado.infoContratoFuncionario?.fechaContratacion || 'Sin fecha de inicio'}</TableCell>
+                        <TableCell align="center">
+                          <IconButton color="primary" onClick={() => handleOpenViewDialog(empleado)}>
+                            <VisibilityIcon />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
                     ))
                 ) : (
@@ -124,6 +147,27 @@ function Empleados() {
       </Fab>
 
       <FormularioEmpleado open={openDialog} onClose={handleCloseDialog} setEmpleados={setEmpleados} empleados={empleados} />
+
+      {/* Diálogo para ver detalles del empleado */}
+      <Dialog open={openViewDialog} onClose={handleCloseViewDialog}>
+        <DialogTitle>Detalles del Empleado</DialogTitle>
+        <DialogContent>
+          {selectedEmpleado && (
+            <div>
+              <p><strong>Cédula:</strong> {selectedEmpleado.cedula}</p>
+              <p><strong>Nombre:</strong> {`${selectedEmpleado.nombre} ${selectedEmpleado.apellidoUno} ${selectedEmpleado.apellidoDos}`}</p>
+              <p><strong>Correo Electrónico:</strong> {selectedEmpleado.correoElectronico}</p>
+              <p><strong>Teléfono:</strong> {selectedEmpleado.numeroCelular}</p>
+              <p><strong>Provincia:</strong> {selectedEmpleado.direccionFuncionario?.provincia || 'Sin provincia'}</p>
+              <p><strong>Cantón:</strong> {selectedEmpleado.direccionFuncionario?.canton || 'Sin cantón'}</p>
+              <p><strong>Distrito:</strong> {selectedEmpleado.direccionFuncionario?.distrito || 'Sin distrito'}</p>
+              <p><strong>Dirección Exacta:</strong> {selectedEmpleado.direccionFuncionario?.direccionExacta || 'Sin dirección exacta'}</p>
+              <p><strong>Salario Base:</strong> {selectedEmpleado.infoContratoFuncionario?.salarioBase?.toFixed(2) || 'Sin salario'}</p>
+              <p><strong>Fecha de Contratación:</strong> {selectedEmpleado.infoContratoFuncionario?.fechaContratacion || 'Sin fecha'}</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
