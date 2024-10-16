@@ -1,3 +1,4 @@
+// src/services/NominaAPI.js
 import axios from 'axios';
 
 const NOMINA_API_URL = 'http://localhost:8086/api/NominaAPI';
@@ -25,23 +26,23 @@ export const createNomina = async (nominaData) => {
 };
 
 // Actualizar una nómina existente
-export const updateNomina = async (id, nominaData) => {
+export const updateNomina = async (idNomina, nominaData) => {
   try {
-    const response = await axios.put(`${NOMINA_API_URL}/${id}`, nominaData);
+    const response = await axios.put(`${NOMINA_API_URL}/${idNomina}`, nominaData);
     return response.data;
   } catch (error) {
-    console.error(`Error al actualizar la nómina con id ${id}:`, error);
+    console.error(`Error al actualizar la nómina con idNomina ${idNomina}:`, error);
     throw error;
   }
 };
 
 // Desactivar una nómina
-export const deleteNomina = async (id) => {
+export const deleteNomina = async (idNomina) => {
   try {
-    const response = await axios.delete(`${NOMINA_API_URL}/${id}`);
+    const response = await axios.delete(`${NOMINA_API_URL}/${idNomina}`);
     return response.data;
   } catch (error) {
-    console.error(`Error al eliminar la nómina con id ${id}:`, error);
+    console.error(`Error al eliminar la nómina con idNomina ${idNomina}:`, error);
     throw error;
   }
 };
