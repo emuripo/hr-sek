@@ -1,30 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, TextField, Grid, Select, MenuItem, InputLabel,
-  FormControl, Snackbar, Alert
+  FormControl, Snackbar, Alert, IconButton, Typography
 } from '@mui/material';
+import { Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { createNomina } from '../../services/NominaAPI';
 import { getEmpleados } from '../../services/FuncionarioAPI';
 
 function CrearNomina({ open, onClose, setNominas, nominas, refetchDatos }) {
   const [nomina, setNomina] = useState({
     idEmpleado: '',
-    salarioBase: '',
+    salarioBase: 0,
     deducciones: [],
     bonificaciones: [],
     horasExtras: [],
     vacaciones: []
   });
 
+  const [empleados, setEmpleadosLocal] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   // Obtener empleados para el select
-  const [empleados, setEmpleadosLocal] = useState([]);
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchEmpleados = async () => {
       try {
         const empleadosData = await getEmpleados();
@@ -36,6 +36,25 @@ function CrearNomina({ open, onClose, setNominas, nominas, refetchDatos }) {
     fetchEmpleados();
   }, []);
 
+  // Actualizar salarioBase cuando se selecciona un empleado
+  useEffect(() => {
+    if (nomina.idEmpleado) {
+      const empleadoSeleccionado = empleados.find(emp => emp.idEmpleado === nomina.idEmpleado);
+      if (empleadoSeleccionado) {
+        setNomina(prevNomina => ({
+          ...prevNomina,
+          salarioBase: parseFloat(empleadoSeleccionado.infoContratoFuncionario.salarioBase) || 0
+        }));
+      }
+    } else {
+      setNomina(prevNomina => ({
+        ...prevNomina,
+        salarioBase: 0
+      }));
+    }
+  }, [nomina.idEmpleado, empleados]);
+
+  // Función para manejar cambios en campos de texto
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNomina({
@@ -44,22 +63,120 @@ function CrearNomina({ open, onClose, setNominas, nominas, refetchDatos }) {
     });
   };
 
+  // Función para manejar cambios en deducciones
+  const handleDeduccionChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedDeducciones = nomina.deducciones.map((deduccion, i) => (
+      i === index ? { ...deduccion, [name]: value } : deduccion
+    ));
+    setNomina({
+      ...nomina,
+      deducciones: updatedDeducciones,
+    });
+  };
+
+  // Función para agregar una deducción
+  const addDeduccion = () => {
+    setNomina({
+      ...nomina,
+      deducciones: [...nomina.deducciones, { tipoDeduccion: '', monto: 0 }],
+    });
+  };
+
+  // Función para eliminar una deducción
+  const removeDeduccion = (index) => {
+    const updatedDeducciones = nomina.deducciones.filter((_, i) => i !== index);
+    setNomina({
+      ...nomina,
+      deducciones: updatedDeducciones,
+    });
+  };
+
+  // Función para manejar cambios en bonificaciones
+  const handleBonificacionChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedBonificaciones = nomina.bonificaciones.map((bonificacion, i) => (
+      i === index ? { ...bonificacion, [name]: value } : bonificacion
+    ));
+    setNomina({
+      ...nomina,
+      bonificaciones: updatedBonificaciones,
+    });
+  };
+
+  // Función para agregar una bonificación
+  const addBonificacion = () => {
+    setNomina({
+      ...nomina,
+      bonificaciones: [...nomina.bonificaciones, { tipoBonificacion: '', monto: 0 }],
+    });
+  };
+
+  // Función para eliminar una bonificación
+  const removeBonificacion = (index) => {
+    const updatedBonificaciones = nomina.bonificaciones.filter((_, i) => i !== index);
+    setNomina({
+      ...nomina,
+      bonificaciones: updatedBonificaciones,
+    });
+  };
+
+  // Función para manejar cambios en horas extras
+  const handleHorasExtrasChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedHorasExtras = nomina.horasExtras.map((horaExtra, i) => (
+      i === index ? { ...horaExtra, [name]: value } : horaExtra
+    ));
+    setNomina({
+      ...nomina,
+      horasExtras: updatedHorasExtras,
+    });
+  };
+
+  // Función para agregar horas extras
+  const addHorasExtras = () => {
+    setNomina({
+      ...nomina,
+      horasExtras: [...nomina.horasExtras, { cantidadHoras: 0, montoHorasExtra: 0 }],
+    });
+  };
+
+  // Función para eliminar horas extras
+  const removeHorasExtras = (index) => {
+    const updatedHorasExtras = nomina.horasExtras.filter((_, i) => i !== index);
+    setNomina({
+      ...nomina,
+      horasExtras: updatedHorasExtras,
+    });
+  };
+
+  // Cálculo automático de salarioBruto y salarioNeto
+  const calcularSalarioBruto = () => {
+    const totalBonificaciones = nomina.bonificaciones.reduce((acc, curr) => acc + parseFloat(curr.monto || 0), 0);
+    const totalHorasExtras = nomina.horasExtras.reduce((acc, curr) => acc + parseFloat(curr.montoHorasExtra || 0), 0);
+    return nomina.salarioBase + totalBonificaciones + totalHorasExtras;
+  };
+
+  const calcularSalarioNeto = (salarioBruto) => {
+    const totalDeducciones = nomina.deducciones.reduce((acc, curr) => acc + parseFloat(curr.monto || 0), 0);
+    return salarioBruto - totalDeducciones;
+  };
+
+  const salarioBruto = calcularSalarioBruto();
+  const salarioNeto = calcularSalarioNeto(salarioBruto);
+
+  // Función para manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const nominaData = {
         ...nomina,
-        salarioBase: parseFloat(nomina.salarioBase),
-        salarioBruto: parseFloat(nomina.salarioBase) + 0, // Calcula según lógica
-        salarioNeto: parseFloat(nomina.salarioBase) - 0, // Calcula según lógica
+        salarioBruto: parseFloat(salarioBruto),
+        salarioNeto: parseFloat(salarioNeto),
         fechaGeneracion: new Date().toISOString(),
         activa: true,
         idPeriodoNomina: 1, // Ajusta según lógica
-        deducciones: nomina.deducciones, // Debes manejar cómo agregar deducciones
-        bonificaciones: nomina.bonificaciones, // Debes manejar cómo agregar bonificaciones
-        horasExtras: nomina.horasExtras, // Debes manejar cómo agregar horas extras
-        vacaciones: nomina.vacaciones // Debes manejar cómo agregar vacaciones
       };
 
       const nuevaNomina = await createNomina(nominaData);
@@ -83,7 +200,7 @@ function CrearNomina({ open, onClose, setNominas, nominas, refetchDatos }) {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
         <DialogTitle>Crear Nueva Nómina</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
@@ -108,7 +225,7 @@ function CrearNomina({ open, onClose, setNominas, nominas, refetchDatos }) {
                 </FormControl>
               </Grid>
 
-              {/* Salario Base */}
+              {/* Salario Base (auto completado) */}
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
@@ -117,12 +234,160 @@ function CrearNomina({ open, onClose, setNominas, nominas, refetchDatos }) {
                   type="number"
                   fullWidth
                   value={nomina.salarioBase}
-                  onChange={handleInputChange}
+                  InputProps={{
+                    readOnly: true,
+                  }}
                 />
               </Grid>
 
-              {/* Aquí puedes agregar más campos para deducciones, bonificaciones, etc. */}
-              {/* Por simplicidad, omitiremos estos campos, pero puedes expandirlos según tus necesidades */}
+              {/* Deducciones */}
+              <Grid item xs={12}>
+                <Typography variant="h6">Deducciones</Typography>
+              </Grid>
+              {nomina.deducciones.map((deduccion, index) => (
+                <Grid container spacing={2} key={index}>
+                  <Grid item xs={5} sm={5}>
+                    <TextField
+                      required
+                      label="Tipo de Deducción"
+                      name="tipoDeduccion"
+                      fullWidth
+                      value={deduccion.tipoDeduccion}
+                      onChange={(e) => handleDeduccionChange(index, e)}
+                    />
+                  </Grid>
+                  <Grid item xs={5} sm={5}>
+                    <TextField
+                      required
+                      label="Monto"
+                      name="monto"
+                      type="number"
+                      fullWidth
+                      value={deduccion.monto}
+                      onChange={(e) => handleDeduccionChange(index, e)}
+                    />
+                  </Grid>
+                  <Grid item xs={2} sm={2}>
+                    <IconButton onClick={() => removeDeduccion(index)} color="secondary">
+                      <RemoveIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
+              <Grid item xs={12}>
+                <Button variant="outlined" onClick={addDeduccion} startIcon={<AddIcon />}>
+                  Agregar Deducción
+                </Button>
+              </Grid>
+
+              {/* Bonificaciones */}
+              <Grid item xs={12}>
+                <Typography variant="h6">Bonificaciones</Typography>
+              </Grid>
+              {nomina.bonificaciones.map((bonificacion, index) => (
+                <Grid container spacing={2} key={index}>
+                  <Grid item xs={5} sm={5}>
+                    <TextField
+                      required
+                      label="Tipo de Bonificación"
+                      name="tipoBonificacion"
+                      fullWidth
+                      value={bonificacion.tipoBonificacion}
+                      onChange={(e) => handleBonificacionChange(index, e)}
+                    />
+                  </Grid>
+                  <Grid item xs={5} sm={5}>
+                    <TextField
+                      required
+                      label="Monto"
+                      name="monto"
+                      type="number"
+                      fullWidth
+                      value={bonificacion.monto}
+                      onChange={(e) => handleBonificacionChange(index, e)}
+                    />
+                  </Grid>
+                  <Grid item xs={2} sm={2}>
+                    <IconButton onClick={() => removeBonificacion(index)} color="secondary">
+                      <RemoveIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
+              <Grid item xs={12}>
+                <Button variant="outlined" onClick={addBonificacion} startIcon={<AddIcon />}>
+                  Agregar Bonificación
+                </Button>
+              </Grid>
+
+              {/* Horas Extras */}
+              <Grid item xs={12}>
+                <Typography variant="h6">Horas Extras</Typography>
+              </Grid>
+              {nomina.horasExtras.map((horaExtra, index) => (
+                <Grid container spacing={2} key={index}>
+                  <Grid item xs={5} sm={5}>
+                    <TextField
+                      required
+                      label="Cantidad de Horas"
+                      name="cantidadHoras"
+                      type="number"
+                      fullWidth
+                      value={horaExtra.cantidadHoras}
+                      onChange={(e) => handleHorasExtrasChange(index, e)}
+                    />
+                  </Grid>
+                  <Grid item xs={5} sm={5}>
+                    <TextField
+                      required
+                      label="Monto por Hora Extra"
+                      name="montoHorasExtra"
+                      type="number"
+                      fullWidth
+                      value={horaExtra.montoHorasExtra}
+                      onChange={(e) => handleHorasExtrasChange(index, e)}
+                    />
+                  </Grid>
+                  <Grid item xs={2} sm={2}>
+                    <IconButton onClick={() => removeHorasExtras(index)} color="secondary">
+                      <RemoveIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
+              <Grid item xs={12}>
+                <Button variant="outlined" onClick={addHorasExtras} startIcon={<AddIcon />}>
+                  Agregar Horas Extras
+                </Button>
+              </Grid>
+
+              {/* Salario Bruto y Neto (auto calculado) */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Salario Bruto"
+                  name="salarioBruto"
+                  type="number"
+                  fullWidth
+                  value={salarioBruto.toFixed(2)}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Salario Neto"
+                  name="salarioNeto"
+                  type="number"
+                  fullWidth
+                  value={salarioNeto.toFixed(2)}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+
+              {/* Vacaciones (opcional, se puede implementar de manera similar a deducciones y bonificaciones) */}
             </Grid>
           </form>
         </DialogContent>
