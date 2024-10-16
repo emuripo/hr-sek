@@ -47,14 +47,12 @@ function Reportes() {
     fetchDatos();
   }, []);
 
-  // Función para manejar la selección de reporte
   const handleReporteChange = (event) => {
     const tipoReporte = event.target.value;
     setReporteSeleccionado(tipoReporte);
     generarReporte(tipoReporte);
   };
 
-  // Función para generar los datos del reporte seleccionado
   const generarReporte = (tipo) => {
     let datos = [];
     let headers = [];
@@ -134,7 +132,7 @@ function Reportes() {
         });
         break;
 
-      // Puedes agregar más casos para otros tipos de reportes
+      // se puede agregar otros tipos de reportes
 
       default:
         datos = [];
@@ -163,7 +161,7 @@ function Reportes() {
             >
               <MenuItem value="general">Reporte General de Nóminas</MenuItem>
               <MenuItem value="porEmpleado">Reporte de Nómina por Empleado</MenuItem>
-              {/* Agrega más opciones según los tipos de reportes que implementes */}
+              {/* se Agregan más opciones según los tipos de reportes */}
             </Select>
           </FormControl>
         </Grid>
@@ -176,7 +174,7 @@ function Reportes() {
               filename={`reporte_${reporteSeleccionado}_${new Date().toISOString().slice(0,10)}.csv`}
               style={{ textDecoration: 'none' }}
             >
-              <Button variant="contained" color="secondary">
+              <Button variant="contained" sx={{ backgroundColor: '#f0af00', color: '#fff', '&:hover': { backgroundColor: '#d18d00' } }}>
                 Descargar Reporte CSV
               </Button>
             </CSVLink>

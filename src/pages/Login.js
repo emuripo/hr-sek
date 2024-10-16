@@ -1,9 +1,9 @@
-// src/pages/Login.js
 import React, { useState, useContext } from 'react';
 import { MDBBtn, MDBContainer, MDBRow, MDBCol, MDBInput } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import '../styles/Login.css';
+import logo from '../assets/imagenes/imagen_linea_tiempo-1.jpg';  // Importar la imagen del logo
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -47,11 +47,12 @@ function Login() {
           <div className="d-flex flex-column ms-5">
             <div className="text-center">
               <img
-                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/lotus.webp"
+                src={logo}   // Cambiar la ruta de la imagen al logo importado
                 style={{ width: '185px' }}
                 alt="logo"
               />
-              <h4 className="mt-1 mb-5 pb-1">We are The Lotus Team</h4>
+              <br></br>
+              <h4 className="mt-1 mb-5 pb-1">Colegio Internacional SEK Costa Rica</h4>
             </div>
 
             <p>Por favor, inicia sesión en tu cuenta</p>
@@ -76,7 +77,11 @@ function Login() {
             />
 
             <div className="text-center pt-1 mb-5 pb-1">
-              <MDBBtn className="mb-4 w-100 gradient-custom-2" onClick={handleLoginClick}>
+              <MDBBtn
+                className="mb-4 w-100"
+                style={{ backgroundColor: '#f0af00', color: '#fff' }}  
+                onClick={handleLoginClick}
+              >
                 Iniciar sesión
               </MDBBtn>
               <a className="text-muted" href="#!">
@@ -86,7 +91,7 @@ function Login() {
 
             <div className="d-flex flex-row align-items-center justify-content-center pb-4 mb-4">
               <p className="mb-0">¿No tienes una cuenta?</p>
-              <MDBBtn outline className='mx-2' color='danger'>
+              <MDBBtn outline className='mx-2' style={{ borderColor: '#f0af00', color: '#f0af00' }}>
                 Registrarse
               </MDBBtn>
             </div>

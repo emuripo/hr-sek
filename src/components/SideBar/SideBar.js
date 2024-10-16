@@ -1,21 +1,24 @@
-// src/components/Sidebar/Sidebar.js
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
-import './Sidebar.css'; // Asegúrate de crear o ajustar este archivo para estilos
+import './Sidebar.css'; 
+import logo from '../../assets/imagenes/costa_rica_120.png'; // Importar el logo
 
 function Sidebar() {
   const { handleLogout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const onLogoutClick = () => {
-    handleLogout();       // Actualiza el estado de autenticación
-    navigate('/login');   // Redirige al login
+    handleLogout();       
+    navigate('/login');   
   };
 
   return (
     <div className="sidebar">
-      <h2>Gestión de Recursos Humanos</h2>
+      {/* Cambiar el h2 por la imagen del logo */}
+      <div className="sidebar-logo">
+        <img src={logo} alt="logo" className="logo-image" />
+      </div>
       <ul>
         <li>
           <Link to="/">Dashboard</Link>
