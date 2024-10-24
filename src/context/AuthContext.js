@@ -1,24 +1,22 @@
 import React, { createContext, useState, useEffect } from 'react';
-import {jwtDecode} from 'jwt-decode'; // Importar el decodificador de JWT
+import { jwtDecode } from 'jwt-decode';  // Mantener la importación correcta para ti
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState(null); // Estado para almacenar el rol del usuario
+  const [userRole, setUserRole] = useState(null);
 
   const handleLogin = () => {
     const token = localStorage.getItem('token');
     if (token) {
-      try {
-        const decodedToken = jwtDecode(token); // Decodificar el token
-        setUserRole(decodedToken.role); // Asignar el rol del usuario desde el token
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error al decodificar el token:', error);
-        setIsAuthenticated(false);
-        setUserRole(null);
-      }
+      const decodedToken = jwtDecode(token);
+      console.log('Token decodificado:', decodedToken);
+
+      // Ajustar cómo obtenemos el rol
+      const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      setUserRole(role);
+      setIsAuthenticated(true);
     }
   };
 
@@ -31,15 +29,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setUserRole(decodedToken.role); // Establecer el rol al montar el componente
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error al decodificar el token:', error);
-        setIsAuthenticated(false);
-        setUserRole(null);
-      }
+      const decodedToken = jwtDecode(token);
+      console.log('Token decodificado en useEffect:', decodedToken);
+
+      // Ajustar cómo obtenemos el rol
+      const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      setUserRole(role);
+      setIsAuthenticated(true);
     }
   }, []);
 
