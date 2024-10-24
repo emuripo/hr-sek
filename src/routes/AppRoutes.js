@@ -12,7 +12,7 @@ import Empleados from '../pages/empleados/Empleados';
 import Nomina from '../pages/nomina/Nomina';
 import Solicitudes from '../pages/solicitudes/solicitudesDocumentacion/VerSolicitudesDoc';
 import Reportes from '../pages/Reportes';
-import Login from '../pages/Login';
+import Login from '../components/Auth/Login';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);

@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { MDBBtn, MDBContainer, MDBRow, MDBCol, MDBInput } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
-import '../styles/Login.css';
-import logo from '../assets/imagenes/imagen_linea_tiempo-1.jpg';  // Importar la imagen del logo
+import AuthContext from '../../context/AuthContext';
+import '../../styles/Login.css';
+import logo from '../../assets/imagenes/imagen_linea_tiempo-1.jpg';  // Importar la imagen del logo
 
 function Login() {
   const [username, setUsername] = useState('');
