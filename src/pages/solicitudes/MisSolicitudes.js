@@ -32,7 +32,7 @@ const MisSolicitudes = () => {
   );
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    // Eliminamos la columna de 'id'
     { field: 'tipo', headerName: 'Tipo de Solicitud', width: 150 },
     { field: 'fechaSolicitud', headerName: 'Fecha de Creación', width: 200 },
     {
