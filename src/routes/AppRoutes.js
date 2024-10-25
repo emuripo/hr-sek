@@ -12,15 +12,8 @@ import Reportes from '../pages/Reportes';
 import Login from '../components/Auth/Login';
 
 // Solicitudes
-import MisSolicitudes from '../pages/solicitudes/MisSolicitudes';
-// import VerSolicitudesDoc from '../pages/solicitudes/solicitudesDocumentacion/VerSolicitudesDoc';
-// import CrearSolicitudDoc from '../pages/solicitudes/solicitudesDocumentacion/CrearSolicitudDoc';
-// import VerSolicitudesHoras from '../pages/solicitudes/solicitudesHorasExtra/VerSolicitudesHoras';
-// import CrearSolicitudHoras from '../pages/solicitudes/solicitudesHorasExtra/CrearSolicitudHoras';
-// import VerSolicitudesPersonales from '../pages/solicitudes/solicitudesPersonales/VerSolicitudesPersonales';
-// import CrearSolicitudPersonal from '../pages/solicitudes/solicitudesPersonales/CrearSolicitudPersonal';
-// import VerSolicitudesVacaciones from '../pages/solicitudes/solicitudesVacaciones/VerSolicitudesVacaciones';
-// import CrearSolicitudVacaciones from '../pages/solicitudes/solicitudesVacaciones/CrearSolicitudVacaciones';
+import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
+import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -42,15 +35,8 @@ function AppRoutes() {
 
             {/* Rutas para solicitudes */}
             <Route path="/mis-solicitudes" element={<MisSolicitudes />} />
-            {/* <Route path="/solicitudes/documentacion" element={<VerSolicitudesDoc />} />
-            <Route path="/solicitudes/documentacion/crear" element={<CrearSolicitudDoc />} />
-            <Route path="/solicitudes/horas-extra" element={<VerSolicitudesHoras />} />
-            <Route path="/solicitudes/horas-extra/crear" element={<CrearSolicitudHoras />} />
-            <Route path="/solicitudes/personales" element={<VerSolicitudesPersonales />} />
-            <Route path="/solicitudes/personales/crear" element={<CrearSolicitudPersonal />} />
-            <Route path="/solicitudes/vacaciones" element={<VerSolicitudesVacaciones />} />
-            <Route path="/solicitudes/vacaciones/crear" element={<CrearSolicitudVacaciones />} /> */}
-
+            <Route path="/CrearSolicitud" element={<CrearSolicitud />} />
+            
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </>

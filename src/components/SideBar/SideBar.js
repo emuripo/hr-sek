@@ -49,7 +49,7 @@ function Sidebar() {
               <Link to="/mis-solicitudes">Mis Solicitudes</Link>
             </li>
             <li>
-              <Link to="/mis-solicitudes/crear">Crear nueva</Link>
+              <Link to="/CrearSolicitud">Crear una Solicitud</Link>
             </li>
           </>
         )}

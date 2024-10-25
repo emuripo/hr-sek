@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getTodasSolicitudes } from '../../services/solicitudesService/solicitudesCombinadasService';
+import { getTodasSolicitudes } from '../../../services/solicitudesService/solicitudesCombinadasService';
 import { DataGrid } from '@mui/x-data-grid';
 import { CircularProgress, Typography, Box, Paper, TextField, Chip } from '@mui/material';
 
