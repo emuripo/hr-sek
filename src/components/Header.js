@@ -1,12 +1,13 @@
 import React, { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
+import '../styles/Header.css'; // Importar el archivo CSS
 
 function Header() {
-  const { username, isAuthenticated } = useContext(AuthContext); // Obtener el nombre de usuario y autenticación
+  const { username, isAuthenticated } = useContext(AuthContext);
 
   return (
-    <div style={{ position: 'absolute', top: 0, right: 0, padding: '10px', fontSize: '18px', backgroundColor: '#f0f0f0' }}>
-      {isAuthenticated && username ? `Bienvenido, ${username}` : 'No autenticado'} {/* Mostrar el nombre del usuario si está autenticado */}
+    <div className="header-container">
+      {isAuthenticated && username ? `Bienvenido, ${username}` : 'No autenticado'}
     </div>
   );
 }

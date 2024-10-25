@@ -1,0 +1,13 @@
+.header-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #f0af00;  /* Color de fondo amarillo */
+    border-radius: 20px;        /* Bordes redondeados */
+    color: #fff;                /* Texto blanco */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra */
+    font-weight: bold;          /* Texto en negrita */
+  }
+  
