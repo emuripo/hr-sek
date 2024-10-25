@@ -78,14 +78,32 @@ const MisSolicitudes = () => {
             getRowId={(row) =>
               `${row.tipo}-${row.idSolicitudDocumento || row.idSolicitudHoras || row.idSolicitudPersonal || row.idSolicitudVacaciones}`
             }
+            components={{
+              NoRowsOverlay: () => (
+                <Typography sx={{ padding: 2 }}>No se encontraron solicitudes.</Typography>
+              ),
+            }}
             sx={{
               '& .MuiDataGrid-columnHeaders': {
                 backgroundColor: '#263060', // Color de fondo del encabezado
-                color: '#ffffff', // Aseguramos que el color del texto sea blanco
+                color: '#000000', // Color negro en el texto del header
                 fontSize: '16px',
+                fontWeight: 'bold',
+                textAlign: 'center',
+              },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                color: '#000000', // Color negro en el título del encabezado
               },
               '& .MuiDataGrid-columnSeparator': {
-                display: 'none', // Remover las líneas de separación entre los encabezados
+                display: 'none', // Remover los separadores entre columnas
+              },
+              '& .MuiDataGrid-cell': {
+                textAlign: 'center', // Alinear el contenido de las celdas
+              },
+              '& .MuiDataGrid-virtualScrollerRenderZone': {
+                '& .MuiDataGrid-row': {
+                  backgroundColor: 'white', // Color de fondo para las filas
+                },
               },
             }}
           />
