@@ -1,29 +1,53 @@
-// src/context/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode'; // Importación correcta de jwtDecode
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [username, setUsername] = useState(''); // Estado para el nombre de usuario
+  const [idEmpleado, setIdEmpleado] = useState(null); // Estado para el IdEmpleado
 
   const handleLogin = () => {
-    setIsAuthenticated(true);
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      console.log('Token decodificado:', decodedToken); // Para depuración
+      setUsername(decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']);
+      setUserRole(decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+      setIdEmpleado(decodedToken['IdEmpleado']); // Asegúrate de que `IdEmpleado` esté en el token
+      setIsAuthenticated(true);
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    setUserRole(null);
+    setUsername('');
+    setIdEmpleado(null); // Limpiar IdEmpleado al cerrar sesión
   };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setIsAuthenticated(true);
+      try {
+        const decodedToken = jwtDecode(token);
+        console.log('Token decodificado en useEffect:', decodedToken);
+        setUsername(decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']);
+        setUserRole(decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+        setIdEmpleado(decodedToken['IdEmpleado']); // Asegúrate de que `IdEmpleado` esté en el token
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Error al decodificar el token:", error);
+        handleLogout(); // Si el token no es válido, hacer logout
+      }
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, handleLogin, handleLogout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userRole, username, idEmpleado, handleLogin, handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

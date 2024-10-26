@@ -1,18 +1,21 @@
 import React, { useState, useContext } from 'react';
 import { MDBBtn, MDBContainer, MDBRow, MDBCol, MDBInput } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
-import '../styles/Login.css';
-import logo from '../assets/imagenes/imagen_linea_tiempo-1.jpg';  // Importar la imagen del logo
+import AuthContext from '../../context/AuthContext';
+import '../../styles/Login.css';
+import logo from '../../assets/imagenes/imagen_linea_tiempo-1.jpg';  // Importar la imagen del logo
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Estado para gestionar el estado de carga
   const { handleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLoginClick = async () => {
+    setIsLoading(true); // Deshabilitar botón al iniciar la solicitud
+
     try {
       const response = await fetch('http://localhost:8087/api/Auth/Login', {
         method: 'POST',
@@ -29,14 +32,16 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        handleLogin();       // Actualiza el estado de autenticación
-        navigate('/');       // Redirige al dashboard
+        handleLogin(); // Actualiza el estado de autenticación
+        navigate('/'); // Redirige al dashboard
       } else {
         setErrorMessage('Usuario o contraseña inválidos');
       }
     } catch (error) {
       console.error('Error durante el login:', error);
       setErrorMessage('Error al conectar con el servidor.');
+    } finally {
+      setIsLoading(false); // Rehabilitar el botón
     }
   };
 
@@ -47,7 +52,7 @@ function Login() {
           <div className="d-flex flex-column ms-5">
             <div className="text-center">
               <img
-                src={logo}   // Cambiar la ruta de la imagen al logo importado
+                src={logo} // Cambiar la ruta de la imagen al logo importado
                 style={{ width: '185px' }}
                 alt="logo"
               />
@@ -66,6 +71,7 @@ function Login() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading} // Deshabilitar input mientras se procesa
             />
             <MDBInput
               wrapperClass="mb-4"
@@ -74,6 +80,7 @@ function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading} // Deshabilitar input mientras se procesa
             />
 
             <div className="text-center pt-1 mb-5 pb-1">
@@ -81,8 +88,9 @@ function Login() {
                 className="mb-4 w-100"
                 style={{ backgroundColor: '#f0af00', color: '#fff' }}  
                 onClick={handleLoginClick}
+                disabled={isLoading} // Deshabilitar botón durante la carga
               >
-                Iniciar sesión
+                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
               </MDBBtn>
               <a className="text-muted" href="#!">
                 ¿Olvidaste tu contraseña?
