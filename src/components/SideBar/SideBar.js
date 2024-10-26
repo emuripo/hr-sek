@@ -24,8 +24,8 @@ function Sidebar() {
           <Link to="/">Dashboard</Link>
         </li>
 
-        {/* Opciones para RRHH */}
-        {userRole === 'RRHH' && (
+        {/* Opciones para RRHH y Jefatura */}
+        {(userRole === 'RRHH') && (
           <>
             <li>
               <Link to="/empleados">Empleados</Link>
@@ -35,6 +35,23 @@ function Sidebar() {
             </li>
             <li>
               <Link to="/solicitudes">Solicitudes</Link>
+            </li>
+            <li>
+              <Link to="/reportes">Reportes</Link>
+            </li>
+          </>
+        )}
+
+         {(userRole === 'Jefatura' ) && (
+          <>
+            <li>
+              <Link to="/empleados">Empleados</Link>
+            </li>
+            <li>
+              <Link to="/nomina">Nómina</Link>
+            </li>
+            <li>
+              <Link to="/VistaJefatura">Solicitudes</Link>
             </li>
             <li>
               <Link to="/reportes">Reportes</Link>

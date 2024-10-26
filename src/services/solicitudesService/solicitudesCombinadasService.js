@@ -29,3 +29,30 @@ export const getTodasSolicitudes = async () => {
     throw error;
   }
 };
+
+// Actualizar el estado de una solicitud
+export const updateSolicitudEstado = async (id, tipo, estado) => {
+    const url =
+      tipo === 'Documento'
+        ? `${API_URL_DOCS}/${id}`
+        : tipo === 'Horas Extra'
+        ? `${API_URL_HORAS}/${id}`
+        : tipo === 'Personal'
+        ? `${API_URL_PERSONAL}/${id}`
+        : `${API_URL_VACACIONES}/${id}`;
+  
+    try {
+      // Enviar un objeto que coincida con lo esperado en el DTO del backend
+      const solicitudDTO = {
+        estaAprobada: estado,
+        // Incluir otros campos si son necesarios
+      };
+  
+      const response = await axios.put(url, solicitudDTO);
+      return response.data;
+    } catch (error) {
+      console.error(`Error al actualizar el estado de la solicitud ${tipo}:`, error);
+      throw error;
+    }
+  };
+  
