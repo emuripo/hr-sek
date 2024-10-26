@@ -33,6 +33,7 @@ const MisSolicitudes = () => {
 
   const columns = [
     { field: 'tipo', headerName: 'Tipo de Solicitud', width: 150 },
+    { field: 'descripcion', headerName: 'Descripción', width: 200 }, // Cambiado a 'Descripción'
     { field: 'fechaSolicitud', headerName: 'Fecha de Creación', width: 200 },
     {
       field: 'estaAprobada',
@@ -74,13 +75,12 @@ const MisSolicitudes = () => {
             rowsPerPageOptions={[5, 10, 20]}
             checkboxSelection
             disableSelectionOnClick
-            getRowId={(row) =>
-              row.idSolicitudDocumento ||
-              row.idSolicitudHoras ||
-              row.idSolicitudPersonal ||
-              row.idSolicitudVacaciones ||
-              `${row.tipo}-${Math.random()}` // Genera un ID único si faltan los específicos
-            }
+            getRowId={(row) => {
+              // Construye un identificador único usando todos los ID posibles y el tipo.
+              const uniqueId =
+                `${row.idSolicitudDocumento || ''}-${row.idSolicitudHoras || ''}-${row.idSolicitudPersonal || ''}-${row.idSolicitudVacaciones || ''}-${row.tipo || ''}-${row.id || Math.random().toString(36).substr(2, 9)}`;
+              return uniqueId;
+            }}
             components={{
               NoRowsOverlay: () => (
                 <Typography sx={{ padding: 2 }}>No se encontraron solicitudes.</Typography>
