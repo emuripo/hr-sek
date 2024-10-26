@@ -1,4 +1,3 @@
-// src/services/solicitudesService/solicitudesCombinadasService.js
 import axios from 'axios';
 
 const API_URL_DOCS = 'http://localhost:8088/api/SolicitudDocumento';
@@ -6,7 +5,7 @@ const API_URL_HORAS = 'http://localhost:8088/api/SolicitudHorasExtra';
 const API_URL_PERSONAL = 'http://localhost:8088/api/SolicitudPersonal';
 const API_URL_VACACIONES = 'http://localhost:8088/api/SolicitudVacaciones';
 
-// Obtener todas las solicitudes combinadas
+// todas las solicitudes combinadas
 export const getTodasSolicitudes = async () => {
   try {
     const [docs, horas, personales, vacaciones] = await Promise.all([
@@ -30,7 +29,7 @@ export const getTodasSolicitudes = async () => {
   }
 };
 
-// Actualizar el estado de una solicitud
+// Actualizar estado solicitud
 export const updateSolicitudEstado = async (id, tipo, estado) => {
   const url =
     tipo === 'Documento'
@@ -49,10 +48,9 @@ export const updateSolicitudEstado = async (id, tipo, estado) => {
   }
 
   try {
-    // Crear el payload específico para cada tipo si es necesario
     const payload =
       tipo === 'Vacaciones'
-        ? { estaAprobada: estado, idEmpleado: 1 } // Asegurarse de enviar todos los campos requeridos
+        ? { estaAprobada: estado, idEmpleado: 1 } 
         : { estaAprobada: estado };
 
     const response = await axios.put(url, payload);
