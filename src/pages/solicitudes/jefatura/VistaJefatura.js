@@ -22,17 +22,18 @@ const JefaturaSolicitudes = () => {
     fetchSolicitudes();
   }, []);
 
-  const handleAprobar = async (id, tipo) => {
+  const handleAprobar = async (solicitud, tipo) => {
+    const id = getIdSolicitud(solicitud, tipo);
+    if (!id) {
+      console.error(`ID inválido para el tipo de solicitud: ${tipo}`, solicitud);
+      return;
+    }
+
     try {
       await updateSolicitudEstado(id, tipo, true);
       setSolicitudes((prevSolicitudes) =>
-        prevSolicitudes.map((solicitud) =>
-          solicitud.idSolicitudDocumento === id ||
-          solicitud.idSolicitudHoras === id ||
-          solicitud.idSolicitudPersonal === id ||
-          solicitud.idSolicitudVacaciones === id
-            ? { ...solicitud, estaAprobada: true }
-            : solicitud
+        prevSolicitudes.map((s) =>
+          getIdSolicitud(s, tipo) === id ? { ...s, estaAprobada: true } : s
         )
       );
     } catch (error) {
@@ -40,21 +41,38 @@ const JefaturaSolicitudes = () => {
     }
   };
 
-  const handleRechazar = async (id, tipo) => {
+  const handleRechazar = async (solicitud, tipo) => {
+    const id = getIdSolicitud(solicitud, tipo);
+    if (!id) {
+      console.error(`ID inválido para el tipo de solicitud: ${tipo}`, solicitud);
+      return;
+    }
+
     try {
       await updateSolicitudEstado(id, tipo, false);
       setSolicitudes((prevSolicitudes) =>
-        prevSolicitudes.map((solicitud) =>
-          solicitud.idSolicitudDocumento === id ||
-          solicitud.idSolicitudHoras === id ||
-          solicitud.idSolicitudPersonal === id ||
-          solicitud.idSolicitudVacaciones === id
-            ? { ...solicitud, estaAprobada: false }
-            : solicitud
+        prevSolicitudes.map((s) =>
+          getIdSolicitud(s, tipo) === id ? { ...s, estaAprobada: false } : s
         )
       );
     } catch (error) {
       console.error('Error al rechazar la solicitud:', error);
+    }
+  };
+
+  const getIdSolicitud = (solicitud, tipo) => {
+    console.log('Verificando estructura de solicitud:', solicitud, 'Tipo:', tipo);
+    switch (tipo) {
+      case 'Documento':
+        return solicitud.idSolicitudDocumento;
+      case 'Horas Extra':
+        return solicitud.idSolicitudHorasExtra; // Ajuste aquí para usar la propiedad correcta
+      case 'Personal':
+        return solicitud.idSolicitudPersonal;
+      case 'Vacaciones':
+        return solicitud.idSolicitudVacaciones;
+      default:
+        return null;
     }
   };
 
@@ -82,13 +100,7 @@ const JefaturaSolicitudes = () => {
           <Button
             variant="contained"
             color="success"
-            onClick={() => handleAprobar(
-              params.row.idSolicitudDocumento ||
-              params.row.idSolicitudHoras ||
-              params.row.idSolicitudPersonal ||
-              params.row.idSolicitudVacaciones,
-              params.row.tipo
-            )}
+            onClick={() => handleAprobar(params.row, params.row.tipo)}
             disabled={params.row.estaAprobada === true}
             sx={{ marginRight: 1 }}
           >
@@ -97,13 +109,7 @@ const JefaturaSolicitudes = () => {
           <Button
             variant="contained"
             color="error"
-            onClick={() => handleRechazar(
-              params.row.idSolicitudDocumento ||
-              params.row.idSolicitudHoras ||
-              params.row.idSolicitudPersonal ||
-              params.row.idSolicitudVacaciones,
-              params.row.tipo
-            )}
+            onClick={() => handleRechazar(params.row, params.row.tipo)}
             disabled={params.row.estaAprobada === false}
           >
             Rechazar
@@ -133,7 +139,7 @@ const JefaturaSolicitudes = () => {
             disableSelectionOnClick
             getRowId={(row) => {
               const uniqueId =
-                `${row.idSolicitudDocumento || ''}-${row.idSolicitudHoras || ''}-${row.idSolicitudPersonal || ''}-${row.idSolicitudVacaciones || ''}-${row.tipo || ''}`;
+                `${row.idSolicitudDocumento || ''}-${row.idSolicitudHorasExtra || ''}-${row.idSolicitudPersonal || ''}-${row.idSolicitudVacaciones || ''}-${row.tipo || ''}`;
               return uniqueId;
             }}
             components={{
