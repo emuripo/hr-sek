@@ -70,7 +70,7 @@ const JefaturaSolicitudes = () => {
       case 'Personal':
         return solicitud.idSolicitudPersonal;
       case 'Vacaciones':
-        return solicitud.idSolicitudVacaciones;
+        return solicitud.idSolicitudVacaciones; // Ajuste aquí para usar la propiedad correcta
       default:
         return null;
     }
