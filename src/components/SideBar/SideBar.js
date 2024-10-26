@@ -34,7 +34,7 @@ function Sidebar() {
               <Link to="/nomina">Nómina</Link>
             </li>
             <li>
-              <Link to="/solicitudes">Solicitudes</Link>
+              <Link to="/SolicitudesRRHH">Solicitudes</Link>
             </li>
             <li>
               <Link to="/reportes">Reportes</Link>

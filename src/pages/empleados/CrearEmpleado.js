@@ -12,7 +12,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     fechaNacimiento: '',
     numeroCelular: '',
     empleadoActivo: true,
-    idGenero: '', // Select for gender
+    idGenero: '',
     provincia: '',
     canton: '',
     distrito: '',
@@ -23,25 +23,123 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // success or error
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNuevoEmpleado({
-      ...nuevoEmpleado,
-      [name]: value,
-    });
+
+    // Validar cédula para que solo acepte números de hasta 10 dígitos
+    if (name === 'cedula') {
+      const regex = /^[0-9]{0,10}$/;
+      if (regex.test(value)) {
+        setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+      }
+      return;
+    }
+
+    // Validar número de celular para que solo acepte hasta 8 dígitos
+    if (name === 'numeroCelular') {
+      const regex = /^[0-9]{0,8}$/;
+      if (regex.test(value)) {
+        setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+      }
+      return;
+    }
+
+    setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
   };
+
+  // Validar el correo electrónico
+  const isEmailValid = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Manejar la fecha de nacimiento para que solo permita mayores de 18 años
+  const today = new Date();
+  const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18)).toISOString().split('T')[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validaciones adicionales antes de enviar
+    if (!nuevoEmpleado.cedula) {
+      setSnackbarMessage('La cédula es requerida.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (nuevoEmpleado.cedula.length !== 9) {
+      setSnackbarMessage('La cédula debe tener 10 dígitos.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.nombre) {
+      setSnackbarMessage('El nombre es requerido.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.apellidoUno) {
+      setSnackbarMessage('El primer apellido es requerido.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.apellidoDos) {
+      setSnackbarMessage('El segundo apellido es requerido.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.correoElectronico) {
+      setSnackbarMessage('El correo electrónico es requerido.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!isEmailValid(nuevoEmpleado.correoElectronico)) {
+      setSnackbarMessage('El formato del correo electrónico no es válido.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.fechaNacimiento) {
+      setSnackbarMessage('La fecha de nacimiento es requerida.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.numeroCelular) {
+      setSnackbarMessage('El número de celular es requerido.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (nuevoEmpleado.numeroCelular.length !== 8) {
+      setSnackbarMessage('El número de celular debe tener 8 dígitos.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
     try {
       const empleadoData = {
         ...nuevoEmpleado,
+        cedula: nuevoEmpleado.cedula.toString(),
         fechaNacimiento: new Date(nuevoEmpleado.fechaNacimiento).toISOString(),
         fechaInicioContrato: new Date(nuevoEmpleado.fechaInicioContrato).toISOString(),
-        fechaFinContrato: null, // Always set to null
+        fechaFinContrato: null
       };
 
       const createdEmpleado = await createEmpleado(empleadoData);
@@ -49,7 +147,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       setSnackbarMessage('Empleado añadido con éxito');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      onClose(); // Cerrar el diálogo después de agregar
+      onClose();
     } catch (error) {
       console.error('Error al crear el empleado:', error);
       setSnackbarMessage('No se pudo agregar el empleado');
@@ -77,6 +175,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.cedula}
                   onChange={handleInputChange}
+                  inputProps={{ maxLength: 9 }} 
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -117,6 +216,12 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.correoElectronico}
                   onChange={handleInputChange}
+                  error={!isEmailValid(nuevoEmpleado.correoElectronico) && nuevoEmpleado.correoElectronico !== ''}
+                  helperText={
+                    !isEmailValid(nuevoEmpleado.correoElectronico) && nuevoEmpleado.correoElectronico !== '' 
+                      ? 'Correo electrónico inválido' 
+                      : ''
+                  }
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -129,6 +234,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.fechaNacimiento}
                   onChange={handleInputChange}
+                  inputProps={{ max: eighteenYearsAgo }} 
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -139,6 +245,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.numeroCelular}
                   onChange={handleInputChange}
+                  inputProps={{ maxLength: 8 }} 
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -229,12 +336,11 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for success or error message */}
       <Snackbar
         open={snackbarOpen}
         onClose={handleSnackbarClose}
-        autoHideDuration={6000} // Aumenta la duración si es necesario
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Ubicación del Snackbar
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}

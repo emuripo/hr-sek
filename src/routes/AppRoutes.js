@@ -15,6 +15,7 @@ import Login from '../components/Auth/Login';
 import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
 import VistaJefatura from '../pages/solicitudes/jefatura/VistaJefatura';
+import SolicitudesRRHH from '../pages/solicitudes/rrhh/SolicitudesRRHH';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -38,6 +39,7 @@ function AppRoutes() {
             <Route path="/mis-solicitudes" element={<MisSolicitudes />} />
             <Route path="/CrearSolicitud" element={<CrearSolicitud />} />
             <Route path="/VistaJefatura" element={<VistaJefatura />} />
+            <Route path="/SolicitudesRRHH" element={<SolicitudesRRHH />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
