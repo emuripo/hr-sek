@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MenuItem, Select, Button, Box, Typography } from '@mui/material';
+import { MenuItem, Select, Box, Typography } from '@mui/material';
 // Importar formularios específicos para cada tipo de solicitud
 import CrearSolicitudDoc from './CrearSolicitudDoc';
 import CrearSolicitudHoras from './CrearSolicitudHoras';
@@ -50,14 +50,6 @@ const CrearSolicitud = () => {
       </Select>
 
       {renderFormulario()}
-
-      {tipoSolicitud && (
-        <Box sx={{ marginTop: 3 }}>
-          <Button variant="contained" color="primary">
-            Enviar Solicitud
-          </Button>
-        </Box>
-      )}
     </Box>
   );
 };

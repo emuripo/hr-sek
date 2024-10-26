@@ -32,7 +32,6 @@ const MisSolicitudes = () => {
   );
 
   const columns = [
-    // Eliminamos la columna de 'id'
     { field: 'tipo', headerName: 'Tipo de Solicitud', width: 150 },
     { field: 'fechaSolicitud', headerName: 'Fecha de Creación', width: 200 },
     {
@@ -76,7 +75,11 @@ const MisSolicitudes = () => {
             checkboxSelection
             disableSelectionOnClick
             getRowId={(row) =>
-              `${row.tipo}-${row.idSolicitudDocumento || row.idSolicitudHoras || row.idSolicitudPersonal || row.idSolicitudVacaciones}`
+              row.idSolicitudDocumento ||
+              row.idSolicitudHoras ||
+              row.idSolicitudPersonal ||
+              row.idSolicitudVacaciones ||
+              `${row.tipo}-${Math.random()}` // Genera un ID único si faltan los específicos
             }
             components={{
               NoRowsOverlay: () => (
@@ -85,24 +88,24 @@ const MisSolicitudes = () => {
             }}
             sx={{
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#263060', // Color de fondo del encabezado
-                color: '#000000', // Color negro en el texto del header
+                backgroundColor: '#263060',
+                color: '#000000',
                 fontSize: '16px',
                 fontWeight: 'bold',
                 textAlign: 'center',
               },
               '& .MuiDataGrid-columnHeaderTitle': {
-                color: '#000000', // Color negro en el título del encabezado
+                color: '#000000',
               },
               '& .MuiDataGrid-columnSeparator': {
-                display: 'none', // Remover los separadores entre columnas
+                display: 'none',
               },
               '& .MuiDataGrid-cell': {
-                textAlign: 'center', // Alinear el contenido de las celdas
+                textAlign: 'center',
               },
               '& .MuiDataGrid-virtualScrollerRenderZone': {
                 '& .MuiDataGrid-row': {
-                  backgroundColor: 'white', // Color de fondo para las filas
+                  backgroundColor: 'white',
                 },
               },
             }}
