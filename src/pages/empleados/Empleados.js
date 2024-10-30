@@ -69,13 +69,13 @@ function Empleados() {
   };
 
   const handleOpenEditDialog = (empleado) => {
-    setEmpleadoParaEditar(empleado); // Asignar el empleado que se está editando
-    setOpenEditDialog(true); // Abrir el diálogo de edición
+    setEmpleadoParaEditar(empleado); 
+    setOpenEditDialog(true); 
   };
 
   const handleCloseEditDialog = () => {
-    setOpenEditDialog(false); // Cerrar el diálogo de edición
-    setEmpleadoParaEditar(null); // Limpiar el empleado seleccionado
+    setOpenEditDialog(false); 
+    setEmpleadoParaEditar(null); 
   };
 
   const filteredEmpleados = empleados.filter((empleado) =>

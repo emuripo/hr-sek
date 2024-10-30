@@ -371,7 +371,7 @@ function ActualizarNomina({
                 </Button>
               </Grid>
 
-              {/* Bonificaciones */}
+              {/* Bonificaciones del formulario*/}
               <Grid item xs={12}>
                 <Typography variant="h6">Bonificaciones</Typography>
               </Grid>
@@ -524,8 +524,6 @@ function ActualizarNomina({
                   }}
                 />
               </Grid>
-
-              {/* Puedes agregar más campos si es necesario */}
             </Grid>
           </form>
         </DialogContent>

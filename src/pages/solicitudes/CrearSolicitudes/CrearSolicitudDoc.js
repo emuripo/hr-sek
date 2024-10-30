@@ -69,7 +69,7 @@ const CrearSolicitudDoc = () => {
           margin="normal"
         />
         <TextField
-          label="Descripción"
+          label="Descripción" 
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           fullWidth

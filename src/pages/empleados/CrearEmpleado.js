@@ -28,6 +28,15 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    // Validación para campos de solo letras
+    const onlyLettersFields = ['nombre', 'apellidoUno', 'apellidoDos', 'provincia', 'canton', 'distrito'];
+    if (onlyLettersFields.includes(name)) {
+      const regex = /^[A-Za-zÀ-ÿ\s]+$/; // Permitir solo letras, incluyendo acentos y espacios
+      if (!regex.test(value)) {
+        return; // Salir de la función si el valor contiene números u otros caracteres
+      }
+    }
+
     // Validar cédula para que solo acepte números de hasta 10 dígitos
     if (name === 'cedula') {
       const regex = /^[0-9]{0,10}$/;

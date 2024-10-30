@@ -33,7 +33,7 @@ const MisSolicitudes = () => {
 
   const columns = [
     { field: 'tipo', headerName: 'Tipo de Solicitud', width: 150 },
-    { field: 'descripcion', headerName: 'Descripción', width: 200 }, // Cambiado a 'Descripción'
+    { field: 'descripcion', headerName: 'Descripción', width: 200 }, 
     { field: 'fechaSolicitud', headerName: 'Fecha de Creación', width: 200 },
     {
       field: 'estaAprobada',
