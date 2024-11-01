@@ -18,6 +18,7 @@ import VistaJefatura from '../pages/solicitudes/jefatura/VistaJefatura';
 import SolicitudesRRHH from '../pages/solicitudes/rrhh/SolicitudesRRHH';
 import AsistenciasEmpleado from '../pages/asistencia/AsistenciasEmpleado';
 import RegistroAsistencia from '../pages/empleados/RegistroAsistencia';
+import RegistrarTurno from '../pages/asistencia/RegistrarTurno';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -38,6 +39,7 @@ function AppRoutes() {
             <Route path="/reportes" element={<Reportes />} />
             <Route path="/RegistroAsistencia" element={<RegistroAsistencia />} />
             <Route path="/AsistenciasEmpleado" element={<AsistenciasEmpleado />} />
+            <Route path="/RegistrarTurno" element={<RegistrarTurno />} />
 
             {/* Rutas para solicitudes */}
             <Route path="/mis-solicitudes" element={<MisSolicitudes />} />
