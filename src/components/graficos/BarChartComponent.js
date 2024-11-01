@@ -1,9 +1,7 @@
-// src/components/charts/BarChartComponent.js
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function BarChartComponent({ nominas, empleados }) {
-  // Preparar datos agrupados por empleado
   const datos = nominas.map(nomina => {
     const empleado = empleados.find(emp => emp.idEmpleado === nomina.idEmpleado);
     const nombreCompleto = empleado ? `${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}` : 'Empleado Desconocido';

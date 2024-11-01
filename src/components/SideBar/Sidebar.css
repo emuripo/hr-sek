@@ -50,6 +50,8 @@
   border-radius: 15px; /* Ajusta la redondez del hover */
 }
 
-.logout-button {
+.logout-button, text{
   color: red;
 }
+
+

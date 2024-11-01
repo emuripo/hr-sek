@@ -9,7 +9,7 @@ import logo from '../../assets/imagenes/costa_rica_120.png';
 function Sidebar() {
   const { handleLogout, userRole } = useContext(AuthContext);  
   const navigate = useNavigate();
-  const [openGestionHorarios, setOpenGestionHorarios] = useState(false); // Control del menú desplegable
+  const [openGestionHorarios, setOpenGestionHorarios] = useState(false); 
 
   const onLogoutClick = () => {
     handleLogout();

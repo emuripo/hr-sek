@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom'; 
 import './App.css';
 import AppRoutes from './routes/AppRoutes'; 
-import Header from './components/Header'; // Importa el Header
+import Header from './components/Header'; 
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import { AuthProvider } from './context/AuthContext';
 

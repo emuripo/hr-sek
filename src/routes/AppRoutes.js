@@ -1,21 +1,19 @@
-// src/routes/AppRoutes.js
 import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-
 // Páginas principales
 import Dashboard from '../pages/Dashboard';
 import Empleados from '../pages/empleados/Empleados';
 import Nomina from '../pages/nomina/Nomina';
 import Reportes from '../pages/Reportes';
 import Login from '../components/Auth/Login';
-
 // Solicitudes
 import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
 import VistaJefatura from '../pages/solicitudes/jefatura/VistaJefatura';
 import SolicitudesRRHH from '../pages/solicitudes/rrhh/SolicitudesRRHH';
+//Gestion Asistencia
 import AsistenciasEmpleado from '../pages/asistencia/AsistenciasEmpleado';
 import RegistroAsistencia from '../pages/empleados/RegistroAsistencia';
 import RegistrarTurno from '../pages/asistencia/RegistrarTurno';
