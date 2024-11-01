@@ -6,6 +6,7 @@ const API_URL = 'http://localhost:8089/api/asistencia';
 const AsistenciaAPI = {
   // Registrar asistencia
   registrarAsistencia: async (asistenciaData) => {
+    console.log('Datos de asistencia que se envían:', asistenciaData); // Verifica los datos
     try {
       const response = await axios.post(`${API_URL}`, asistenciaData);
       return response.data;
@@ -13,7 +14,7 @@ const AsistenciaAPI = {
       console.error('Error al registrar asistencia:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Error al registrar asistencia');
     }
-  },
+  },  
 
   // Obtener asistencia por ID
   obtenerAsistenciaPorId: async (id) => {

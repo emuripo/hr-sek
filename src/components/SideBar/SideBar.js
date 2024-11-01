@@ -71,6 +71,9 @@ function Sidebar() {
             <li>
               <Link to="/CrearSolicitud">Crear una Solicitud</Link>
             </li>
+            <li>
+              <Link to="/RegistroAsistencia">Asistencia</Link>
+            </li>
           </>
         )}
 
