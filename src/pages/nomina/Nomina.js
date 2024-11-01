@@ -26,7 +26,14 @@ function Nominas() {
   const [openEditarDialog, setOpenEditarDialog] = useState(false);
   const [nominaParaEditar, setNominaParaEditar] = useState(null);
 
-  // Función para obtener nóminas y empleados
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('es-CR', {
+      style: 'currency',
+      currency: 'CRC',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
   const fetchDatos = async () => {
     setLoading(true);
     try {
@@ -40,12 +47,10 @@ function Nominas() {
     }
   };
 
-  // Llamar a fetchDatos al montar el componente
   useEffect(() => {
     fetchDatos();
   }, []);
 
-  // Funciones para manejar paginación
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -55,12 +60,10 @@ function Nominas() {
     setPage(0);
   };
 
-  // Función para manejar el filtrado
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
 
-  // Funciones para manejar diálogos
   const handleOpenCrearDialog = () => {
     setOpenCrearDialog(true);
   };
@@ -89,12 +92,10 @@ function Nominas() {
     setNominaParaEditar(null);
   };
 
-  // Función para manejar la eliminación de una nómina
   const handleDeleteNomina = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta nómina?')) {
       try {
         await deleteNomina(id);
-        // Refrescar datos después de la eliminación
         fetchDatos();
       } catch (error) {
         console.error('Error al eliminar la nómina:', error);
@@ -102,14 +103,12 @@ function Nominas() {
     }
   };
 
-  // Filtrar nóminas por nombre de empleado
   const filteredNominas = nominas.filter((nomina) => {
     const empleado = empleados.find(emp => emp.idEmpleado === nomina.idEmpleado);
     const nombreCompleto = empleado ? `${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}` : '';
     return nombreCompleto.toLowerCase().includes(filter.toLowerCase());
   });
 
-  // Función para obtener el nombre del empleado por id
   const getNombreEmpleado = (idEmpleado) => {
     const empleado = empleados.find(emp => emp.idEmpleado === idEmpleado);
     return empleado ? `${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}` : 'Empleado Desconocido';
@@ -154,9 +153,9 @@ function Nominas() {
                       <TableRow key={nomina.id}>
                         <TableCell align="center">{nomina.id}</TableCell>
                         <TableCell align="center">{getNombreEmpleado(nomina.idEmpleado)}</TableCell>
-                        <TableCell align="center">${nomina.salarioBase.toFixed(2)}</TableCell>
-                        <TableCell align="center">${nomina.salarioBruto.toFixed(2)}</TableCell>
-                        <TableCell align="center">${nomina.salarioNeto.toFixed(2)}</TableCell>
+                        <TableCell align="center">{formatCurrency(nomina.salarioBase)}</TableCell>
+                        <TableCell align="center">{formatCurrency(nomina.salarioBruto)}</TableCell>
+                        <TableCell align="center">{formatCurrency(nomina.salarioNeto)}</TableCell>
                         <TableCell align="center">{new Date(nomina.fechaGeneracion).toLocaleDateString()}</TableCell>
                         <TableCell align="center">
                           <IconButton color="primary" onClick={() => handleOpenVerDialog(nomina)}>
@@ -226,26 +225,26 @@ function Nominas() {
             <div>
               <p><strong>ID Nómina:</strong> {selectedNomina.id}</p>
               <p><strong>Empleado:</strong> {getNombreEmpleado(selectedNomina.idEmpleado)}</p>
-              <p><strong>Salario Base:</strong> ${selectedNomina.salarioBase.toFixed(2)}</p>
-              <p><strong>Salario Bruto:</strong> ${selectedNomina.salarioBruto.toFixed(2)}</p>
-              <p><strong>Salario Neto:</strong> ${selectedNomina.salarioNeto.toFixed(2)}</p>
+              <p><strong>Salario Base:</strong> {formatCurrency(selectedNomina.salarioBase)}</p>
+              <p><strong>Salario Bruto:</strong> {formatCurrency(selectedNomina.salarioBruto)}</p>
+              <p><strong>Salario Neto:</strong> {formatCurrency(selectedNomina.salarioNeto)}</p>
               <p><strong>Fecha Generación:</strong> {new Date(selectedNomina.fechaGeneracion).toLocaleDateString()}</p>
               <p><strong>Deducciones:</strong></p>
               <ul>
                 {selectedNomina.deducciones.map((deduccion, index) => (
-                  <li key={index}>{deduccion.tipoDeduccion}: ${deduccion.monto.toFixed(2)}</li>
+                  <li key={index}>{deduccion.tipoDeduccion}: {formatCurrency(deduccion.monto)}</li>
                 ))}
               </ul>
               <p><strong>Bonificaciones:</strong></p>
               <ul>
                 {selectedNomina.bonificaciones.map((bonificacion, index) => (
-                  <li key={index}>{bonificacion.tipoBonificacion}: ${bonificacion.monto.toFixed(2)}</li>
+                  <li key={index}>{bonificacion.tipoBonificacion}: {formatCurrency(bonificacion.monto)}</li>
                 ))}
               </ul>
               <p><strong>Horas Extras:</strong></p>
               <ul>
                 {selectedNomina.horasExtras.map((horaExtra, index) => (
-                  <li key={index}>{horaExtra.cantidadHoras} horas: ${horaExtra.montoHorasExtra.toFixed(2)}</li>
+                  <li key={index}>{horaExtra.cantidadHoras} horas: {formatCurrency(horaExtra.montoHorasExtra)}</li>
                 ))}
               </ul>
               <p><strong>Vacaciones:</strong></p>

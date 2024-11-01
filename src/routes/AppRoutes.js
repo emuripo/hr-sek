@@ -16,6 +16,7 @@ import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
 import VistaJefatura from '../pages/solicitudes/jefatura/VistaJefatura';
 import SolicitudesRRHH from '../pages/solicitudes/rrhh/SolicitudesRRHH';
+import AsistenciasEmpleado from '../pages/asistencia/AsistenciasEmpleado';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -34,6 +35,7 @@ function AppRoutes() {
             <Route path="/empleados" element={<Empleados />} />
             <Route path="/nomina" element={<Nomina />} />
             <Route path="/reportes" element={<Reportes />} />
+            <Route path="/AsistenciasEmpleado" element={<AsistenciasEmpleado />} />
 
             {/* Rutas para solicitudes */}
             <Route path="/mis-solicitudes" element={<MisSolicitudes />} />

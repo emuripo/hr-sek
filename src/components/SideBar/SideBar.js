@@ -37,6 +37,9 @@ function Sidebar() {
               <Link to="/SolicitudesRRHH">Solicitudes</Link>
             </li>
             <li>
+              <Link to="/AsistenciasEmpleado">Asistencia</Link>
+            </li>
+            <li>
               <Link to="/reportes">Reportes</Link>
             </li>
           </>
