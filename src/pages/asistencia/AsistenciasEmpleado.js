@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { DatePicker } from '@mui/lab';
-import AsistenciaAPI from '../../services/AsistenciaAPI';
+import AsistenciaAPI from '../../services/asistencia/AsistenciaAPI';
 import { getEmpleados } from '../../services/FuncionarioAPI';
 
 const AsistenciasEmpleado = () => {

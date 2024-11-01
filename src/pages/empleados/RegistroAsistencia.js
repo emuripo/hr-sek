@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Button, Typography, Alert } from '@mui/material';
-import AsistenciaAPI from '../../services/AsistenciaAPI';
+import AsistenciaAPI from '../../services/asistencia/AsistenciaAPI';
 import AuthContext from '../../context/AuthContext'; 
 
 const RegistroAsistencia = () => {

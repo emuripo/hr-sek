@@ -43,6 +43,9 @@ function Sidebar() {
             <li>
               <Link to="/SolicitudesRRHH">Solicitudes</Link>
             </li>
+            <li>
+              <Link to="/AsistenciasEmpleado">Asistencia</Link>
+            </li>
 
             {/* Gestión de Horarios */}
             <li onClick={handleGestionHorariosClick}>
@@ -56,10 +59,10 @@ function Sidebar() {
                 <ListItem button component={Link} to="/RegistrarTurno">
                   <ListItemText primary="Turno" />
                 </ListItem>
-                {/* <ListItem button component={Link} to="/RegistrarHorario">
+                <ListItem button component={Link} to="/RegistrarHorario">
                   <ListItemText primary="Horario" />
                 </ListItem>
-                <ListItem button component={Link} to="/EmpleadoTurno">
+                {/* <ListItem button component={Link} to="/EmpleadoTurno">
                   <ListItemText primary="Empleado Turno" />
                 </ListItem>
                 <ListItem button component={Link} to="/AsistenciasEmpleado">

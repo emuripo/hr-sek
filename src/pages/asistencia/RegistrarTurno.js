@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Typography } from '@mui/material';
-import TurnoAPI from '../../services/TurnoAPI';
+import TurnoAPI from '../../services/asistencia/TurnoAPI';
 
 const RegistrarTurno = () => {
   const [nombreTurno, setNombreTurno] = useState('');
