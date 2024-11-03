@@ -62,12 +62,9 @@ function Sidebar() {
                 <ListItem button component={Link} to="/RegistrarHorario">
                   <ListItemText primary="Horario" />
                 </ListItem>
-                {/* <ListItem button component={Link} to="/EmpleadoTurno">
+                <ListItem button component={Link} to="/EmpleadoTurno">
                   <ListItemText primary="Empleado Turno" />
                 </ListItem>
-                <ListItem button component={Link} to="/AsistenciasEmpleado">
-                  <ListItemText primary="Asistencia" />
-                </ListItem> */}
               </List>
             </Collapse>
 
@@ -106,6 +103,15 @@ function Sidebar() {
             </li>
             <li>
               <Link to="/RegistroAsistencia">Asistencia</Link>
+            </li>
+          </>
+        )}
+
+        {/* Opciones para Admin */}
+        {userRole === 'Admin' && (
+          <>
+            <li>
+              <Link to="/empleados">Empleados</Link>
             </li>
           </>
         )}

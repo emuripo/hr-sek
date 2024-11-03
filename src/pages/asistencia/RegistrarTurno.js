@@ -3,7 +3,8 @@ import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Typograph
 import TurnoAPI from '../../services/asistencia/TurnoAPI';
 
 const RegistrarTurno = () => {
-  const [nombreTurno, setNombreTurno] = useState('');
+  const [nombre, setNombre] = useState(''); // Nombre del turno, e.g., "Diurno" o "Nocturno"
+  const [descripcion, setDescripcion] = useState(''); // Descripción del turno
   const [horaInicio, setHoraInicio] = useState('');
   const [horaFin, setHoraFin] = useState('');
   const [mensaje, setMensaje] = useState('');
@@ -13,24 +14,25 @@ const RegistrarTurno = () => {
     setError('');
     setMensaje('');
 
-    if (!nombreTurno || !horaInicio || !horaFin) {
+    if (!nombre || !horaInicio || !horaFin) {
       setError('Por favor complete todos los campos.');
       return;
     }
 
+    const turnoData = {
+      nombre,
+      descripcion,
+      horaInicio: `${horaInicio}:00`, // Formato "HH:mm:ss"
+      horaFin: `${horaFin}:00`, // Formato "HH:mm:ss"
+    };
+
+    console.log("Datos que se enviarán:", turnoData); // Verifica la estructura de turnoData
+
     try {
-      // Asegúrate de que `horaInicio` y `horaFin` estén en el formato esperado (HH:mm:ss)
-      const turnoData = { 
-        nombreTurno, 
-        horaInicio: `${horaInicio}:00`, 
-        horaFin: `${horaFin}:00` 
-      };
-
-      console.log("Datos que se enviarán:", turnoData); // Verifica la estructura de turnoData
       await TurnoAPI.crearTurno(turnoData);
-
       setMensaje('Turno registrado correctamente.');
-      setNombreTurno('');
+      setNombre('');
+      setDescripcion('');
       setHoraInicio('');
       setHoraFin('');
     } catch (error) {
@@ -49,14 +51,22 @@ const RegistrarTurno = () => {
       <FormControl fullWidth style={{ marginBottom: '20px' }}>
         <InputLabel>Nombre del Turno</InputLabel>
         <Select
-          value={nombreTurno}
-          onChange={(e) => setNombreTurno(e.target.value)}
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
           label="Nombre del Turno"
         >
-          <MenuItem value="Turno Diurno">Turno Diurno</MenuItem>
-          <MenuItem value="Turno Nocturno">Turno Nocturno</MenuItem>
+          <MenuItem value="Diurno">Turno Diurno</MenuItem>
+          <MenuItem value="Nocturno">Turno Nocturno</MenuItem>
         </Select>
       </FormControl>
+
+      <TextField
+        fullWidth
+        label="Descripción"
+        value={descripcion}
+        onChange={(e) => setDescripcion(e.target.value)}
+        style={{ marginBottom: '20px' }}
+      />
 
       <TextField
         fullWidth

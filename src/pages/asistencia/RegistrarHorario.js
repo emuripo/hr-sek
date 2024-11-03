@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Typography } from '@mui/material';
-import HorarioAPI from '../../services/asistencia/HorarioAPI'; 
+import HorarioAPI from '../../services/asistencia/HorarioAPI';
 import TurnoAPI from '../../services/asistencia/TurnoAPI';
 
 const diasSemana = [
@@ -44,14 +44,16 @@ const RegistrarHorario = () => {
       return;
     }
 
+    const horarioData = {
+      idTurno,
+      diaInicio,
+      diaFin,
+      horaEntrada: `${horaEntrada}:00`, // Formato "HH:mm:ss"
+      horaSalida: `${horaSalida}:00`, // Formato "HH:mm:ss"
+    };
+
+    console.log("Datos que se enviarán:", horarioData); // Verifica la estructura de horarioData
     try {
-      const horarioData = { 
-        idTurno, 
-        diaInicio, 
-        diaFin, 
-        horaEntrada: `${horaEntrada}:00`, 
-        horaSalida: `${horaSalida}:00` 
-      };
       await HorarioAPI.crearHorario(horarioData);
       setMensaje('Horario registrado correctamente.');
       setIdTurno('');
@@ -60,6 +62,7 @@ const RegistrarHorario = () => {
       setHoraEntrada('');
       setHoraSalida('');
     } catch (error) {
+      console.error(error);
       setError('Error al registrar el horario. Intente de nuevo.');
     }
   };
@@ -80,7 +83,7 @@ const RegistrarHorario = () => {
         >
           {turnos.map(turno => (
             <MenuItem key={turno.idTurno} value={turno.idTurno}>
-              {turno.nombreTurno}
+              {turno.nombre}
             </MenuItem>
           ))}
         </Select>

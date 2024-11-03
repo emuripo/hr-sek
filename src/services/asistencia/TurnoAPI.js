@@ -6,7 +6,7 @@ const TurnoAPI = {
   // Crear turno
   crearTurno: async (turnoData) => {
     try {
-      const response = await axios.post(`${API_URL}`, turnoData);
+      const response = await axios.post(API_URL, turnoData);
       return response.data;
     } catch (error) {
       console.error('Error al crear el turno:', error.response?.data || error.message);
