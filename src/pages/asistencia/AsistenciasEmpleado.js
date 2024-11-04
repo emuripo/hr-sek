@@ -6,6 +6,8 @@ import {
 import { DatePicker } from '@mui/lab';
 import AsistenciaAPI from '../../services/asistencia/AsistenciaAPI';
 import { getEmpleados } from '../../services/FuncionarioAPI';
+import * as XLSX from 'xlsx';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const AsistenciasEmpleado = () => {
   const [idEmpleado, setIdEmpleado] = useState('');
@@ -47,7 +49,6 @@ const AsistenciasEmpleado = () => {
       return;
     }
 
-    // Filtra las asistencias por el empleado seleccionado
     const asistenciasFiltradas = asistencias.filter(
       (asistencia) => asistencia.idEmpleado === parseInt(idEmpleado, 10)
     );
@@ -69,6 +70,20 @@ const AsistenciasEmpleado = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const exportToExcel = () => {
+    const dataToExport = filteredAsistencias.map(asistencia => ({
+      Fecha: new Date(asistencia.fechaHora).toLocaleDateString(),
+      Hora: new Date(asistencia.fechaHora).toLocaleTimeString(),
+      Tipo: asistencia.esEntrada ? "Entrada" : "Salida",
+      Estado: asistencia.estado
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Asistencias");
+    XLSX.writeFile(workbook, "Reporte_Asistencias.xlsx");
   };
 
   return (
@@ -104,6 +119,20 @@ const AsistenciasEmpleado = () => {
         style={{ marginTop: '20px' }}
       >
         Buscar Asistencias
+      </Button>
+
+      <Button
+        variant="contained"
+        startIcon={<DownloadIcon />}
+        onClick={exportToExcel}
+        style={{
+          backgroundColor: '#F0AF00',
+          color: '#FFFFFF',
+          marginTop: '20px',
+          marginLeft: '10px'
+        }}
+      >
+        Descargar Reporte de Asistencias
       </Button>
 
       {error && <Typography color="error">{error}</Typography>}
