@@ -1,27 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { getTodasSolicitudes } from '../../../services/solicitudesService/solicitudesCombinadasService';
+import React, { useEffect, useState, useContext } from 'react';
+import { getSolicitudesByEmpleado } from '../../../services/solicitudesService/solicitudesUsuarioService';
 import { DataGrid } from '@mui/x-data-grid';
 import { CircularProgress, Typography, Box, Paper, TextField, Chip } from '@mui/material';
+import AuthContext from '../../../context/AuthContext';
 
 const MisSolicitudes = () => {
+  const { idEmpleado } = useContext(AuthContext);
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
+      if (!idEmpleado) return;
+
       try {
-        const data = await getTodasSolicitudes();
+        const data = await getSolicitudesByEmpleado(idEmpleado);
         setSolicitudes(data);
       } catch (error) {
-        console.error('Error al obtener solicitudes:', error);
+        console.error('Error al obtener solicitudes del empleado:', error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchSolicitudes();
-  }, []);
+  }, [idEmpleado]);
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
@@ -76,7 +80,6 @@ const MisSolicitudes = () => {
             checkboxSelection
             disableSelectionOnClick
             getRowId={(row) => {
-              // Construye un identificador único usando todos los ID posibles y el tipo.
               const uniqueId =
                 `${row.idSolicitudDocumento || ''}-${row.idSolicitudHoras || ''}-${row.idSolicitudPersonal || ''}-${row.idSolicitudVacaciones || ''}-${row.tipo || ''}-${row.id || Math.random().toString(36).substr(2, 9)}`;
               return uniqueId;
