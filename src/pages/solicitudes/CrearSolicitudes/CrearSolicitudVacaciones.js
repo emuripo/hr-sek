@@ -1,7 +1,5 @@
-// src/pages/solicitudes/CrearSolicitudes/CrearSolicitudVacaciones.js
-
 import React, { useContext, useState } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { TextField, Button, Box, Typography, Snackbar, Alert } from '@mui/material';
 import AuthContext from '../../../context/AuthContext';
 import { createSolicitudVacaciones } from '../../../services/solicitudesService/SolicitudVacacionesService';
 
@@ -9,13 +7,17 @@ const CrearSolicitudVacaciones = () => {
   const { idEmpleado } = useContext(AuthContext);
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
-  const [motivo, setMotivo] = useState('');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('success');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!idEmpleado) {
-      console.error('No se encontró el IdEmpleado');
+      setAlertMessage('No se encontró el IdEmpleado');
+      setAlertSeverity('error');
+      setAlertOpen(true);
       return;
     }
 
@@ -24,14 +26,26 @@ const CrearSolicitudVacaciones = () => {
         idEmpleado,
         fechaInicio,
         fechaFin,
-        motivo,
+        fechaSolicitud: new Date().toISOString(),
       };
 
       await createSolicitudVacaciones(nuevaSolicitudVacaciones);
-      console.log('Solicitud de vacaciones creada exitosamente');
+      setAlertMessage('Solicitud de vacaciones creada exitosamente');
+      setAlertSeverity('success');
+      setAlertOpen(true);
+
+      // Limpiar el formulario después de la creación exitosa
+      setFechaInicio('');
+      setFechaFin('');
     } catch (error) {
-      console.error('Error al crear la solicitud de vacaciones:', error);
+      setAlertMessage('Error al crear la solicitud de vacaciones');
+      setAlertSeverity('error');
+      setAlertOpen(true);
     }
+  };
+
+  const handleClose = () => {
+    setAlertOpen(false);
   };
 
   return (
@@ -53,17 +67,15 @@ const CrearSolicitudVacaciones = () => {
         onChange={(e) => setFechaFin(e.target.value)}
         required
       />
-      <TextField
-        label="Motivo"
-        value={motivo}
-        onChange={(e) => setMotivo(e.target.value)}
-        multiline
-        rows={4}
-        required
-      />
       <Button type="submit" variant="contained" color="primary">
         Enviar Solicitud
       </Button>
+
+      <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity={alertSeverity} sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
