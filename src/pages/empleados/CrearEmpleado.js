@@ -28,29 +28,32 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Validación para campos de solo letras
     const onlyLettersFields = ['nombre', 'apellidoUno', 'apellidoDos', 'provincia', 'canton', 'distrito'];
     if (onlyLettersFields.includes(name)) {
-      const regex = /^[A-Za-zÀ-ÿ\s]+$/; // Permitir solo letras, incluyendo acentos y espacios
-      if (!regex.test(value)) {
-        return; // Salir de la función si el valor contiene números u otros caracteres
-      }
+      const regex = /^[A-Za-zÀ-ÿ\s]+$/;
+      if (!regex.test(value)) return;
     }
 
-    // Validar cédula para que solo acepte números de hasta 10 dígitos
     if (name === 'cedula') {
       const regex = /^[0-9]{0,10}$/;
-      if (regex.test(value)) {
-        setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
-      }
+      if (regex.test(value)) setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
       return;
     }
 
-    // Validar número de celular para que solo acepte hasta 8 dígitos
     if (name === 'numeroCelular') {
-      const regex = /^[0-9]{0,8}$/;
-      if (regex.test(value)) {
+      const regex = /^[0-9]{8}$/;
+      if (regex.test(value)) setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+      return;
+    }
+
+    if (name === 'salarioBase') {
+      const salary = parseInt(value, 10);
+      if (!isNaN(salary) && salary <= 999999) {
         setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+      } else if (salary > 999999) {
+        setSnackbarMessage('El salario base no puede superar las cifras de seis dígitos.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
       return;
     }
@@ -58,64 +61,72 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
   };
 
-  // Validar el correo electrónico
-  const isEmailValid = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const isEmailValid = (email) => /^[a-zA-Z]+\.[a-zA-Z]+@sekcostarica\.com$/.test(email);
 
-  // Manejar la fecha de nacimiento para que solo permita mayores de 18 años
   const today = new Date();
   const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18)).toISOString().split('T')[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones adicionales antes de enviar
-    if (!nuevoEmpleado.cedula) {
-      setSnackbarMessage('La cédula es requerida.');
+    if (!nuevoEmpleado.cedula || nuevoEmpleado.cedula.length !== 10) {
+      setSnackbarMessage('La cédula debe tener exactamente 10 dígitos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
 
-    if (nuevoEmpleado.cedula.length !== 9) {
-      setSnackbarMessage('La cédula debe tener 10 dígitos.');
+    if (!nuevoEmpleado.nombre || nuevoEmpleado.nombre.length < 2) {
+      setSnackbarMessage('El nombre debe tener al menos 2 caracteres.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
 
-    if (!nuevoEmpleado.nombre) {
-      setSnackbarMessage('El nombre es requerido.');
+    if (!nuevoEmpleado.apellidoUno || nuevoEmpleado.apellidoUno.length < 2) {
+      setSnackbarMessage('El primer apellido debe tener al menos 2 caracteres.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
 
-    if (!nuevoEmpleado.apellidoUno) {
-      setSnackbarMessage('El primer apellido es requerido.');
+    if (!nuevoEmpleado.apellidoDos || nuevoEmpleado.apellidoDos.length < 2) {
+      setSnackbarMessage('El segundo apellido debe tener al menos 2 caracteres.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
 
-    if (!nuevoEmpleado.apellidoDos) {
-      setSnackbarMessage('El segundo apellido es requerido.');
+    if (!nuevoEmpleado.correoElectronico || !isEmailValid(nuevoEmpleado.correoElectronico)) {
+      setSnackbarMessage('El correo debe tener el formato nombre.apellido@sekcostarica.com');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
 
-    if (!nuevoEmpleado.correoElectronico) {
-      setSnackbarMessage('El correo electrónico es requerido.');
+    if (!nuevoEmpleado.provincia || nuevoEmpleado.provincia.length < 2 || nuevoEmpleado.provincia.length > 50) {
+      setSnackbarMessage('La provincia debe tener entre 2 y 50 caracteres.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
 
-    if (!isEmailValid(nuevoEmpleado.correoElectronico)) {
-      setSnackbarMessage('El formato del correo electrónico no es válido.');
+    if (!nuevoEmpleado.canton || nuevoEmpleado.canton.length < 2 || nuevoEmpleado.canton.length > 50) {
+      setSnackbarMessage('El cantón debe tener entre 2 y 50 caracteres.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.distrito || nuevoEmpleado.distrito.length < 2 || nuevoEmpleado.distrito.length > 50) {
+      setSnackbarMessage('El distrito debe tener entre 2 y 50 caracteres.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.direccion || nuevoEmpleado.direccion.length < 5 || nuevoEmpleado.direccion.length > 200) {
+      setSnackbarMessage('La dirección debe tener entre 5 y 200 caracteres.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
@@ -128,15 +139,8 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       return;
     }
 
-    if (!nuevoEmpleado.numeroCelular) {
-      setSnackbarMessage('El número de celular es requerido.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    if (nuevoEmpleado.numeroCelular.length !== 8) {
-      setSnackbarMessage('El número de celular debe tener 8 dígitos.');
+    if (!nuevoEmpleado.numeroCelular || nuevoEmpleado.numeroCelular.length !== 8) {
+      setSnackbarMessage('El número de celular debe tener exactamente 8 dígitos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
@@ -184,7 +188,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.cedula}
                   onChange={handleInputChange}
-                  inputProps={{ maxLength: 9 }} 
+                  inputProps={{ maxLength: 10 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -243,7 +247,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.fechaNacimiento}
                   onChange={handleInputChange}
-                  inputProps={{ max: eighteenYearsAgo }} 
+                  inputProps={{ max: eighteenYearsAgo }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -254,7 +258,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.numeroCelular}
                   onChange={handleInputChange}
-                  inputProps={{ maxLength: 8 }} 
+                  inputProps={{ maxLength: 8 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -281,6 +285,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.provincia}
                   onChange={handleInputChange}
+                  inputProps={{ minLength: 2, maxLength: 50 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -291,6 +296,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.canton}
                   onChange={handleInputChange}
+                  inputProps={{ minLength: 2, maxLength: 50 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -301,6 +307,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.distrito}
                   onChange={handleInputChange}
+                  inputProps={{ minLength: 2, maxLength: 50 }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -311,6 +318,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.direccion}
                   onChange={handleInputChange}
+                  inputProps={{ minLength: 5, maxLength: 200 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -334,6 +342,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   type="number"
                   value={nuevoEmpleado.salarioBase}
                   onChange={handleInputChange}
+                  inputProps={{ max: 999999 }}
                 />
               </Grid>
             </Grid>
