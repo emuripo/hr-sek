@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+  TextField, Button, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, TablePagination, FormControl, InputLabel, Select, MenuItem
+} from '@mui/material';
 import { DatePicker } from '@mui/lab';
 import AsistenciaAPI from '../../services/asistencia/AsistenciaAPI';
 import { getEmpleados } from '../../services/FuncionarioAPI';
@@ -24,29 +27,40 @@ const AsistenciasEmpleado = () => {
       }
     };
 
+    const fetchAsistencias = async () => {
+      try {
+        const data = await AsistenciaAPI.obtenerTodasAsistencias();
+        setAsistencias(data);
+      } catch (error) {
+        setError('Error al cargar las asistencias');
+      }
+    };
+
     fetchEmpleados();
+    fetchAsistencias();
   }, []);
 
-  const handleBuscarAsistencias = async () => {
+  const handleBuscarAsistencias = () => {
     setError('');
     if (!idEmpleado) {
       setError('Por favor seleccione un empleado');
       return;
     }
 
-    try {
-      const data = await AsistenciaAPI.obtenerAsistenciasPorEmpleado(idEmpleado);
-      setAsistencias(data);
-      setFilteredAsistencias(data);
-    } catch (error) {
-      setError('Error al obtener las asistencias. Verifique el empleado seleccionado.');
-    }
+    // Filtra las asistencias por el empleado seleccionado
+    const asistenciasFiltradas = asistencias.filter(
+      (asistencia) => asistencia.idEmpleado === parseInt(idEmpleado, 10)
+    );
+
+    setFilteredAsistencias(asistenciasFiltradas);
   };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    const filtered = asistencias.filter((asistencia) => 
-      new Date(asistencia.fecha).toLocaleDateString() === date.toLocaleDateString()
+    const filtered = asistencias.filter(
+      (asistencia) => 
+        new Date(asistencia.fechaHora).toLocaleDateString() === date.toLocaleDateString() &&
+        asistencia.idEmpleado === parseInt(idEmpleado, 10)
     );
     setFilteredAsistencias(filtered);
   };
@@ -101,6 +115,7 @@ const AsistenciasEmpleado = () => {
               <TableCell>Fecha</TableCell>
               <TableCell>Hora</TableCell>
               <TableCell>Tipo</TableCell>
+              <TableCell>Estado</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -108,9 +123,10 @@ const AsistenciasEmpleado = () => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((asistencia) => (
                 <TableRow key={asistencia.idAsistencia}>
-                  <TableCell>{new Date(asistencia.fecha).toLocaleDateString()}</TableCell>
-                  <TableCell>{asistencia.hora}</TableCell>
-                  <TableCell>{asistencia.tipo}</TableCell>
+                  <TableCell>{new Date(asistencia.fechaHora).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(asistencia.fechaHora).toLocaleTimeString()}</TableCell>
+                  <TableCell>{asistencia.esEntrada ? "Entrada" : "Salida"}</TableCell>
+                  <TableCell>{asistencia.estado}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
