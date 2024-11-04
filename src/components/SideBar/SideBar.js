@@ -113,6 +113,12 @@ function Sidebar() {
             <li>
               <Link to="/empleados">Empleados</Link>
             </li>
+            <li>
+              <Link to="/ListaUsuarios">Listado de Usuarios</Link>
+            </li>
+            <li>
+              <Link to="/CrearUsuario">Crear Usuarios</Link>
+            </li>
           </>
         )}
 

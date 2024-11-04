@@ -2,13 +2,13 @@ import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-// Páginas principales
+//Páginas principales
 import Dashboard from '../pages/Dashboard';
 import Empleados from '../pages/empleados/Empleados';
 import Nomina from '../pages/nomina/Nomina';
 import Reportes from '../pages/Reportes';
 import Login from '../components/Auth/Login';
-// Solicitudes
+//Solicitudes
 import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
 import VistaJefatura from '../pages/solicitudes/jefatura/VistaJefatura';
@@ -19,6 +19,9 @@ import RegistroAsistencia from '../pages/empleados/RegistroAsistencia';
 import RegistrarTurno from '../pages/asistencia/RegistrarTurno';
 import RegistrarHorario from '../pages/asistencia/RegistrarHorario';
 import EmpleadoTurno from '../pages/asistencia/EmpleadoTurno';
+//Adminsitracion
+import CrearUsuario from '../pages/administrador/CrearUsuario';
+import ListaUsuarios from '../pages/administrador/ListaUsuarios';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -50,6 +53,10 @@ function AppRoutes() {
             <Route path="/CrearSolicitud" element={<CrearSolicitud />} />
             <Route path="/VistaJefatura" element={<VistaJefatura />} />
             <Route path="/SolicitudesRRHH" element={<SolicitudesRRHH />} />
+
+            {/* Rutas para Administrador */}
+            <Route path="/CrearUsuario" element={<CrearUsuario />} />
+            <Route path="/ListaUsuarios" element={<ListaUsuarios />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
