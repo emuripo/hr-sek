@@ -69,8 +69,8 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nuevoEmpleado.cedula || nuevoEmpleado.cedula.length !== 10) {
-      setSnackbarMessage('La cédula debe tener exactamente 10 dígitos.');
+    if (!nuevoEmpleado.cedula || nuevoEmpleado.cedula.length !== 9) {
+      setSnackbarMessage('La cédula debe tener exactamente 9 dígitos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
