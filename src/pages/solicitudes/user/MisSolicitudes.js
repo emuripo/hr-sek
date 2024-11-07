@@ -50,26 +50,26 @@ const MisSolicitudes = () => {
 
   const columnsConfig = {
     documentos: [
-      { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200 },
-      { field: 'descripcion', headerName: 'Descripción', width: 300 },
-      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200, headerAlign: 'center' },
+      { field: 'descripcion', headerName: 'Descripción', width: 300, headerAlign: 'center' },
+      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200, headerAlign: 'center' },
+      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
     ],
     personales: [
-      { field: 'motivo', headerName: 'Motivo', width: 300 },
-      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'motivo', headerName: 'Motivo', width: 300, headerAlign: 'center' },
+      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200, headerAlign: 'center' },
+      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
     ],
     horasExtra: [
-      { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
-      { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200, headerAlign: 'center' },
+      { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200, headerAlign: 'center' },
+      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
     ],
     vacaciones: [
-      { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200 },
-      { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
-      { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200, headerAlign: 'center' },
+      { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200, headerAlign: 'center' },
+      { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200, headerAlign: 'center' },
+      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
     ]
   };
 
@@ -101,6 +101,21 @@ const MisSolicitudes = () => {
             checkboxSelection
             disableSelectionOnClick
             getRowId={(row) => row.id || row.idSolicitudDocumento || row.idSolicitudHoras || row.idSolicitudPersonal || row.idSolicitudVacaciones}
+            getCellClassName={(params) => {
+              if (params.field === 'estado') {
+                switch (params.value) {
+                  case 'Pendiente':
+                    return 'estadoPendiente';
+                  case 'Aprobada':
+                    return 'estadoAprobada';
+                  case 'Rechazada':
+                    return 'estadoRechazada';
+                  default:
+                    return '';
+                }
+              }
+              return '';
+            }}
             components={{
               NoRowsOverlay: () => (
                 <Typography sx={{ padding: 2 }}>No se encontraron solicitudes.</Typography>
@@ -108,14 +123,29 @@ const MisSolicitudes = () => {
             }}
             sx={{
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#263060',
-                color: '#FFFFFF',
-                fontSize: '16px',
+                backgroundColor: '#000000',
+                color: '#000000',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 textAlign: 'center',
               },
               '& .MuiDataGrid-cell': {
                 textAlign: 'center',
+              },
+              '& .estadoPendiente': {
+                backgroundColor: '#FFF3E0', 
+                color: '#FB8C00', // Texto 
+                fontWeight: 'bold',
+              },
+              '& .estadoAprobada': {
+                backgroundColor: '#E8F5E9', 
+                color: '#388E3C', 
+                fontWeight: 'bold',
+              },
+              '& .estadoRechazada': {
+                backgroundColor: '#FFEBEE', 
+                color: '#D32F2F', 
+                fontWeight: 'bold',
               },
             }}
           />
