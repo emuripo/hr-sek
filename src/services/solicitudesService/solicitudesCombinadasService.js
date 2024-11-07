@@ -5,21 +5,36 @@ const API_URL_HORAS = 'http://localhost:8088/api/SolicitudHorasExtra';
 const API_URL_PERSONAL = 'http://localhost:8088/api/SolicitudPersonal';
 const API_URL_VACACIONES = 'http://localhost:8088/api/SolicitudVacaciones';
 
+// Función para manejar errores 404 y devolver una lista vacía en lugar de un error
+const fetchOrEmpty = async (url) => {
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      console.warn(`No se encontraron solicitudes en la ruta: ${url}`);
+      return []; // Devolver una lista vacía si no hay datos
+    } else {
+      throw error; // Propagar otros errores
+    }
+  }
+};
+
 // Obtener todas las solicitudes combinadas
 export const getTodasSolicitudes = async () => {
   try {
     const [docs, horas, personales, vacaciones] = await Promise.all([
-      axios.get(`${API_URL_DOCS}/todas`),
-      axios.get(`${API_URL_HORAS}/todas`),
-      axios.get(`${API_URL_PERSONAL}/todas`),
-      axios.get(`${API_URL_VACACIONES}/todas`),
+      fetchOrEmpty(`${API_URL_DOCS}/todas`),
+      fetchOrEmpty(`${API_URL_HORAS}/todas`),
+      fetchOrEmpty(`${API_URL_PERSONAL}/todas`),
+      fetchOrEmpty(`${API_URL_VACACIONES}/todas`),
     ]);
 
     const solicitudes = [
-      ...docs.data.map((solicitud) => ({ ...solicitud, tipo: 'Documento' })),
-      ...horas.data.map((solicitud) => ({ ...solicitud, tipo: 'Horas Extra' })),
-      ...personales.data.map((solicitud) => ({ ...solicitud, tipo: 'Personal' })),
-      ...vacaciones.data.map((solicitud) => ({ ...solicitud, tipo: 'Vacaciones' })),
+      ...docs.map((solicitud) => ({ ...solicitud, tipo: 'Documento' })),
+      ...horas.map((solicitud) => ({ ...solicitud, tipo: 'Horas Extra' })),
+      ...personales.map((solicitud) => ({ ...solicitud, tipo: 'Personal' })),
+      ...vacaciones.map((solicitud) => ({ ...solicitud, tipo: 'Vacaciones' })),
     ];
 
     return solicitudes;
