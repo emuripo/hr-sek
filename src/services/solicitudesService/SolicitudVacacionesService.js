@@ -1,33 +1,11 @@
 import axios from 'axios';
 
-const API_URL_VACACIONES = 'http://localhost:8088/api/SolicitudVacaciones';
+const API_URL = 'http://localhost:8088/api/SolicitudVacaciones';
 
-// Función para obtener todas las solicitudes de vacaciones
-export const getAllSolicitudesVacaciones = async () => {
-  try {
-    const response = await axios.get(API_URL_VACACIONES);
-    return response.data;
-  } catch (error) {
-    console.error('Error al obtener las solicitudes de vacaciones:', error);
-    throw error;
-  }
-};
-
-// Función para obtener una solicitud de vacaciones por ID
-export const getSolicitudVacacionesById = async (id) => {
-  try {
-    const response = await axios.get(`${API_URL_VACACIONES}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error al obtener la solicitud de vacaciones con ID ${id}:`, error);
-    throw error;
-  }
-};
-
-// Función para crear una nueva solicitud de vacaciones
+// Crear una nueva solicitud de vacaciones
 export const createSolicitudVacaciones = async (solicitudData) => {
   try {
-    const response = await axios.post(API_URL_VACACIONES, solicitudData);
+    const response = await axios.post(API_URL, solicitudData);
     return response.data;
   } catch (error) {
     console.error('Error al crear la solicitud de vacaciones:', error);
@@ -35,24 +13,81 @@ export const createSolicitudVacaciones = async (solicitudData) => {
   }
 };
 
-// Función para actualizar una solicitud de vacaciones
-export const updateSolicitudVacaciones = async (id, solicitudData) => {
+// Obtener una solicitud de vacaciones por ID
+export const getSolicitudVacacionesById = async (id) => {
   try {
-    const response = await axios.put(`${API_URL_VACACIONES}/${id}`, solicitudData);
+    const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error(`Error al actualizar la solicitud de vacaciones con ID ${id}:`, error);
+    console.error('Error al obtener la solicitud de vacaciones:', error);
     throw error;
   }
 };
 
-// Función para eliminar una solicitud de vacaciones
-export const deleteSolicitudVacaciones = async (id) => {
+// Obtener todas las solicitudes de vacaciones de un empleado
+export const getSolicitudesVacacionesPorEmpleado = async (idEmpleado) => {
   try {
-    const response = await axios.delete(`${API_URL_VACACIONES}/${id}`);
+    const response = await axios.get(`${API_URL}/empleado/${idEmpleado}`);
     return response.data;
   } catch (error) {
-    console.error(`Error al eliminar la solicitud de vacaciones con ID ${id}:`, error);
+    console.error('Error al obtener las solicitudes de vacaciones del empleado:', error);
+    throw error;
+  }
+};
+
+// Actualizar una solicitud de vacaciones
+export const updateSolicitudVacaciones = async (solicitudData) => {
+  try {
+    const response = await axios.put(API_URL, solicitudData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar la solicitud de vacaciones:', error);
+    throw error;
+  }
+};
+
+// Eliminar una solicitud de vacaciones
+export const deleteSolicitudVacaciones = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar la solicitud de vacaciones:', error);
+    throw error;
+  }
+};
+
+// Aprobar una solicitud de vacaciones
+export const approveSolicitudVacaciones = async (id) => {
+  try {
+    const response = await axios.put(`${API_URL}/aprobar/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al aprobar la solicitud de vacaciones:', error);
+    throw error;
+  }
+};
+
+// Rechazar una solicitud de vacaciones con motivo de rechazo
+export const rejectSolicitudVacaciones = async (id, motivoRechazo) => {
+  try {
+    const response = await axios.put(`${API_URL}/rechazar/${id}`, null, {
+      params: { motivoRechazo }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al rechazar la solicitud de vacaciones:', error);
+    throw error;
+  }
+};
+
+// Obtener todas las solicitudes de vacaciones
+export const getAllSolicitudesVacaciones = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/todas`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener todas las solicitudes de vacaciones:', error);
     throw error;
   }
 };
