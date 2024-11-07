@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography, TablePagination, TextField, IconButton, Button, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit'; // Ícono de lápiz para editar
+import EditIcon from '@mui/icons-material/Edit'; 
 import { getEmpleados } from '../../services/FuncionarioAPI';
 import CrearEmpleado from './CrearEmpleado';
-import ActualizarEmpleado from './ActualizarEmpleado'; // Importa el componente ActualizarEmpleado
+import ActualizarEmpleado from './ActualizarEmpleado'; 
 
 function Empleados() {
   const [empleados, setEmpleados] = useState([]);
@@ -16,8 +16,8 @@ function Empleados() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openViewDialog, setOpenViewDialog] = useState(false);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
-  const [openEditDialog, setOpenEditDialog] = useState(false); // Controla el diálogo de edición
-  const [empleadoParaEditar, setEmpleadoParaEditar] = useState(null); // Almacena el empleado que se editará
+  const [openEditDialog, setOpenEditDialog] = useState(false); 
+  const [empleadoParaEditar, setEmpleadoParaEditar] = useState(null); 
 
   // Función para obtener empleados desde la API
   const fetchEmpleados = async () => {

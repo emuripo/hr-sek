@@ -1,19 +1,17 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Snackbar, Alert, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { createSolicitudDocumento } from '../../../services/solicitudesService/SolicitudDocService';
-import AuthContext from '../../../context/AuthContext';
+import { updateSolicitudDocumento } from '../../../services/solicitudesService/SolicitudDocService';
 
-const CrearSolicitudDoc = () => {
-  const { idEmpleado, username } = useContext(AuthContext); // Accedemos a idEmpleado y username desde el contexto
-  const [tipoDocumento, setTipoDocumento] = useState('');
-  const [descripcion, setDescripcion] = useState('');
+const ActualizarSolicitudDocumento = ({ solicitud, onClose, onUpdate }) => {
+  const [tipoDocumento, setTipoDocumento] = useState(solicitud.tipoDocumento || '');
+  const [descripcion, setDescripcion] = useState(solicitud.descripcion || '');
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
-  const navigate = useNavigate();
 
-  // Validación avanzada de la descripción
+  // Solo se permite actualizar si el estado es "Pendiente"
+  const isEditable = solicitud.estado === 'Pendiente';
+
   const validarDescripcion = (descripcion) => {
     const minLength = 5;
     const maxLength = 200;
@@ -28,17 +26,8 @@ const CrearSolicitudDoc = () => {
     );
   };
 
-  // Manejar envío del formulario
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    // Validación básica de campos
-    if (!idEmpleado) {
-      setAlertMessage('No se encontró el IdEmpleado');
-      setAlertSeverity('error');
-      setAlertOpen(true);
-      return;
-    }
 
     if (!tipoDocumento || !descripcion) {
       setAlertMessage('Por favor complete todos los campos.');
@@ -56,42 +45,36 @@ const CrearSolicitudDoc = () => {
     }
 
     try {
-      const solicitudData = {
-        idEmpleado,
+      const updatedSolicitud = {
+        ...solicitud,
         tipoDocumento,
         descripcion,
-        modificadoPor: username,
       };
 
-      await createSolicitudDocumento(solicitudData);
+      await updateSolicitudDocumento(updatedSolicitud);
 
-      setAlertMessage('Solicitud de documento creada exitosamente');
+      setAlertMessage('Solicitud actualizada exitosamente');
       setAlertSeverity('success');
       setAlertOpen(true);
-
-      setTipoDocumento('');
-      setDescripcion('');
-
-      setTimeout(() => {
-        navigate('/mis-solicitudes');
-      }, 2000);
+      onUpdate();
+      setTimeout(() => onClose(), 2000);
     } catch (error) {
-      setAlertMessage('Error al crear la solicitud de documento');
+      setAlertMessage('Error al actualizar la solicitud');
       setAlertSeverity('error');
       setAlertOpen(true);
     }
   };
 
-  const handleClose = () => {
+  const handleCloseAlert = () => {
     setAlertOpen(false);
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6">Nueva Solicitud de Documento</Typography>
-      
+      <Typography variant="h6">Actualizar Solicitud de Documento</Typography>
+
       {/* Selección del tipo de documento */}
-      <FormControl fullWidth required>
+      <FormControl fullWidth required disabled={!isEditable}>
         <InputLabel>Tipo de Documento</InputLabel>
         <Select
           value={tipoDocumento}
@@ -112,16 +95,17 @@ const CrearSolicitudDoc = () => {
         multiline
         rows={4}
         required
+        disabled={!isEditable}
       />
 
-      {/* Botón de envío */}
-      <Button type="submit" variant="contained" color="primary">
-        Enviar Solicitud
+      {/* Botón para actualizar la solicitud */}
+      <Button type="submit" variant="contained" color="primary" disabled={!isEditable}>
+        Actualizar Solicitud
       </Button>
 
       {/* Alerta de éxito o error */}
-      <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity={alertSeverity} sx={{ width: '100%' }}>
+      <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
           {alertMessage}
         </Alert>
       </Snackbar>
@@ -129,4 +113,4 @@ const CrearSolicitudDoc = () => {
   );
 };
 
-export default CrearSolicitudDoc;
+export default ActualizarSolicitudDocumento;
