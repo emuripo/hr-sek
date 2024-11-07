@@ -1,14 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { getSolicitudesByEmpleado } from '../../../services/solicitudesService/solicitudesUsuarioService';
 import { DataGrid } from '@mui/x-data-grid';
-import { CircularProgress, Typography, Box, Paper, TextField, Chip } from '@mui/material';
+import { CircularProgress, Typography, Box, Paper, Tabs, Tab } from '@mui/material';
 import AuthContext from '../../../context/AuthContext';
 
 const MisSolicitudes = () => {
   const { idEmpleado } = useContext(AuthContext);
-  const [solicitudes, setSolicitudes] = useState([]);
+  const [solicitudes, setSolicitudes] = useState({
+    documentos: [],
+    personales: [],
+    horasExtra: [],
+    vacaciones: []
+  });
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('');
+  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
@@ -16,7 +21,21 @@ const MisSolicitudes = () => {
 
       try {
         const data = await getSolicitudesByEmpleado(idEmpleado);
-        setSolicitudes(data);
+        console.log("Datos obtenidos:", data);
+
+        setSolicitudes({
+          documentos: data.filter((sol) => sol.tipo === 'Documento'),
+          personales: data.filter((sol) => sol.tipo === 'Personal'),
+          horasExtra: data.filter((sol) => sol.tipo === 'Horas Extra'),
+          vacaciones: data.filter((sol) => sol.tipo === 'Vacaciones')
+        });
+
+        console.log("Solicitudes clasificadas:", {
+          documentos: data.filter((sol) => sol.tipo === 'Documento'),
+          personales: data.filter((sol) => sol.tipo === 'Personal'),
+          horasExtra: data.filter((sol) => sol.tipo === 'Horas Extra'),
+          vacaciones: data.filter((sol) => sol.tipo === 'Vacaciones')
+        });
       } catch (error) {
         console.error('Error al obtener solicitudes del empleado:', error);
       } finally {
@@ -27,30 +46,34 @@ const MisSolicitudes = () => {
     fetchSolicitudes();
   }, [idEmpleado]);
 
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
+  const handleTabChange = (event, newValue) => setTabIndex(newValue);
+
+  const columnsConfig = {
+    documentos: [
+      { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200 },
+      { field: 'descripcion', headerName: 'Descripción', width: 300 },
+      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150 },
+    ],
+    personales: [
+      { field: 'motivo', headerName: 'Motivo', width: 300 },
+      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150 },
+    ],
+    horasExtra: [
+      { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
+      { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150 },
+    ],
+    vacaciones: [
+      { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200 },
+      { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
+      { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150 },
+    ]
   };
 
-  const filteredSolicitudes = solicitudes.filter((solicitud) =>
-    solicitud.tipo.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  const columns = [
-    { field: 'tipo', headerName: 'Tipo de Solicitud', width: 150 },
-    { field: 'descripcion', headerName: 'Descripción', width: 200 }, 
-    { field: 'fechaSolicitud', headerName: 'Fecha de Creación', width: 200 },
-    {
-      field: 'estaAprobada',
-      headerName: 'Estado',
-      width: 150,
-      renderCell: (params) => (
-        <Chip
-          label={params.value ? 'Aprobada' : 'Pendiente'}
-          color={params.value ? 'success' : 'warning'}
-        />
-      ),
-    },
-  ];
+  const tabNames = ['Documentación', 'Personal', 'Horas Extra', 'Vacaciones'];
 
   return (
     <Box sx={{ width: '100%', padding: 2 }}>
@@ -58,32 +81,26 @@ const MisSolicitudes = () => {
         Mis Solicitudes
       </Typography>
 
-      <TextField
-        label="Filtrar por tipo de solicitud"
-        variant="outlined"
-        value={filter}
-        onChange={handleFilterChange}
-        sx={{ marginBottom: 2 }}
-      />
+      <Tabs value={tabIndex} onChange={handleTabChange} centered>
+        {tabNames.map((name, index) => (
+          <Tab key={index} label={name} />
+        ))}
+      </Tabs>
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
           <CircularProgress />
         </Box>
       ) : (
-        <Paper elevation={3} sx={{ height: '70vh', width: '100%' }}>
+        <Paper elevation={3} sx={{ height: '70vh', width: '100%', mt: 2 }}>
           <DataGrid
-            rows={filteredSolicitudes}
-            columns={columns}
+            rows={solicitudes[Object.keys(solicitudes)[tabIndex]]}
+            columns={columnsConfig[Object.keys(solicitudes)[tabIndex]]}
             pageSize={5}
             rowsPerPageOptions={[5, 10, 20]}
             checkboxSelection
             disableSelectionOnClick
-            getRowId={(row) => {
-              const uniqueId =
-                `${row.idSolicitudDocumento || ''}-${row.idSolicitudHoras || ''}-${row.idSolicitudPersonal || ''}-${row.idSolicitudVacaciones || ''}-${row.tipo || ''}-${row.id || Math.random().toString(36).substr(2, 9)}`;
-              return uniqueId;
-            }}
+            getRowId={(row) => row.id || row.idSolicitudDocumento || row.idSolicitudHoras || row.idSolicitudPersonal || row.idSolicitudVacaciones}
             components={{
               NoRowsOverlay: () => (
                 <Typography sx={{ padding: 2 }}>No se encontraron solicitudes.</Typography>
@@ -92,24 +109,13 @@ const MisSolicitudes = () => {
             sx={{
               '& .MuiDataGrid-columnHeaders': {
                 backgroundColor: '#263060',
-                color: '#000000',
+                color: '#FFFFFF',
                 fontSize: '16px',
                 fontWeight: 'bold',
                 textAlign: 'center',
               },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                color: '#000000',
-              },
-              '& .MuiDataGrid-columnSeparator': {
-                display: 'none',
-              },
               '& .MuiDataGrid-cell': {
                 textAlign: 'center',
-              },
-              '& .MuiDataGrid-virtualScrollerRenderZone': {
-                '& .MuiDataGrid-row': {
-                  backgroundColor: 'white',
-                },
               },
             }}
           />
