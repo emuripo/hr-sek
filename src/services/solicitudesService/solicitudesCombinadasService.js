@@ -5,14 +5,14 @@ const API_URL_HORAS = 'http://localhost:8088/api/SolicitudHorasExtra';
 const API_URL_PERSONAL = 'http://localhost:8088/api/SolicitudPersonal';
 const API_URL_VACACIONES = 'http://localhost:8088/api/SolicitudVacaciones';
 
-// todas las solicitudes combinadas
+// Obtener todas las solicitudes combinadas
 export const getTodasSolicitudes = async () => {
   try {
     const [docs, horas, personales, vacaciones] = await Promise.all([
-      axios.get(API_URL_DOCS),
-      axios.get(API_URL_HORAS),
-      axios.get(API_URL_PERSONAL),
-      axios.get(API_URL_VACACIONES),
+      axios.get(`${API_URL_DOCS}/todas`),
+      axios.get(`${API_URL_HORAS}/todas`),
+      axios.get(`${API_URL_PERSONAL}/todas`),
+      axios.get(`${API_URL_VACACIONES}/todas`),
     ]);
 
     const solicitudes = [
@@ -29,17 +29,17 @@ export const getTodasSolicitudes = async () => {
   }
 };
 
-// Actualizar estado solicitud
-export const updateSolicitudEstado = async (id, tipo, estado) => {
+// Actualizar estado de solicitud (Aprobar o Rechazar)
+export const updateSolicitudEstado = async (id, tipo, estado, motivoRechazo = '') => {
   const url =
     tipo === 'Documento'
-      ? `${API_URL_DOCS}/${id}`
+      ? `${API_URL_DOCS}/${estado ? 'aprobar' : 'rechazar'}/${id}`
       : tipo === 'Horas Extra'
-      ? `${API_URL_HORAS}/${id}`
+      ? `${API_URL_HORAS}/${estado ? 'aprobar' : 'rechazar'}/${id}`
       : tipo === 'Personal'
-      ? `${API_URL_PERSONAL}/${id}`
+      ? `${API_URL_PERSONAL}/${estado ? 'aprobar' : 'rechazar'}/${id}`
       : tipo === 'Vacaciones'
-      ? `${API_URL_VACACIONES}/${id}`
+      ? `${API_URL_VACACIONES}/${estado ? 'aprobar' : 'rechazar'}/${id}`
       : null;
 
   if (!url) {
@@ -48,11 +48,7 @@ export const updateSolicitudEstado = async (id, tipo, estado) => {
   }
 
   try {
-    const payload =
-      tipo === 'Vacaciones'
-        ? { estaAprobada: estado, idEmpleado: 1 } 
-        : { estaAprobada: estado };
-
+    const payload = estado ? { estaAprobada: true } : { estaAprobada: false, motivoRechazo };
     const response = await axios.put(url, payload);
     return response.data;
   } catch (error) {

@@ -102,6 +102,7 @@ const MisSolicitudes = () => {
               color="primary"
               onClick={() => handleEditClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
+              sx={{ marginTop: '8px' }}
             >
               Editar
             </Button>
@@ -110,6 +111,7 @@ const MisSolicitudes = () => {
               color="secondary"
               onClick={() => handleDeleteClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
+              sx={{ marginTop: '8px' }}
             >
               Eliminar
             </Button>
