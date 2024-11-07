@@ -13,6 +13,21 @@ const CrearSolicitudHoras = () => {
   const [alertSeverity, setAlertSeverity] = useState('success');
   const navigate = useNavigate();
 
+  // Validación de Cantidad de Horas
+  const validarCantidadHoras = (horas) => {
+    const horasNum = Number(horas);
+    return !isNaN(horasNum) && horasNum > 0 && horasNum <= 12;
+  };
+
+  // Validación de Fecha de Trabajo
+  const validarFechaTrabajo = (fecha) => {
+    if (!fecha) return false;
+    const fechaTrabajoDate = new Date(fecha);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); 
+    return fechaTrabajoDate <= hoy; 
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -25,7 +40,7 @@ const CrearSolicitudHoras = () => {
     }
 
     // Validación de Cantidad de Horas
-    if (!cantidadHoras || cantidadHoras <= 0 || cantidadHoras > 12) {
+    if (!validarCantidadHoras(cantidadHoras)) {
       setAlertMessage('La cantidad de horas debe estar entre 1 y 12.');
       setAlertSeverity('error');
       setAlertOpen(true);
@@ -33,11 +48,7 @@ const CrearSolicitudHoras = () => {
     }
 
     // Validación de Fecha de Trabajo
-    const fechaTrabajoDate = new Date(fechaTrabajo);
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Reseteamos las horas para comparar solo fechas
-
-    if (!fechaTrabajo || fechaTrabajoDate > hoy) {
+    if (!validarFechaTrabajo(fechaTrabajo)) {
       setAlertMessage('La fecha de trabajo debe ser una fecha pasada o la fecha actual.');
       setAlertSeverity('error');
       setAlertOpen(true);
@@ -48,7 +59,7 @@ const CrearSolicitudHoras = () => {
       idEmpleado,
       cantidadHoras: parseInt(cantidadHoras, 10),
       fechaTrabajo,
-      modificadoPor: username
+      modificadoPor: username,
     };
 
     try {
@@ -57,7 +68,9 @@ const CrearSolicitudHoras = () => {
       setAlertSeverity('success');
       setAlertOpen(true);
 
-      // Redirigir a "Mis Solicitudes" después de un breve tiempo
+      // Restablecer campos y redirigir a "Mis Solicitudes"
+      setCantidadHoras('');
+      setFechaTrabajo('');
       setTimeout(() => {
         navigate('/mis-solicitudes');
       }, 2000);
@@ -76,6 +89,7 @@ const CrearSolicitudHoras = () => {
     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Typography variant="h6">Nueva Solicitud de Horas Extra</Typography>
 
+      {/* Campo de cantidad de horas */}
       <TextField
         label="Cantidad de Horas"
         type="number"
@@ -86,6 +100,7 @@ const CrearSolicitudHoras = () => {
         helperText="Ingrese entre 1 y 12 horas."
       />
 
+      {/* Campo de fecha de trabajo */}
       <TextField
         label="Fecha de Trabajo"
         type="date"
@@ -96,10 +111,12 @@ const CrearSolicitudHoras = () => {
         helperText="Seleccione una fecha actual o pasada."
       />
 
+      {/* Botón de envío */}
       <Button type="submit" variant="contained" color="primary">
         Enviar Solicitud
       </Button>
 
+      {/* Alerta de éxito o error */}
       <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity={alertSeverity} sx={{ width: '100%' }}>
           {alertMessage}
