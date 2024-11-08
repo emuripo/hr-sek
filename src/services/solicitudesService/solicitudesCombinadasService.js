@@ -46,34 +46,35 @@ export const getTodasSolicitudes = async () => {
 
 // Actualizar estado de solicitud (Aprobar o Rechazar)
 export const updateSolicitudEstado = async (id, tipo, estado, motivoRechazo = '') => {
-  // Construir la URL según el tipo de solicitud y el estado
-  const url =
+  const baseUrl = 
     tipo === 'Documento'
-      ? `${API_URL_DOCS}/${estado ? 'aprobar' : 'rechazar'}/${id}`
+      ? API_URL_DOCS
       : tipo === 'Horas Extra'
-      ? `${API_URL_HORAS}/${estado ? 'aprobar' : 'rechazar'}/${id}`
+      ? API_URL_HORAS
       : tipo === 'Personal'
-      ? `${API_URL_PERSONAL}/${estado ? 'aprobar' : 'rechazar'}/${id}`
+      ? API_URL_PERSONAL
       : tipo === 'Vacaciones'
-      ? `${API_URL_VACACIONES}/${estado ? 'aprobar' : 'rechazar'}/${id}`
+      ? API_URL_VACACIONES
       : null;
 
-  if (!url) {
+  if (!baseUrl) {
     console.error(`Tipo de solicitud desconocido: ${tipo}`);
     return;
   }
 
-  try {
-    // Enviar `motivoRechazo` en la query string si el estado es rechazo
-    const response = estado
-      ? await axios.put(url, { estaAprobada: true }) // Aprobar
-      : await axios.put(`${url}?motivoRechazo=${encodeURIComponent(motivoRechazo)}`, { estaAprobada: false }); // Rechazar con motivo en query
+  const url = estado
+    ? `${baseUrl}/aprobar/${id}`
+    : `${baseUrl}/rechazar/${id}?motivoRechazo=${encodeURIComponent(motivoRechazo)}`;
 
+  try {
+    console.log(`Enviando solicitud a URL: ${url}`); // URL de la solicitud
+    const response = await axios.put(url);
     console.log('Respuesta del servidor:', response.data); // Respuesta del servidor en caso de éxito
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar el estado de la solicitud ${tipo}:`, error);
-    console.log('Detalles del error:', error.response ? error.response.data : error); // Mostrar detalles adicionales del error
+    console.log('Código de estado:', error.response?.status);
+    console.log('Datos de error:', error.response?.data);
     throw error;
   }
 };
