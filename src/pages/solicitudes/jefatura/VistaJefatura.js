@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getTodasSolicitudes, updateSolicitudEstado } from '../../../services/solicitudesService/solicitudesCombinadasService';
 import { DataGrid } from '@mui/x-data-grid';
-import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, TextField } from '@mui/material';
+import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, TextField, Chip } from '@mui/material';
 
 const VistaJefatura = () => {
   const [solicitudes, setSolicitudes] = useState({
@@ -72,12 +72,21 @@ const VistaJefatura = () => {
 
   const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
+  const renderEstadoCell = (params) => {
+    const color =
+      params.value === 'Aprobada' ? 'success' :
+      params.value === 'Rechazada' ? 'error' :
+      'warning'; // Para "Pendiente"
+    
+    return <Chip label={params.value} color={color} sx={{ fontWeight: 'bold' }} />;
+  };
+
   const columnsConfig = {
     documentos: [
       { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200 },
       { field: 'descripcion', headerName: 'Descripción', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -86,7 +95,7 @@ const VistaJefatura = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }} // Verde para aprobar
               onClick={() => handleAprobar(params.row)}
               disabled={params.row.estado === 'Aprobada'}
             >
@@ -94,7 +103,7 @@ const VistaJefatura = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }} // Rojo para rechazar
               onClick={() => handleOpenRechazoDialog(params.row)}
               disabled={params.row.estado === 'Rechazada'}
             >
@@ -107,7 +116,7 @@ const VistaJefatura = () => {
     personales: [
       { field: 'motivo', headerName: 'Motivo', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -116,7 +125,7 @@ const VistaJefatura = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleAprobar(params.row)}
               disabled={params.row.estado === 'Aprobada'}
             >
@@ -124,7 +133,7 @@ const VistaJefatura = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleOpenRechazoDialog(params.row)}
               disabled={params.row.estado === 'Rechazada'}
             >
@@ -137,7 +146,7 @@ const VistaJefatura = () => {
     horasExtra: [
       { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
       { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -146,7 +155,7 @@ const VistaJefatura = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleAprobar(params.row)}
               disabled={params.row.estado === 'Aprobada'}
             >
@@ -154,7 +163,7 @@ const VistaJefatura = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleOpenRechazoDialog(params.row)}
               disabled={params.row.estado === 'Rechazada'}
             >
@@ -168,7 +177,7 @@ const VistaJefatura = () => {
       { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200 },
       { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
       { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
-      { field: 'estado', headerName: 'Estado', width: 150 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -177,7 +186,7 @@ const VistaJefatura = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleAprobar(params.row)}
               disabled={params.row.estado === 'Aprobada'}
             >
@@ -185,7 +194,7 @@ const VistaJefatura = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleOpenRechazoDialog(params.row)}
               disabled={params.row.estado === 'Rechazada'}
             >
