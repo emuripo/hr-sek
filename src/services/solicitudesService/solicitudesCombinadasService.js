@@ -4,6 +4,7 @@ const API_URL_DOCS = 'http://localhost:8088/api/SolicitudDocumento';
 const API_URL_HORAS = 'http://localhost:8088/api/SolicitudHorasExtra';
 const API_URL_PERSONAL = 'http://localhost:8088/api/SolicitudPersonal';
 const API_URL_VACACIONES = 'http://localhost:8088/api/SolicitudVacaciones';
+const API_URL_EMPLOYEES = 'http://localhost:8085/api/Empleado';
 
 // Función para manejar errores 404 y devolver una lista vacía en lugar de un error
 const fetchOrEmpty = async (url) => {
@@ -20,6 +21,18 @@ const fetchOrEmpty = async (url) => {
   }
 };
 
+// Función para obtener el nombre completo del empleado
+const fetchEmployeeName = async (idEmpleado) => {
+  try {
+    const response = await axios.get(`${API_URL_EMPLOYEES}/${idEmpleado}`);
+    const { nombre, apellidoUno, apellidoDos } = response.data;
+    return `${nombre} ${apellidoUno} ${apellidoDos}`; // Ajusta según la estructura JSON que proporcionaste
+  } catch (error) {
+    console.error(`Error al obtener el nombre del empleado con ID: ${idEmpleado}`, error);
+    return 'Desconocido'; // Valor predeterminado si hay error
+  }
+};
+
 // Obtener todas las solicitudes combinadas
 export const getTodasSolicitudes = async () => {
   try {
@@ -30,14 +43,19 @@ export const getTodasSolicitudes = async () => {
       fetchOrEmpty(`${API_URL_VACACIONES}/todas`),
     ]);
 
-    const solicitudes = [
-      ...docs.map((solicitud) => ({ ...solicitud, tipo: 'Documento' })),
-      ...horas.map((solicitud) => ({ ...solicitud, tipo: 'Horas Extra' })),
-      ...personales.map((solicitud) => ({ ...solicitud, tipo: 'Personal' })),
-      ...vacaciones.map((solicitud) => ({ ...solicitud, tipo: 'Vacaciones' })),
-    ];
+    const solicitudesConNombres = await Promise.all(
+      [
+        ...docs.map((solicitud) => ({ ...solicitud, tipo: 'Documento' })),
+        ...horas.map((solicitud) => ({ ...solicitud, tipo: 'Horas Extra' })),
+        ...personales.map((solicitud) => ({ ...solicitud, tipo: 'Personal' })),
+        ...vacaciones.map((solicitud) => ({ ...solicitud, tipo: 'Vacaciones' })),
+      ].map(async (solicitud) => {
+        const nombreEmpleado = await fetchEmployeeName(solicitud.idEmpleado);
+        return { ...solicitud, nombreEmpleado };
+      })
+    );
 
-    return solicitudes;
+    return solicitudesConNombres;
   } catch (error) {
     console.error('Error al obtener todas las solicitudes:', error);
     throw error;
@@ -67,9 +85,9 @@ export const updateSolicitudEstado = async (id, tipo, estado, motivoRechazo = ''
     : `${baseUrl}/rechazar/${id}?motivoRechazo=${encodeURIComponent(motivoRechazo)}`;
 
   try {
-    console.log(`Enviando solicitud a URL: ${url}`); // URL de la solicitud
+    console.log(`Enviando solicitud a URL: ${url}`);
     const response = await axios.put(url);
-    console.log('Respuesta del servidor:', response.data); // Respuesta del servidor en caso de éxito
+    console.log('Respuesta del servidor:', response.data);
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar el estado de la solicitud ${tipo}:`, error);

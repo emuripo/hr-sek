@@ -42,7 +42,6 @@ const VistaJefatura = () => {
   const handleAprobar = async (solicitud) => {
     const tipo = capitalizeFirstLetter(solicitud.tipo);
     try {
-      console.log(`Aprobando solicitud de tipo: ${tipo}, ID: ${solicitud.id}`);
       await updateSolicitudEstado(solicitud.id, tipo, true);
       fetchSolicitudes();
     } catch (error) {
@@ -59,7 +58,6 @@ const VistaJefatura = () => {
     const { id, tipo } = selectedSolicitud;
     const capitalizedTipo = capitalizeFirstLetter(tipo);
     try {
-      console.log(`Rechazando solicitud de tipo: ${capitalizedTipo}, ID: ${id}`);
       await updateSolicitudEstado(id, capitalizedTipo, false, motivoRechazo);
       fetchSolicitudes();
     } catch (error) {
@@ -71,18 +69,17 @@ const VistaJefatura = () => {
   };
 
   const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
-
   const renderEstadoCell = (params) => {
     const color =
       params.value === 'Aprobada' ? 'success' :
       params.value === 'Rechazada' ? 'error' :
-      'warning'; // Para "Pendiente"
-    
+      'warning';
+
     return <Chip label={params.value} color={color} sx={{ fontWeight: 'bold' }} />;
   };
-
   const columnsConfig = {
     documentos: [
+      { field: 'nombreEmpleado', headerName: 'Usuario', width: 200 },
       { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200 },
       { field: 'descripcion', headerName: 'Descripción', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
@@ -95,7 +92,7 @@ const VistaJefatura = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              style={{ backgroundColor: '#4CAF50', color: '#FFF' }} // Verde para aprobar
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleAprobar(params.row)}
               disabled={params.row.estado === 'Aprobada'}
             >
@@ -103,7 +100,7 @@ const VistaJefatura = () => {
             </Button>
             <Button
               variant="contained"
-              style={{ backgroundColor: '#F44336', color: '#FFF' }} // Rojo para rechazar
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleOpenRechazoDialog(params.row)}
               disabled={params.row.estado === 'Rechazada'}
             >
@@ -114,6 +111,7 @@ const VistaJefatura = () => {
       },
     ],
     personales: [
+      { field: 'nombreEmpleado', headerName: 'Usuario', width: 200 },
       { field: 'motivo', headerName: 'Motivo', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
@@ -144,6 +142,7 @@ const VistaJefatura = () => {
       },
     ],
     horasExtra: [
+      { field: 'nombreEmpleado', headerName: 'Usuario', width: 200 },
       { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
       { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
@@ -174,6 +173,7 @@ const VistaJefatura = () => {
       },
     ],
     vacaciones: [
+      { field: 'nombreEmpleado', headerName: 'Usuario', width: 200 },
       { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200 },
       { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
       { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
