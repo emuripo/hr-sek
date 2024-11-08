@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { getSolicitudesByEmpleado } from '../../../services/solicitudesService/solicitudesUsuarioService';
 import { DataGrid } from '@mui/x-data-grid';
-import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, Chip } from '@mui/material';
+import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, Chip, IconButton } from '@mui/material';
+import { Visibility } from '@mui/icons-material';
 import AuthContext from '../../../context/AuthContext';
 import ActualizarSolicitudDocumento from '../../../pages/solicitudes/ActualizarSolicitudes/ActualizarSolicitudDocumento';
 import ActualizarSolicitudPersonal from '../../../pages/solicitudes/ActualizarSolicitudes/ActualizarSolicitudPersonal';
@@ -25,6 +26,7 @@ const MisSolicitudes = () => {
   const [selectedSolicitud, setSelectedSolicitud] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [openMotivoDialog, setOpenMotivoDialog] = useState(false);
 
   const fetchSolicitudes = async () => {
     if (!idEmpleado) return;
@@ -85,6 +87,16 @@ const MisSolicitudes = () => {
     }
   };
 
+  const handleViewMotivoClick = (solicitud) => {
+    setSelectedSolicitud(solicitud);
+    setOpenMotivoDialog(true);
+  };
+
+  const handleCloseMotivoDialog = () => {
+    setOpenMotivoDialog(false);
+    setSelectedSolicitud(null);
+  };
+
   const renderEstadoCell = (params) => {
     const color =
       params.value === 'Aprobada' ? 'success' :
@@ -99,6 +111,7 @@ const MisSolicitudes = () => {
       { field: 'descripcion', headerName: 'Descripción', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
+      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -107,7 +120,7 @@ const MisSolicitudes = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              style={{ backgroundColor: '#4CAF50', color: '#FFF' }} // Verde para editar
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleEditClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -115,12 +128,17 @@ const MisSolicitudes = () => {
             </Button>
             <Button
               variant="contained"
-              style={{ backgroundColor: '#F44336', color: '#FFF' }} // Rojo para eliminar
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleDeleteClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
               Eliminar
             </Button>
+            {params.row.estado === 'Rechazada' && (
+              <IconButton color="primary" onClick={() => handleViewMotivoClick(params.row)}>
+                <Visibility />
+              </IconButton>
+            )}
           </Stack>
         ),
       },
@@ -129,6 +147,7 @@ const MisSolicitudes = () => {
       { field: 'motivo', headerName: 'Motivo', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
+      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -151,6 +170,11 @@ const MisSolicitudes = () => {
             >
               Eliminar
             </Button>
+            {params.row.estado === 'Rechazada' && (
+              <IconButton color="primary" onClick={() => handleViewMotivoClick(params.row)}>
+                <Visibility />
+              </IconButton>
+            )}
           </Stack>
         ),
       },
@@ -159,6 +183,7 @@ const MisSolicitudes = () => {
       { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
       { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
+      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -181,6 +206,11 @@ const MisSolicitudes = () => {
             >
               Eliminar
             </Button>
+            {params.row.estado === 'Rechazada' && (
+              <IconButton color="primary" onClick={() => handleViewMotivoClick(params.row)}>
+                <Visibility />
+              </IconButton>
+            )}
           </Stack>
         ),
       },
@@ -190,6 +220,7 @@ const MisSolicitudes = () => {
       { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
       { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
+      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -212,6 +243,11 @@ const MisSolicitudes = () => {
             >
               Eliminar
             </Button>
+            {params.row.estado === 'Rechazada' && (
+              <IconButton color="primary" onClick={() => handleViewMotivoClick(params.row)}>
+                <Visibility />
+              </IconButton>
+            )}
           </Stack>
         ),
       },
@@ -239,8 +275,8 @@ const MisSolicitudes = () => {
       ) : (
         <Paper elevation={3} sx={{ height: '70vh', width: '100%', mt: 2 }}>
           <DataGrid
-            rows={solicitudes[Object.keys(solicitudes)[tabIndex]]}
-            columns={columnsConfig[Object.keys(solicitudes)[tabIndex]]}
+            rows={solicitudes[Object.keys(solicitudes)[tabIndex]] || []}
+            columns={columnsConfig[Object.keys(solicitudes)[tabIndex]] || []}
             pageSize={5}
             rowsPerPageOptions={[5, 10, 20]}
             checkboxSelection
@@ -262,6 +298,16 @@ const MisSolicitudes = () => {
           <Button onClick={confirmDelete} color="secondary">
             Confirmar
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openMotivoDialog} onClose={handleCloseMotivoDialog}>
+        <DialogTitle>Motivo de Rechazo</DialogTitle>
+        <DialogContent>
+          <Typography>{selectedSolicitud?.motivoRechazo || 'Sin motivo proporcionado'}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseMotivoDialog} color="primary">Cerrar</Button>
         </DialogActions>
       </Dialog>
 
