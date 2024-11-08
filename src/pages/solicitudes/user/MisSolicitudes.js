@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { getSolicitudesByEmpleado } from '../../../services/solicitudesService/solicitudesUsuarioService';
 import { DataGrid } from '@mui/x-data-grid';
-import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, Chip, IconButton } from '@mui/material';
+import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, IconButton, Chip } from '@mui/material';
 import { Visibility } from '@mui/icons-material';
 import AuthContext from '../../../context/AuthContext';
 import ActualizarSolicitudDocumento from '../../../pages/solicitudes/ActualizarSolicitudes/ActualizarSolicitudDocumento';
@@ -111,7 +111,6 @@ const MisSolicitudes = () => {
       { field: 'descripcion', headerName: 'Descripción', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
-      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -147,7 +146,6 @@ const MisSolicitudes = () => {
       { field: 'motivo', headerName: 'Motivo', width: 300 },
       { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
-      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -183,7 +181,6 @@ const MisSolicitudes = () => {
       { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
       { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
-      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -220,7 +217,6 @@ const MisSolicitudes = () => {
       { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
       { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
-      { field: 'motivoRechazo', headerName: 'Motivo de Rechazo', width: 200 },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -251,7 +247,7 @@ const MisSolicitudes = () => {
           </Stack>
         ),
       },
-    ]
+    ],
   };
 
   const tabNames = ['Documentación', 'Personal', 'Horas Extra', 'Vacaciones'];
@@ -304,7 +300,7 @@ const MisSolicitudes = () => {
       <Dialog open={openMotivoDialog} onClose={handleCloseMotivoDialog}>
         <DialogTitle>Motivo de Rechazo</DialogTitle>
         <DialogContent>
-          <Typography>{selectedSolicitud?.motivoRechazo || 'Sin motivo proporcionado'}</Typography>
+          <Typography>{selectedSolicitud?.motivoRechazo || 'N/A'}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseMotivoDialog} color="primary">Cerrar</Button>
