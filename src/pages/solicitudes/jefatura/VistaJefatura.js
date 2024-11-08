@@ -52,8 +52,17 @@ const VistaJefatura = () => {
   const handleRechazar = async () => {
     const { tipo } = selectedSolicitud;
     const id = getIdSolicitud(selectedSolicitud, tipo);
+    console.log('Rechazando solicitud:', selectedSolicitud);
+    console.log('Motivo de rechazo:', motivoRechazo);
+
     if (!id) {
       console.error(`ID inválido para el tipo de solicitud: ${tipo}`, selectedSolicitud);
+      return;
+    }
+
+    if (!motivoRechazo.trim()) {
+      console.error('El motivo de rechazo está vacío');
+      alert('El motivo de rechazo no puede estar vacío');
       return;
     }
 
@@ -75,7 +84,7 @@ const VistaJefatura = () => {
   const getIdSolicitud = (solicitud, tipo) => {
     switch (tipo) {
       case 'Documento':
-        return solicitud.idSolicitudDocumento || solicitud.id; // Asegura obtener el ID correcto
+        return solicitud.idSolicitudDocumento || solicitud.id;
       case 'Horas Extra':
         return solicitud.idSolicitudHorasExtra || solicitud.id;
       case 'Personal':

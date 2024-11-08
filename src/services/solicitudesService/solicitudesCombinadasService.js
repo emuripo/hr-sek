@@ -46,6 +46,7 @@ export const getTodasSolicitudes = async () => {
 
 // Actualizar estado de solicitud (Aprobar o Rechazar)
 export const updateSolicitudEstado = async (id, tipo, estado, motivoRechazo = '') => {
+  // Construir la URL según el tipo de solicitud y el estado
   const url =
     tipo === 'Documento'
       ? `${API_URL_DOCS}/${estado ? 'aprobar' : 'rechazar'}/${id}`
@@ -63,11 +64,16 @@ export const updateSolicitudEstado = async (id, tipo, estado, motivoRechazo = ''
   }
 
   try {
-    const payload = estado ? { estaAprobada: true } : { estaAprobada: false, motivoRechazo };
-    const response = await axios.put(url, payload);
+    // Enviar `motivoRechazo` en la query string si el estado es rechazo
+    const response = estado
+      ? await axios.put(url, { estaAprobada: true }) // Aprobar
+      : await axios.put(`${url}?motivoRechazo=${encodeURIComponent(motivoRechazo)}`, { estaAprobada: false }); // Rechazar con motivo en query
+
+    console.log('Respuesta del servidor:', response.data); // Respuesta del servidor en caso de éxito
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar el estado de la solicitud ${tipo}:`, error);
+    console.log('Detalles del error:', error.response ? error.response.data : error); // Mostrar detalles adicionales del error
     throw error;
   }
 };
