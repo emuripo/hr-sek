@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { getSolicitudesByEmpleado } from '../../../services/solicitudesService/solicitudesUsuarioService';
 import { DataGrid } from '@mui/x-data-grid';
-import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack } from '@mui/material';
+import { CircularProgress, Typography, Box, Paper, Tabs, Tab, Button, Dialog, DialogContent, DialogTitle, DialogActions, Stack, Chip } from '@mui/material';
 import AuthContext from '../../../context/AuthContext';
 import ActualizarSolicitudDocumento from '../../../pages/solicitudes/ActualizarSolicitudes/ActualizarSolicitudDocumento';
 import ActualizarSolicitudPersonal from '../../../pages/solicitudes/ActualizarSolicitudes/ActualizarSolicitudPersonal';
@@ -85,12 +85,20 @@ const MisSolicitudes = () => {
     }
   };
 
+  const renderEstadoCell = (params) => {
+    const color =
+      params.value === 'Aprobada' ? 'success' :
+      params.value === 'Rechazada' ? 'error' :
+      'warning';
+    return <Chip label={params.value} color={color} sx={{ fontWeight: 'bold' }} />;
+  };
+
   const columnsConfig = {
     documentos: [
-      { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200, headerAlign: 'center' },
-      { field: 'descripcion', headerName: 'Descripción', width: 300, headerAlign: 'center' },
-      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200, headerAlign: 'center' },
-      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
+      { field: 'tipoDocumento', headerName: 'Tipo de Documento', width: 200 },
+      { field: 'descripcion', headerName: 'Descripción', width: 300 },
+      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -99,19 +107,17 @@ const MisSolicitudes = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }} // Verde para editar
               onClick={() => handleEditClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
-              sx={{ marginTop: '8px' }}
             >
               Editar
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }} // Rojo para eliminar
               onClick={() => handleDeleteClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
-              sx={{ marginTop: '8px' }}
             >
               Eliminar
             </Button>
@@ -120,9 +126,9 @@ const MisSolicitudes = () => {
       },
     ],
     personales: [
-      { field: 'motivo', headerName: 'Motivo', width: 300, headerAlign: 'center' },
-      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200, headerAlign: 'center' },
-      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
+      { field: 'motivo', headerName: 'Motivo', width: 300 },
+      { field: 'fechaSolicitud', headerName: 'Fecha de Solicitud', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -131,7 +137,7 @@ const MisSolicitudes = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleEditClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -139,7 +145,7 @@ const MisSolicitudes = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleDeleteClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -150,9 +156,9 @@ const MisSolicitudes = () => {
       },
     ],
     horasExtra: [
-      { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200, headerAlign: 'center' },
-      { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200, headerAlign: 'center' },
-      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
+      { field: 'cantidadHoras', headerName: 'Horas Solicitadas', width: 200 },
+      { field: 'fechaTrabajo', headerName: 'Fecha de Trabajo', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -161,7 +167,7 @@ const MisSolicitudes = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleEditClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -169,7 +175,7 @@ const MisSolicitudes = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleDeleteClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -180,10 +186,10 @@ const MisSolicitudes = () => {
       },
     ],
     vacaciones: [
-      { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200, headerAlign: 'center' },
-      { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200, headerAlign: 'center' },
-      { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200, headerAlign: 'center' },
-      { field: 'estado', headerName: 'Estado', width: 150, headerAlign: 'center' },
+      { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200 },
+      { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
+      { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
+      { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },
       {
         field: 'acciones',
         headerName: 'Acciones',
@@ -192,7 +198,7 @@ const MisSolicitudes = () => {
           <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: '#4CAF50', color: '#FFF' }}
               onClick={() => handleEditClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -200,7 +206,7 @@ const MisSolicitudes = () => {
             </Button>
             <Button
               variant="contained"
-              color="secondary"
+              style={{ backgroundColor: '#F44336', color: '#FFF' }}
               onClick={() => handleDeleteClick(params.row)}
               disabled={params.row.estado !== 'Pendiente'}
             >
@@ -240,48 +246,6 @@ const MisSolicitudes = () => {
             checkboxSelection
             disableSelectionOnClick
             getRowId={(row) => row.id}
-            getCellClassName={(params) => {
-              if (params.field === 'estado') {
-                switch (params.value) {
-                  case 'Pendiente':
-                    return 'estadoPendiente';
-                  case 'Aprobada':
-                    return 'estadoAprobada';
-                  case 'Rechazada':
-                    return 'estadoRechazada';
-                  default:
-                    return '';
-                }
-              }
-              return '';
-            }}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#000000',
-                color: '#000000',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                textAlign: 'center',
-              },
-              '& .MuiDataGrid-cell': {
-                textAlign: 'center',
-              },
-              '& .estadoPendiente': {
-                backgroundColor: '#FFF3E0',
-                color: '#FB8C00',
-                fontWeight: 'bold',
-              },
-              '& .estadoAprobada': {
-                backgroundColor: '#E8F5E9',
-                color: '#388E3C',
-                fontWeight: 'bold',
-              },
-              '& .estadoRechazada': {
-                backgroundColor: '#FFEBEE',
-                color: '#D32F2F',
-                fontWeight: 'bold',
-              },
-            }}
           />
         </Paper>
       )}
