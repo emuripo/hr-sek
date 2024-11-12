@@ -70,7 +70,7 @@ const CrearSolicitudVacaciones = () => {
 
     const solicitudData = {
       idEmpleado,
-      cantidadDias: parseInt(cantidadDias, 10),
+      diasSolicitados: parseInt(cantidadDias, 10),
       fechaInicio,
       fechaFin,
       modificadoPor: username
@@ -87,7 +87,12 @@ const CrearSolicitudVacaciones = () => {
         navigate('/mis-solicitudes');
       }, 2000);
     } catch (error) {
-      setAlertMessage('Error al crear la solicitud de vacaciones. Inténtelo nuevamente.');
+      // Manejo de errores con mensajes del backend
+      if (error.response && error.response.data) {
+        setAlertMessage(error.response.data.message || 'Error al crear la solicitud de vacaciones.');
+      } else {
+        setAlertMessage('Error al crear la solicitud de vacaciones. Inténtelo nuevamente.');
+      }
       setAlertSeverity('error');
       setAlertOpen(true);
     }

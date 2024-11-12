@@ -6,15 +6,15 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [username, setUsername] = useState(''); // Estado para el nombre de usuario
-  const [idEmpleado, setIdEmpleado] = useState(null); // Estado para el IdEmpleado
-  const [permissions, setPermissions] = useState([]); // Estado para permisos
+  const [username, setUsername] = useState(''); 
+  const [idEmpleado, setIdEmpleado] = useState(null); 
+  const [permissions, setPermissions] = useState([]); 
 
   const handleLogin = () => {
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
-      console.log('Token decodificado:', decodedToken); // Para depuración
+      console.log('Token decodificado:', decodedToken); 
       setUsername(decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']);
       setUserRole(decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
       setIdEmpleado(decodedToken['IdEmpleado']); // Asegúrate de que `IdEmpleado` esté en el token
@@ -28,8 +28,8 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false);
     setUserRole(null);
     setUsername('');
-    setIdEmpleado(null); // Limpiar IdEmpleado al cerrar sesión
-    setPermissions([]); // Limpiar permisos al cerrar sesión
+    setIdEmpleado(null); 
+    setPermissions([]); 
   };
 
   useEffect(() => {

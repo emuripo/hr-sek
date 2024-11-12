@@ -22,6 +22,8 @@ import EmpleadoTurno from '../pages/asistencia/EmpleadoTurno';
 //Adminsitracion
 import CrearUsuario from '../pages/administrador/CrearUsuario';
 import ListaUsuarios from '../pages/administrador/ListaUsuarios';
+//Vacaciones
+import MisVacaciones from '../pages/empleados/MisVacaciones';
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -57,6 +59,9 @@ function AppRoutes() {
             {/* Rutas para Administrador */}
             <Route path="/CrearUsuario" element={<CrearUsuario />} />
             <Route path="/ListaUsuarios" element={<ListaUsuarios />} />
+
+            {/* Rutas para Administrador */}
+            <Route path="/MisVacaciones" element={<MisVacaciones />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

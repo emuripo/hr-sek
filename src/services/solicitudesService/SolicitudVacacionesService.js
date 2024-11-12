@@ -9,7 +9,8 @@ export const createSolicitudVacaciones = async (solicitudData) => {
     return response.data;
   } catch (error) {
     console.error('Error al crear la solicitud de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al crear la solicitud de vacaciones.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -20,7 +21,8 @@ export const getSolicitudVacacionesById = async (id) => {
     return response.data;
   } catch (error) {
     console.error('Error al obtener la solicitud de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al obtener la solicitud de vacaciones.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -31,7 +33,8 @@ export const getSolicitudesVacacionesPorEmpleado = async (idEmpleado) => {
     return response.data;
   } catch (error) {
     console.error('Error al obtener las solicitudes de vacaciones del empleado:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al obtener las solicitudes de vacaciones del empleado.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -42,7 +45,8 @@ export const updateSolicitudVacaciones = async (solicitudData) => {
     return response.data;
   } catch (error) {
     console.error('Error al actualizar la solicitud de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al actualizar la solicitud de vacaciones.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -53,7 +57,8 @@ export const deleteSolicitudVacaciones = async (id) => {
     return response.data;
   } catch (error) {
     console.error('Error al eliminar la solicitud de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al eliminar la solicitud de vacaciones.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -64,7 +69,8 @@ export const approveSolicitudVacaciones = async (id) => {
     return response.data;
   } catch (error) {
     console.error('Error al aprobar la solicitud de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al aprobar la solicitud de vacaciones.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -77,7 +83,8 @@ export const rejectSolicitudVacaciones = async (id, motivoRechazo) => {
     return response.data;
   } catch (error) {
     console.error('Error al rechazar la solicitud de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al rechazar la solicitud de vacaciones.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -88,6 +95,7 @@ export const getAllSolicitudesVacaciones = async () => {
     return response.data;
   } catch (error) {
     console.error('Error al obtener todas las solicitudes de vacaciones:', error);
-    throw error;
+    const errorMessage = error.response?.data || 'Error al obtener todas las solicitudes de vacaciones.';
+    throw new Error(errorMessage);
   }
 };

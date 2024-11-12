@@ -11,7 +11,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="app">
-          {/* Agrega el Header dentro de AuthProvider y antes de las rutas */}
+         {/* Header dentro de AuthProvider y antes de las rutas */} 
           <Header />
           <AppRoutes />
         </div>

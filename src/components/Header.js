@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'; 
-import { useLocation } from 'react-router-dom'; // Importar useLocation
+import { useLocation } from 'react-router-dom'; 
 import AuthContext from '../context/AuthContext';
-import '../styles/Header.css'; // Importar el archivo CSS
+import '../styles/Header.css'; 
 
 function Header() {
   const { username, isAuthenticated } = useContext(AuthContext);

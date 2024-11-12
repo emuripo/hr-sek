@@ -104,6 +104,9 @@ function Sidebar() {
             <li>
               <Link to="/RegistroAsistencia">Asistencia</Link>
             </li>
+            <li>
+              <Link to="/MisVacaciones">Consulta de Vacaciones</Link>
+            </li>
           </>
         )}
 
