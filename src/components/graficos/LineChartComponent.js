@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 function LineChartComponent({ nominas }) {
   // Preparar datos agrupados por mes y año
   const datos = nominas.reduce((acc, nom) => {
-    const fecha = new Date(nom.fechaGeneracion); // Cambiar de nominas.fechaGeneracion a nom.fechaGeneracion
+    const fecha = new Date(nom.fechaGeneracion); 
     const mes = fecha.toLocaleString('default', { month: 'short' });
     const año = fecha.getFullYear();
     const key = `${mes} ${año}`;

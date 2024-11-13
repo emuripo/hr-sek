@@ -1,8 +1,7 @@
-// src/components/Layout.js
 import React from 'react';
 import Sidebar from '../Sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
-import './Layout.css'; // Asegúrate de crear o ajustar este archivo para estilos
+import './Layout.css'; 
 
 function Layout() {
   return (

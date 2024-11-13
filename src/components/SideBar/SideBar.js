@@ -1,16 +1,23 @@
-import React, { useContext } from 'react'; 
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
-import './Sidebar.css'; 
-import logo from '../../assets/imagenes/costa_rica_120.png'; // Importar el logo
+import { Collapse, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import './Sidebar.css';
+import logo from '../../assets/imagenes/costa_rica_120.png';
 
 function Sidebar() {
-  const { handleLogout, userRole } = useContext(AuthContext);  // Obtener el rol del usuario desde AuthContext
+  const { handleLogout, userRole } = useContext(AuthContext);  
   const navigate = useNavigate();
+  const [openGestionHorarios, setOpenGestionHorarios] = useState(false); 
 
   const onLogoutClick = () => {
-    handleLogout();       
-    navigate('/login');   
+    handleLogout();
+    navigate('/login');
+  };
+
+  const handleGestionHorariosClick = () => {
+    setOpenGestionHorarios(!openGestionHorarios);
   };
 
   return (
@@ -24,8 +31,8 @@ function Sidebar() {
           <Link to="/">Dashboard</Link>
         </li>
 
-        {/* Opciones para RRHH y Jefatura */}
-        {(userRole === 'RRHH') && (
+        {/* Opciones para RRHH */}
+        {userRole === 'RRHH' && (
           <>
             <li>
               <Link to="/empleados">Empleados</Link>
@@ -34,15 +41,41 @@ function Sidebar() {
               <Link to="/nomina">Nómina</Link>
             </li>
             <li>
-              <Link to="/solicitudes">Solicitudes</Link>
+              <Link to="/SolicitudesRRHH">Solicitudes</Link>
             </li>
+            <li>
+              <Link to="/AsistenciasEmpleado">Asistencia</Link>
+            </li>
+
+            {/* Gestión de Horarios */}
+            <li onClick={handleGestionHorariosClick}>
+              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
+                <ListItemText primary="Gestión de Horarios" />
+                {openGestionHorarios ? <ExpandLess /> : <ExpandMore />}
+              </div>
+            </li>
+            <Collapse in={openGestionHorarios} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem button component={Link} to="/RegistrarTurno">
+                  <ListItemText primary="Turno" />
+                </ListItem>
+                <ListItem button component={Link} to="/RegistrarHorario">
+                  <ListItemText primary="Horario" />
+                </ListItem>
+                <ListItem button component={Link} to="/EmpleadoTurno">
+                  <ListItemText primary="Empleado Turno" />
+                </ListItem>
+              </List>
+            </Collapse>
+
             <li>
               <Link to="/reportes">Reportes</Link>
             </li>
           </>
         )}
 
-         {(userRole === 'Jefatura' ) && (
+        {/* Opciones para Jefatura */}
+        {userRole === 'Jefatura' && (
           <>
             <li>
               <Link to="/empleados">Empleados</Link>
@@ -59,7 +92,7 @@ function Sidebar() {
           </>
         )}
 
-        {/* Opciones para Usuarios */}
+        {/* Opciones para Usuario */}
         {userRole === 'Usuario' && (
           <>
             <li>
@@ -67,6 +100,27 @@ function Sidebar() {
             </li>
             <li>
               <Link to="/CrearSolicitud">Crear una Solicitud</Link>
+            </li>
+            <li>
+              <Link to="/RegistroAsistencia">Asistencia</Link>
+            </li>
+            <li>
+              <Link to="/MisVacaciones">Consulta de Vacaciones</Link>
+            </li>
+          </>
+        )}
+
+        {/* Opciones para Admin */}
+        {userRole === 'Admin' && (
+          <>
+            <li>
+              <Link to="/empleados">Empleados</Link>
+            </li>
+            <li>
+              <Link to="/ListaUsuarios">Listado de Usuarios</Link>
+            </li>
+            <li>
+              <Link to="/CrearUsuario">Crear Usuarios</Link>
             </li>
           </>
         )}

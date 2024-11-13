@@ -1,11 +1,10 @@
-// src/pages/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import {
   Grid, Typography, CircularProgress, Paper
 } from '@mui/material';
-import { getNominas } from '../services/NominaAPI'; // Solo getNominas
+import { getNominas } from '../services/NominaAPI';
 import { getEmpleados as getEmpleadosFuncionario } from '../services/FuncionarioAPI';
-import KPI from '../components/KPI/KPI'; // Asegúrate de que la ruta es correcta
+import KPI from '../components/KPI/KPI'; 
 import LineChartComponent from '../components/graficos/LineChartComponent';
 import PieChartComponent from '../components/graficos/PieChartComponent';
 import BarChartComponent from '../components/graficos/BarChartComponent';

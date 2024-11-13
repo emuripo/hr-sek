@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Select, MenuItem, InputLabel, FormControl, Snackbar, Alert } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Select, MenuItem, InputLabel, FormControl, Snackbar, Alert, Typography } from '@mui/material';
 import { createEmpleado } from '../../services/FuncionarioAPI';
 
 function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
@@ -12,7 +12,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     fechaNacimiento: '',
     numeroCelular: '',
     empleadoActivo: true,
-    idGenero: '', // Select for gender
+    idGenero: '',
     provincia: '',
     canton: '',
     distrito: '',
@@ -23,25 +23,105 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // success or error
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const emailDomain = "@sekcostarica.com";
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    const onlyLettersFields = ['nombre', 'apellidoUno', 'apellidoDos', 'provincia', 'canton', 'distrito'];
+    if (onlyLettersFields.includes(name)) {
+      const regex = /^[A-Za-zÀ-ÿ\s]*$/;
+      if (!regex.test(value)) return;
+    }
+
+    if (name === 'cedula') {
+      const regex = /^[0-9]{0,10}$/;
+      if (regex.test(value)) {
+        setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+      }
+      return;
+    }
+
+    if (name === 'numeroCelular') {
+      const regex = /^[0-9]{0,8}$/;
+      if (regex.test(value)) {
+        setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+      }
+      return;
+    }
+
+    setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+  };
+
+  const resetForm = () => {
     setNuevoEmpleado({
-      ...nuevoEmpleado,
-      [name]: value,
+      cedula: '',
+      nombre: '',
+      apellidoUno: '',
+      apellidoDos: '',
+      correoElectronico: '',
+      fechaNacimiento: '',
+      numeroCelular: '',
+      empleadoActivo: true,
+      idGenero: '',
+      provincia: '',
+      canton: '',
+      distrito: '',
+      direccion: '',
+      fechaInicioContrato: '',
+      salarioBase: ''
     });
   };
+
+  const isEmailValid = (email) => {
+    const emailRegex = /^[a-zA-Z]+\.[a-zA-Z]+$/;
+    return emailRegex.test(email);
+  };
+
+  const today = new Date();
+  const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18)).toISOString().split('T')[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!nuevoEmpleado.cedula || nuevoEmpleado.cedula.length !== 9) {
+      setSnackbarMessage('La cédula debe tener exactamente 9 dígitos.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.nombre || !nuevoEmpleado.apellidoUno || !nuevoEmpleado.apellidoDos) {
+      setSnackbarMessage('Todos los nombres y apellidos son requeridos.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.correoElectronico || !isEmailValid(nuevoEmpleado.correoElectronico)) {
+      setSnackbarMessage('El correo debe tener el formato nombre.apellido');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!nuevoEmpleado.fechaNacimiento || !nuevoEmpleado.numeroCelular || nuevoEmpleado.numeroCelular.length !== 8) {
+      setSnackbarMessage('Fecha de nacimiento y celular válidos son requeridos.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
     try {
       const empleadoData = {
         ...nuevoEmpleado,
+        correoElectronico: `${nuevoEmpleado.correoElectronico}${emailDomain}`,
+        cedula: nuevoEmpleado.cedula.toString(),
         fechaNacimiento: new Date(nuevoEmpleado.fechaNacimiento).toISOString(),
         fechaInicioContrato: new Date(nuevoEmpleado.fechaInicioContrato).toISOString(),
-        fechaFinContrato: null, // Always set to null
+        fechaFinContrato: null
       };
 
       const createdEmpleado = await createEmpleado(empleadoData);
@@ -49,7 +129,8 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       setSnackbarMessage('Empleado añadido con éxito');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      onClose(); // Cerrar el diálogo después de agregar
+      resetForm();
+      onClose();
     } catch (error) {
       console.error('Error al crear el empleado:', error);
       setSnackbarMessage('No se pudo agregar el empleado');
@@ -62,9 +143,14 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     setSnackbarOpen(false);
   };
 
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
+      <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Añadir Nuevo Empleado</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
@@ -77,6 +163,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.cedula}
                   onChange={handleInputChange}
+                  inputProps={{ maxLength: 10 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -117,6 +204,16 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.correoElectronico}
                   onChange={handleInputChange}
+                  placeholder="nombre.apellido"
+                  InputProps={{
+                    endAdornment: <Typography variant="body2">{emailDomain}</Typography>
+                  }}
+                  error={!isEmailValid(nuevoEmpleado.correoElectronico) && nuevoEmpleado.correoElectronico !== ''}
+                  helperText={
+                    !isEmailValid(nuevoEmpleado.correoElectronico) && nuevoEmpleado.correoElectronico !== '' 
+                      ? 'Correo electrónico inválido, formato: nombre.apellido' 
+                      : ''
+                  }
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -129,6 +226,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.fechaNacimiento}
                   onChange={handleInputChange}
+                  inputProps={{ max: eighteenYearsAgo }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -139,6 +237,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
                   fullWidth
                   value={nuevoEmpleado.numeroCelular}
                   onChange={handleInputChange}
+                  inputProps={{ maxLength: 8 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -224,17 +323,16 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
+          <Button onClick={handleClose}>Cancelar</Button>
           <Button onClick={handleSubmit} type="submit">Añadir</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for success or error message */}
       <Snackbar
         open={snackbarOpen}
         onClose={handleSnackbarClose}
-        autoHideDuration={6000} // Aumenta la duración si es necesario
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Ubicación del Snackbar
+        autoHideDuration={6000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
