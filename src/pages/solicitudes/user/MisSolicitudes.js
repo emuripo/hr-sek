@@ -213,7 +213,7 @@ const MisSolicitudes = () => {
       },
     ],
     vacaciones: [
-      { field: 'cantidadDias', headerName: 'Días Solicitados', width: 200 },
+      { field: 'diasSolicitados', headerName: 'Días Solicitados', width: 200 },
       { field: 'fechaInicio', headerName: 'Fecha de Inicio', width: 200 },
       { field: 'fechaFin', headerName: 'Fecha de Fin', width: 200 },
       { field: 'estado', headerName: 'Estado', width: 150, renderCell: renderEstadoCell },

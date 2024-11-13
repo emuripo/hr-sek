@@ -38,6 +38,8 @@ const CrearSolicitudVacaciones = () => {
     const fin = new Date(fechaFin);
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0); // Eliminar horas para comparar solo fechas
+    inicio.setHours(0, 0, 0, 0); // Asegurarse de que inicio no tenga horas
+    fin.setHours(0, 0, 0, 0); // Asegurarse de que fin no tenga horas
 
     if (!fechaInicio || !fechaFin) {
       setAlertMessage('Debe especificar fechas válidas para las vacaciones.');

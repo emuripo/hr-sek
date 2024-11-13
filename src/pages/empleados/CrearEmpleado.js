@@ -30,14 +30,12 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Validación para campos de solo letras
     const onlyLettersFields = ['nombre', 'apellidoUno', 'apellidoDos', 'provincia', 'canton', 'distrito'];
     if (onlyLettersFields.includes(name)) {
-      const regex = /^[A-Za-zÀ-ÿ\s]+$/;
+      const regex = /^[A-Za-zÀ-ÿ\s]*$/;
       if (!regex.test(value)) return;
     }
 
-    // Validar cédula para que solo acepte números de hasta 10 dígitos
     if (name === 'cedula') {
       const regex = /^[0-9]{0,10}$/;
       if (regex.test(value)) {
@@ -46,7 +44,6 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       return;
     }
 
-    // Validar número de celular para que solo acepte hasta 8 dígitos
     if (name === 'numeroCelular') {
       const regex = /^[0-9]{0,8}$/;
       if (regex.test(value)) {
@@ -56,6 +53,26 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     }
 
     setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+  };
+
+  const resetForm = () => {
+    setNuevoEmpleado({
+      cedula: '',
+      nombre: '',
+      apellidoUno: '',
+      apellidoDos: '',
+      correoElectronico: '',
+      fechaNacimiento: '',
+      numeroCelular: '',
+      empleadoActivo: true,
+      idGenero: '',
+      provincia: '',
+      canton: '',
+      distrito: '',
+      direccion: '',
+      fechaInicioContrato: '',
+      salarioBase: ''
+    });
   };
 
   const isEmailValid = (email) => {
@@ -76,22 +93,8 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       return;
     }
 
-    if (!nuevoEmpleado.nombre) {
-      setSnackbarMessage('El nombre es requerido.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    if (!nuevoEmpleado.apellidoUno) {
-      setSnackbarMessage('El primer apellido es requerido.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    if (!nuevoEmpleado.apellidoDos) {
-      setSnackbarMessage('El segundo apellido es requerido.');
+    if (!nuevoEmpleado.nombre || !nuevoEmpleado.apellidoUno || !nuevoEmpleado.apellidoDos) {
+      setSnackbarMessage('Todos los nombres y apellidos son requeridos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
@@ -104,22 +107,8 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       return;
     }
 
-    if (!nuevoEmpleado.fechaNacimiento) {
-      setSnackbarMessage('La fecha de nacimiento es requerida.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    if (!nuevoEmpleado.numeroCelular) {
-      setSnackbarMessage('El número de celular es requerido.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    if (nuevoEmpleado.numeroCelular.length !== 8) {
-      setSnackbarMessage('El número de celular debe tener 8 dígitos.');
+    if (!nuevoEmpleado.fechaNacimiento || !nuevoEmpleado.numeroCelular || nuevoEmpleado.numeroCelular.length !== 8) {
+      setSnackbarMessage('Fecha de nacimiento y celular válidos son requeridos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
@@ -140,6 +129,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
       setSnackbarMessage('Empleado añadido con éxito');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
+      resetForm();
       onClose();
     } catch (error) {
       console.error('Error al crear el empleado:', error);
@@ -153,9 +143,14 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     setSnackbarOpen(false);
   };
 
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
+      <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Añadir Nuevo Empleado</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
@@ -328,7 +323,7 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
+          <Button onClick={handleClose}>Cancelar</Button>
           <Button onClick={handleSubmit} type="submit">Añadir</Button>
         </DialogActions>
       </Dialog>
