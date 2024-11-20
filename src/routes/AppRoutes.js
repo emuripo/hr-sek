@@ -8,6 +8,10 @@ import Empleados from '../pages/empleados/Empleados';
 import Nomina from '../pages/nomina/Nomina';
 import Reportes from '../pages/Reportes';
 import Login from '../components/Auth/Login';
+//Nominas
+import CrearEditarPeriodo from '../pages/nomina/periodo/CrearEditarPeriodo';
+import ConsultarPeriodos from '../pages/nomina/periodo/ConsultarPeriodos';
+import CrearEditarBonificacion from '../pages/nomina/bonificacion/CrearEditarBonificacion'
 //Solicitudes
 import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
@@ -42,6 +46,11 @@ function AppRoutes() {
             <Route path="/empleados" element={<Empleados />} />
             <Route path="/nomina" element={<Nomina />} />
             <Route path="/reportes" element={<Reportes />} />
+
+            {/* Rutas para Nomina */}
+            <Route path="/CrearEditarPeriodo" element={<CrearEditarPeriodo />} />
+            <Route path="/ConsultarPeriodos" element={<ConsultarPeriodos/>} />
+            <Route path="/CrearEditarBonificacion" element={<CrearEditarBonificacion/>} />
 
             {/* Rutas para Asistencia */}
             <Route path="/RegistroAsistencia" element={<RegistroAsistencia />} />
