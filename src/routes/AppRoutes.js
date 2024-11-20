@@ -11,7 +11,13 @@ import Login from '../components/Auth/Login';
 //Nominas
 import CrearEditarPeriodo from '../pages/nomina/periodo/CrearEditarPeriodo';
 import ConsultarPeriodos from '../pages/nomina/periodo/ConsultarPeriodos';
+//bonificaciones
 import CrearEditarBonificacion from '../pages/nomina/bonificacion/CrearEditarBonificacion'
+import ConsultarBonificaciones from '../pages/nomina/bonificacion/ConsultarBonificaciones'
+//aguinaldos
+import CrearEditarAguinaldo from '../pages/nomina/aguinaldo/CrearEditarAguinaldo'
+import ConsultarAguinaldos from '../pages/nomina/aguinaldo/ConsultarAguinaldos'
+
 //Solicitudes
 import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
@@ -51,6 +57,9 @@ function AppRoutes() {
             <Route path="/CrearEditarPeriodo" element={<CrearEditarPeriodo />} />
             <Route path="/ConsultarPeriodos" element={<ConsultarPeriodos/>} />
             <Route path="/CrearEditarBonificacion" element={<CrearEditarBonificacion/>} />
+            <Route path="/ConsultarBonificaciones" element={<ConsultarBonificaciones/>} />
+            <Route path="/CrearEditarAguinaldo" element={<CrearEditarAguinaldo/>} />
+            <Route path="/ConsultarAguinaldos" element={<ConsultarAguinaldos/>} />
 
             {/* Rutas para Asistencia */}
             <Route path="/RegistroAsistencia" element={<RegistroAsistencia />} />

@@ -16,7 +16,7 @@ import {
   updateBonificacion,
 } from '../../../services/nomina/BonificacionAPI';
 
-const CrearEditarBonificacion = ({ bonificacionId, onClose }) => {
+const CrearEditarBonificacion = ({ bonificacionId, onClose = () => {} }) => {
   const { idEmpleado } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
@@ -87,16 +87,21 @@ const CrearEditarBonificacion = ({ bonificacionId, onClose }) => {
     }
 
     try {
+      const payload = {
+        ...formData,
+        fechaRegistro: new Date().toISOString(),
+      };
+
       if (isEditMode) {
-        await updateBonificacion(bonificacionId, formData);
+        await updateBonificacion(bonificacionId, payload);
         setSnackbarMessage('Bonificación actualizada exitosamente.');
       } else {
-        await createBonificacion(formData);
+        await createBonificacion(payload);
         setSnackbarMessage('Bonificación creada exitosamente.');
       }
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      onClose();
+      onClose(); // Llama a onClose para cerrar el modal o resetear el formulario
     } catch (error) {
       console.error('Error al guardar la bonificación:', error);
       setSnackbarMessage('Error al guardar la bonificación.');
