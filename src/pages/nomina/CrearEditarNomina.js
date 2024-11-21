@@ -1,254 +1,157 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Paper,
-  TextField,
-  Button,
-  Grid,
-  Typography,
-  Snackbar,
-  Alert,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
-import { createNomina } from '../../services/NominaAPI';
+import React, { useState } from 'react';
+import { Paper, Button, Grid, Typography } from '@mui/material';
+import EmpleadoSelect from '../../components/planillaForm/EmpleadoSelect';
+import ReadOnlyField from '../../components/planillaForm/ReadOnlyField';
+import Dropdown from '../../components/planillaForm/Dropdown';
+import { useFetchData } from '../../hooks/useFetchData';
 import { getEmpleados } from '../../services/FuncionarioAPI';
-import { getTodasDeducciones } from '../../services/nomina/DeduccionAPI';
 import { getTodasBonificaciones } from '../../services/nomina/BonificacionAPI';
+import { getTodasDeducciones } from '../../services/nomina/DeduccionAPI';
 import { getTodosPeriodosNomina } from '../../services/nomina/PeriodoNominaAPI';
+import { createNomina } from '../../services/NominaAPI';
 
 const CrearEditarNomina = ({ onClose = () => {} }) => {
   const [formData, setFormData] = useState({
     idEmpleado: '',
-    salarioBase: '',
-    salarioBruto: '',
-    salarioNeto: '',
-    impuestos: '',
+    salarioBase: 0,
+    bonificaciones: [],
+    deducciones: [],
+    salarioBruto: 0,
+    salarioNeto: 100, // Fijo según requerimiento
     fechaGeneracion: new Date().toISOString(),
     activa: true,
     pagada: true,
     idPeriodoNomina: '',
-    deducciones: [],
-    bonificaciones: [],
-    horasExtras: [
-      {
-        salarioBase: 0,
-        horasExtrasTrabajadasMes: 0,
-        salarioPorHora: 0,
-        tarifaHorasExtra: 0,
-        totalPagarHorasExtra: 0,
-      },
-    ],
-    modificadoPor: 'RRHH_USER',
-    fechaUltimaModificacion: new Date().toISOString(),
   });
 
-  const [empleados, setEmpleados] = useState([]);
-  const [deducciones, setDeducciones] = useState([]);
-  const [bonificaciones, setBonificaciones] = useState([]);
-  const [periodos, setPeriodos] = useState([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  // Usamos el hook mejorado para cargar datos
+  const { data: empleados, isLoading: empleadosLoading, error: empleadosError } = useFetchData(getEmpleados);
+  const { data: bonificaciones } = useFetchData(getTodasBonificaciones);
+  const { data: deducciones } = useFetchData(getTodasDeducciones);
+  const { data: periodos } = useFetchData(getTodosPeriodosNomina);
 
-  useEffect(() => {
-    fetchEmpleados();
-    fetchDeducciones();
-    fetchBonificaciones();
-    fetchPeriodos();
-  }, []);
-
-  const fetchEmpleados = async () => {
-    try {
-      const data = await getEmpleados();
-      setEmpleados(data);
-    } catch (error) {
-      console.error('Error al obtener empleados:', error);
+  // Maneja la selección de empleado
+  const handleEmpleadoChange = (idEmpleado) => {
+    const empleado = empleados.find((e) => e.idEmpleado === idEmpleado);
+    console.log('Empleado seleccionado:', empleado); // Depuración
+    if (empleado && empleado.infoContratoFuncionario) {
+      setFormData({
+        ...formData,
+        idEmpleado,
+        salarioBase: empleado.infoContratoFuncionario.salarioBase || 0, // Accede correctamente al salario base
+      });
+    } else {
+      setFormData({
+        ...formData,
+        idEmpleado,
+        salarioBase: 0, // Si no hay infoContratoFuncionario, asigna 0
+      });
     }
   };
 
-  const fetchDeducciones = async () => {
-    try {
-      const data = await getTodasDeducciones();
-      setDeducciones(data);
-    } catch (error) {
-      console.error('Error al obtener deducciones:', error);
-    }
-  };
-
-  const fetchBonificaciones = async () => {
-    try {
-      const data = await getTodasBonificaciones();
-      setBonificaciones(data);
-    } catch (error) {
-      console.error('Error al obtener bonificaciones:', error);
-    }
-  };
-
-  const fetchPeriodos = async () => {
-    try {
-      const data = await getTodosPeriodosNomina();
-      setPeriodos(data);
-    } catch (error) {
-      console.error('Error al obtener períodos:', error);
-    }
-  };
-
-  const handleEmpleadoChange = (e) => {
-    const selectedId = e.target.value;
-    const empleado = empleados.find((emp) => emp.idEmpleado === selectedId);
-
+  // Maneja la selección de bonificaciones
+  const handleBonificacionesChange = (selectedBonificaciones) => {
+    const totalBonificaciones = selectedBonificaciones.reduce((sum, b) => sum + b.monto, 0);
     setFormData({
       ...formData,
-      idEmpleado: selectedId,
-      salarioBase: empleado ? empleado.infoContratoFuncionario.salarioBase : '',
+      bonificaciones: selectedBonificaciones,
+      salarioBruto: formData.salarioBase + totalBonificaciones, // Calcula el salario bruto
     });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  // Maneja la selección de deducciones
+  const handleDeduccionesChange = (selectedDeducciones) => {
+    const totalDeducciones = selectedDeducciones.reduce((sum, d) => sum + d.monto, 0);
     setFormData({
       ...formData,
-      [name]: value,
+      deducciones: selectedDeducciones,
+      salarioNeto: formData.salarioBruto - totalDeducciones, // Calcula el salario neto
     });
   };
 
-  const calculateSalarios = () => {
-    const totalBonificaciones = formData.bonificaciones.reduce((acc, curr) => acc + parseFloat(curr.monto || 0), 0);
-    const totalDeducciones = formData.deducciones.reduce((acc, curr) => acc + parseFloat(curr.monto || 0), 0);
-    const salarioBruto = parseFloat(formData.salarioBase || 0) + totalBonificaciones;
-    const salarioNeto = salarioBruto - totalDeducciones;
-
-    return { salarioBruto, salarioNeto };
-  };
-
+  // Maneja el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const { salarioBruto, salarioNeto } = calculateSalarios();
-
-    const payload = {
-      ...formData,
-      salarioBruto,
-      salarioNeto,
-    };
-
     try {
-      await createNomina(payload);
-      setSnackbarMessage('Nómina creada exitosamente.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      onClose();
+      await createNomina(formData); // Crea la nómina usando la API
+      onClose(); // Cierra el formulario después de guardar
     } catch (error) {
-      console.error('Error al guardar la nómina:', error);
-      setSnackbarMessage('Error al guardar la nómina.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      console.error('Error al crear la nómina:', error);
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  // Verifica estado de carga o errores en empleados
+  if (empleadosLoading) {
+    return <div>Cargando empleados...</div>;
+  }
 
-  const { salarioBruto, salarioNeto } = calculateSalarios();
+  if (empleadosError) {
+    return <div>Error al cargar empleados: {empleadosError}</div>;
+  }
 
   return (
-    <Paper elevation={3} sx={{ p: 4, mx: 'auto', maxWidth: 800 }}>
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 800, margin: 'auto' }}>
       <Typography variant="h4" textAlign="center" gutterBottom>
         Crear Nómina
       </Typography>
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
-            <FormControl fullWidth>
-              <InputLabel>Empleado</InputLabel>
-              <Select
-                name="idEmpleado"
-                value={formData.idEmpleado}
-                onChange={handleEmpleadoChange}
-                required
-              >
-                {empleados.map((empleado) => (
-                  <MenuItem key={empleado.idEmpleado} value={empleado.idEmpleado}>
-                    {`${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Salario Base"
-              name="salarioBase"
-              value={formData.salarioBase}
-              fullWidth
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Impuestos"
-              name="impuestos"
-              type="number"
-              value={formData.impuestos}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Salario Bruto"
-              name="salarioBruto"
-              value={salarioBruto}
-              fullWidth
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Salario Neto"
-              name="salarioNeto"
-              value={salarioNeto}
-              fullWidth
-              InputProps={{ readOnly: true }}
+            <Dropdown
+              label="Período de Nómina"
+              options={periodos.map((p) => ({
+                label: `Del ${new Date(p.fechaInicio).toLocaleDateString()} al ${new Date(p.fechaFin).toLocaleDateString()}`,
+                value: p.idPeriodoNomina,
+              }))}
+              value={formData.idPeriodoNomina}
+              onChange={(value) => setFormData({ ...formData, idPeriodoNomina: value })}
             />
           </Grid>
           <Grid item xs={12}>
-            <FormControl fullWidth>
-              <InputLabel>Período</InputLabel>
-              <Select
-                name="idPeriodoNomina"
-                value={formData.idPeriodoNomina}
-                onChange={handleChange}
-                required
-              >
-                {periodos.map((periodo) => (
-                  <MenuItem key={periodo.idPeriodoNomina} value={periodo.idPeriodoNomina}>
-                    {`Del ${new Date(periodo.fechaInicio).toLocaleDateString()} al ${new Date(
-                      periodo.fechaFin
-                    ).toLocaleDateString()}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <EmpleadoSelect
+              empleados={empleados}
+              value={formData.idEmpleado}
+              onChange={handleEmpleadoChange}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <ReadOnlyField label="Salario Base" value={formData.salarioBase} />
+          </Grid>
+          <Grid item xs={6}>
+            <Dropdown
+              label="Bonificaciones"
+              options={bonificaciones.map((b) => ({
+                label: `${b.tipoBonificacion} - $${b.monto}`,
+                value: b,
+              }))}
+              value={formData.bonificaciones}
+              onChange={handleBonificacionesChange}
+              multiple
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Dropdown
+              label="Deducciones"
+              options={deducciones.map((d) => ({
+                label: `${d.tipoDeduccion} - $${d.monto}`,
+                value: d,
+              }))}
+              value={formData.deducciones}
+              onChange={handleDeduccionesChange}
+              multiple
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <ReadOnlyField label="Salario Bruto" value={formData.salarioBruto} />
+          </Grid>
+          <Grid item xs={6}>
+            <ReadOnlyField label="Salario Neto" value={formData.salarioNeto} />
           </Grid>
         </Grid>
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 4 }}>
+        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 3 }}>
           Guardar Nómina
         </Button>
       </form>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Paper>
   );
 };
