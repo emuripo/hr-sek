@@ -3,6 +3,16 @@ import axios from 'axios';
 
 const NOMINA_API_URL = 'http://localhost:8086/api/NominaAPI';
 
+export const validarNominaPorPeriodo = async (idEmpleado, idPeriodoNomina) => {
+  try {
+    const response = await axios.get(`${NOMINA_API_URL}/validar/${idEmpleado}/${idPeriodoNomina}`);
+    return response.data; // Se espera que la API retorne un booleano o mensaje de validación
+  } catch (error) {
+    console.error(`Error al validar la nómina para idEmpleado ${idEmpleado} y idPeriodoNomina ${idPeriodoNomina}:`, error);
+    throw error;
+  }
+};
+
 // Obtener todas las nóminas
 export const getNominas = async () => {
   try {
