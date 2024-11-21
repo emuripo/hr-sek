@@ -3,6 +3,7 @@ import { Paper, Button, Grid, Typography } from '@mui/material';
 import EmpleadoSelect from '../../components/planillaForm/EmpleadoSelect';
 import ReadOnlyField from '../../components/planillaForm/ReadOnlyField';
 import Dropdown from '../../components/planillaForm/Dropdown';
+import SnackbarAlert from '../../components/planillaForm/SnackbarAlert'; 
 import { useFetchData } from '../../hooks/useFetchData';
 import { getEmpleados } from '../../services/FuncionarioAPI';
 import { getTodasBonificaciones } from '../../services/nomina/BonificacionAPI';
@@ -24,6 +25,8 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     idPeriodoNomina: '',
   });
 
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
   // Usamos el hook mejorado para cargar datos
   const { data: empleados, isLoading: empleadosLoading, error: empleadosError } = useFetchData(getEmpleados);
   const { data: bonificaciones } = useFetchData(getTodasBonificaciones);
@@ -33,18 +36,28 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
   // Maneja la selección de empleado
   const handleEmpleadoChange = (idEmpleado) => {
     const empleado = empleados.find((e) => e.idEmpleado === idEmpleado);
-    console.log('Empleado seleccionado:', empleado); // Depuración
     if (empleado && empleado.infoContratoFuncionario) {
       setFormData({
-        ...formData,
         idEmpleado,
-        salarioBase: empleado.infoContratoFuncionario.salarioBase || 0, // Accede correctamente al salario base
+        salarioBase: empleado.infoContratoFuncionario.salarioBase || 0,
+        bonificaciones: [],
+        deducciones: [],
+        salarioBruto: 0,
+        salarioNeto: 100,
+        idPeriodoNomina: formData.idPeriodoNomina,
+        fechaGeneracion: formData.fechaGeneracion,
+        activa: formData.activa,
+        pagada: formData.pagada,
       });
     } else {
       setFormData({
         ...formData,
         idEmpleado,
-        salarioBase: 0, // Si no hay infoContratoFuncionario, asigna 0
+        salarioBase: 0,
+        bonificaciones: [],
+        deducciones: [],
+        salarioBruto: 0,
+        salarioNeto: 100,
       });
     }
   };
@@ -55,7 +68,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     setFormData({
       ...formData,
       bonificaciones: selectedBonificaciones,
-      salarioBruto: formData.salarioBase + totalBonificaciones, // Calcula el salario bruto
+      salarioBruto: formData.salarioBase + totalBonificaciones,
     });
   };
 
@@ -65,7 +78,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     setFormData({
       ...formData,
       deducciones: selectedDeducciones,
-      salarioNeto: formData.salarioBruto - totalDeducciones, // Calcula el salario neto
+      salarioNeto: formData.salarioBruto - totalDeducciones,
     });
   };
 
@@ -74,9 +87,11 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     e.preventDefault();
     try {
       await createNomina(formData); // Crea la nómina usando la API
+      setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
       onClose(); // Cierra el formulario después de guardar
     } catch (error) {
       console.error('Error al crear la nómina:', error);
+      setSnackbar({ open: true, message: 'Error al guardar la nómina', severity: 'error' });
     }
   };
 
@@ -152,6 +167,12 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
           Guardar Nómina
         </Button>
       </form>
+      <SnackbarAlert
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      />
     </Paper>
   );
 };
