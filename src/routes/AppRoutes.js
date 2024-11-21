@@ -5,10 +5,12 @@ import Layout from '../components/layout/Layout';
 //Páginas principales
 import Dashboard from '../pages/Dashboard';
 import Empleados from '../pages/empleados/Empleados';
-import Nomina from '../pages/nomina/Nomina';
 import Reportes from '../pages/Reportes';
 import Login from '../components/Auth/Login';
 //Nominas
+import CrearEditarNomina from '../pages/nomina/CrearEditarNomina'
+import ConsultarNomina from '../pages/nomina/ConsultarNomina'
+//periodos
 import CrearEditarPeriodo from '../pages/nomina/periodo/CrearEditarPeriodo';
 import ConsultarPeriodos from '../pages/nomina/periodo/ConsultarPeriodos';
 //bonificaciones
@@ -17,7 +19,12 @@ import ConsultarBonificaciones from '../pages/nomina/bonificacion/ConsultarBonif
 //aguinaldos
 import CrearEditarAguinaldo from '../pages/nomina/aguinaldo/CrearEditarAguinaldo'
 import ConsultarAguinaldos from '../pages/nomina/aguinaldo/ConsultarAguinaldos'
-
+//deducciones
+import CrearEditarDeduccion from '../pages/nomina/deducciones/CrearEditarDeduccion'
+import ConsultarDeducciones from '../pages/nomina/deducciones/ConsultarDeducciones'
+//cesantias
+import CrearEditarCesantia from '../pages/nomina/cesantia/CrearEditarCesantia'
+import ConsultarCesantias from '../pages/nomina/cesantia/ConsultarCesantias'
 //Solicitudes
 import MisSolicitudes from '../pages/solicitudes/user/MisSolicitudes';
 import CrearSolicitud from '../pages/solicitudes/CrearSolicitudes/CrearSolicitud';
@@ -50,17 +57,22 @@ function AppRoutes() {
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/empleados" element={<Empleados />} />
-            <Route path="/nomina" element={<Nomina />} />
             <Route path="/reportes" element={<Reportes />} />
 
             {/* Rutas para Nomina */}
+            <Route path="/CrearEditarNomina" element={<CrearEditarNomina />} />
+            <Route path="/ConsultarNomina" element={<ConsultarNomina />} />
             <Route path="/CrearEditarPeriodo" element={<CrearEditarPeriodo />} />
             <Route path="/ConsultarPeriodos" element={<ConsultarPeriodos/>} />
             <Route path="/CrearEditarBonificacion" element={<CrearEditarBonificacion/>} />
             <Route path="/ConsultarBonificaciones" element={<ConsultarBonificaciones/>} />
             <Route path="/CrearEditarAguinaldo" element={<CrearEditarAguinaldo/>} />
             <Route path="/ConsultarAguinaldos" element={<ConsultarAguinaldos/>} />
-
+            <Route path="/CrearEditarDeduccion" element={<CrearEditarDeduccion/>} />
+            <Route path="/ConsultarDeducciones" element={<ConsultarDeducciones/>} />
+            <Route path="/CrearEditarCesantia" element={<CrearEditarCesantia/>} />
+            <Route path="/ConsultarCesantias" element={<ConsultarCesantias/>} />
+            
             {/* Rutas para Asistencia */}
             <Route path="/RegistroAsistencia" element={<RegistroAsistencia />} />
             <Route path="/AsistenciasEmpleado" element={<AsistenciasEmpleado />} />
