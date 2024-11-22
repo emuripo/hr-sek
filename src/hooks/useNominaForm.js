@@ -12,24 +12,24 @@ const useNominaForm = (onClose) => {
   const [formData, setFormData] = useState({
     idEmpleado: '',
     salarioBase: 0,
-    bonificaciones: [],
-    deducciones: [],
+    bonificacionesIds: [], // Cambiado a IDs
+    deduccionesIds: [],    // Cambiado a IDs
     salarioBruto: 0,
     salarioNeto: 100, // Fijo según requerimiento
     fechaGeneracion: new Date().toISOString(),
     activa: true,
     pagada: true,
     idPeriodoNomina: '',
-    horasExtras: [], // Asegúrate de incluir esta propiedad
+    horasExtras: [],
   });
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Agrega los estados para las horas extras
+  // Estados para las horas extras
   const [horasExtrasTrabajadasMes, setHorasExtrasTrabajadasMes] = useState(0);
   const [totalPagarHorasExtra, setTotalPagarHorasExtra] = useState(0);
 
-  // Usamos el hook mejorado para cargar datos
+  // Carga de datos
   const { data: empleados, isLoading: empleadosLoading, error: empleadosError } = useFetchData(getEmpleados);
   const { data: bonificaciones } = useFetchData(getTodasBonificaciones);
   const { data: deducciones } = useFetchData(getTodasDeducciones);
@@ -49,8 +49,8 @@ const useNominaForm = (onClose) => {
       ...formData,
       idEmpleado,
       salarioBase,
-      bonificaciones: [],
-      deducciones: [],
+      bonificacionesIds: [],
+      deduccionesIds: [],
       salarioBruto: salarioBase,
       salarioNeto: salarioBase,
       horasExtras: [],
@@ -95,9 +95,11 @@ const useNominaForm = (onClose) => {
   // Maneja la selección de bonificaciones
   const handleBonificacionesChange = (selectedBonificaciones) => {
     const totalBonificaciones = selectedBonificaciones.reduce((sum, b) => sum + b.monto, 0);
+    const bonificacionesIds = selectedBonificaciones.map((b) => b.idBonificacion);
+
     setFormData((prevFormData) => ({
       ...prevFormData,
-      bonificaciones: selectedBonificaciones,
+      bonificacionesIds, // Almacenamos los IDs
       salarioBruto: prevFormData.salarioBase + totalBonificaciones + totalPagarHorasExtra,
     }));
   };
@@ -105,9 +107,11 @@ const useNominaForm = (onClose) => {
   // Maneja la selección de deducciones
   const handleDeduccionesChange = (selectedDeducciones) => {
     const totalDeducciones = selectedDeducciones.reduce((sum, d) => sum + d.monto, 0);
+    const deduccionesIds = selectedDeducciones.map((d) => d.idDeduccion);
+
     setFormData((prevFormData) => ({
       ...prevFormData,
-      deducciones: selectedDeducciones,
+      deduccionesIds, // Almacenamos los IDs
       salarioNeto: prevFormData.salarioBruto - totalDeducciones,
     }));
   };
@@ -125,8 +129,27 @@ const useNominaForm = (onClose) => {
         return;
       }
 
-      // Si no existe, procedemos a crear la nómina
-      await createNomina(formData);
+      // Preparar los datos para enviar, asegurando que coinciden con el NominaDTO
+      const nominaData = {
+        idNomina: 0,
+        idEmpleado: formData.idEmpleado,
+        salarioBase: formData.salarioBase,
+        salarioBruto: formData.salarioBruto,
+        salarioNeto: formData.salarioNeto,
+        impuestos: null,
+        fechaGeneracion: formData.fechaGeneracion,
+        activa: formData.activa,
+        pagada: formData.pagada,
+        idPeriodoNomina: formData.idPeriodoNomina,
+        deduccionesIds: formData.deduccionesIds,
+        bonificacionesIds: formData.bonificacionesIds,
+        horasExtras: formData.horasExtras,
+        modificadoPor: '', // Puedes ajustar este valor según necesites
+        fechaUltimaModificacion: new Date().toISOString(),
+      };
+
+      // Crear la nómina usando la API
+      await createNomina(nominaData);
       setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
       onClose(); // Cierra el formulario después de guardar
     } catch (error) {
