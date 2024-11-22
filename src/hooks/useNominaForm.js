@@ -1,5 +1,4 @@
-// useNominaForm.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetchData } from '../hooks/useFetchData';
 import { getEmpleados } from '../services/FuncionarioAPI';
 import { getTodasBonificaciones } from '../services/nomina/BonificacionAPI';
@@ -12,8 +11,8 @@ const useNominaForm = (onClose) => {
   const [formData, setFormData] = useState({
     idEmpleado: '',
     salarioBase: 0,
-    bonificacionesIds: [], // Cambiado a IDs
-    deduccionesIds: [],    // Cambiado a IDs
+    bonificacionesIds: [],
+    deduccionesIds: [],
     salarioBruto: 0,
     salarioNeto: 100, // Fijo según requerimiento
     fechaGeneracion: new Date().toISOString(),
@@ -21,11 +20,11 @@ const useNominaForm = (onClose) => {
     pagada: true,
     idPeriodoNomina: '',
     horasExtras: [],
+    deduccionesAutomaticas: [], // Nuevas deducciones calculadas
   });
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Estados para las horas extras
   const [horasExtrasTrabajadasMes, setHorasExtrasTrabajadasMes] = useState(0);
   const [totalPagarHorasExtra, setTotalPagarHorasExtra] = useState(0);
 
@@ -34,6 +33,14 @@ const useNominaForm = (onClose) => {
   const { data: bonificaciones } = useFetchData(getTodasBonificaciones);
   const { data: deducciones } = useFetchData(getTodasDeducciones);
   const { data: periodos } = useFetchData(getTodosPeriodosNomina);
+
+  // Función para calcular deducciones automáticas
+  const calcularDeduccionesAutomaticas = (salarioBase) => {
+    return [
+      { idDeduccion: 'CCSS', tipoDeduccion: 'CCSS', monto: salarioBase * 0.1067 },
+      { idDeduccion: 'BancoPopular', tipoDeduccion: 'Banco Popular', monto: salarioBase * 0.01 },
+    ];
+  };
 
   // Maneja la selección de empleado
   const handleEmpleadoChange = async (idEmpleado) => {
@@ -44,6 +51,9 @@ const useNominaForm = (onClose) => {
       salarioBase = empleado.infoContratoFuncionario.salarioBase || 0;
     }
 
+    // Calcular deducciones automáticas
+    const deduccionesAutomaticas = calcularDeduccionesAutomaticas(salarioBase);
+
     // Resetea el formData y los estados relacionados con horas extras
     setFormData({
       ...formData,
@@ -51,8 +61,9 @@ const useNominaForm = (onClose) => {
       salarioBase,
       bonificacionesIds: [],
       deduccionesIds: [],
+      deduccionesAutomaticas,
       salarioBruto: salarioBase,
-      salarioNeto: salarioBase,
+      salarioNeto: salarioBase - deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0),
       horasExtras: [],
     });
 
@@ -66,7 +77,7 @@ const useNominaForm = (onClose) => {
       setHorasExtrasTrabajadasMes(horasExtrasMes);
 
       // Realizar los cálculos
-      const salarioPorHora = salarioBase / 160; // Suponiendo 160 horas laborales al mes
+      const salarioPorHora = salarioBase / 160;
       const tarifaHorasExtra = salarioPorHora * 1.5;
       const totalPagar = tarifaHorasExtra * horasExtrasMes;
       setTotalPagarHorasExtra(totalPagar);
@@ -75,7 +86,8 @@ const useNominaForm = (onClose) => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         salarioBruto: prevFormData.salarioBruto + totalPagar,
-        salarioNeto: prevFormData.salarioNeto + totalPagar,
+        salarioNeto:
+          prevFormData.salarioNeto + totalPagar - deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0),
         horasExtras: [
           {
             salarioBase,
@@ -88,7 +100,6 @@ const useNominaForm = (onClose) => {
       }));
     } catch (error) {
       console.error('Error al obtener las horas extras:', error);
-      // Mantenemos las horas extras en cero si hay un error
     }
   };
 
@@ -99,7 +110,7 @@ const useNominaForm = (onClose) => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      bonificacionesIds, // Almacenamos los IDs
+      bonificacionesIds,
       salarioBruto: prevFormData.salarioBase + totalBonificaciones + totalPagarHorasExtra,
     }));
   };
@@ -111,8 +122,11 @@ const useNominaForm = (onClose) => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      deduccionesIds, // Almacenamos los IDs
-      salarioNeto: prevFormData.salarioBruto - totalDeducciones,
+      deduccionesIds,
+      salarioNeto:
+        prevFormData.salarioBruto -
+        totalDeducciones -
+        prevFormData.deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0),
     }));
   };
 
@@ -120,38 +134,22 @@ const useNominaForm = (onClose) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Validar si ya existe una nómina para el empleado en el período seleccionado
       const validacion = await validarNominaPorPeriodo(formData.idEmpleado, formData.idPeriodoNomina);
 
       if (validacion.existe) {
-        // Si la nómina ya existe, mostramos el mensaje proporcionado por el endpoint y no continuamos
         setSnackbar({ open: true, message: validacion.mensaje, severity: 'error' });
         return;
       }
 
-      // Preparar los datos para enviar, asegurando que coinciden con el NominaDTO
       const nominaData = {
-        idNomina: 0,
-        idEmpleado: formData.idEmpleado,
-        salarioBase: formData.salarioBase,
-        salarioBruto: formData.salarioBruto,
-        salarioNeto: formData.salarioNeto,
-        impuestos: null,
-        fechaGeneracion: formData.fechaGeneracion,
-        activa: formData.activa,
-        pagada: formData.pagada,
-        idPeriodoNomina: formData.idPeriodoNomina,
+        ...formData,
         deduccionesIds: formData.deduccionesIds,
-        bonificacionesIds: formData.bonificacionesIds,
-        horasExtras: formData.horasExtras,
-        modificadoPor: '', // Puedes ajustar este valor según necesites
-        fechaUltimaModificacion: new Date().toISOString(),
+        deduccionesAutomaticas: formData.deduccionesAutomaticas,
       };
 
-      // Crear la nómina usando la API
       await createNomina(nominaData);
       setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
-      onClose(); // Cierra el formulario después de guardar
+      onClose();
     } catch (error) {
       console.error('Error al crear la nómina:', error);
       const errorMessage = error.response?.data?.mensaje || 'Error al guardar la nómina';

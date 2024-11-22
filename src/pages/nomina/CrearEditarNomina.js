@@ -1,11 +1,9 @@
-// CrearEditarNomina.js
-
 import React from 'react';
 import { Paper, Button, Grid, Typography } from '@mui/material';
 import EmpleadoSelect from '../../components/planillaForm/EmpleadoSelect';
 import ReadOnlyField from '../../components/planillaForm/ReadOnlyField';
 import Dropdown from '../../components/planillaForm/Dropdown';
-import SnackbarAlert from '../../components/planillaForm/SnackbarAlert'; 
+import SnackbarAlert from '../../components/planillaForm/SnackbarAlert';
 import useNominaForm from '../../hooks/useNominaForm';
 
 // Define la función personalizada para formatear números
@@ -52,8 +50,12 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
   }
 
   // Mapea los IDs a los objetos seleccionados para deducciones y bonificaciones
-  const selectedBonificaciones = bonificaciones.filter(b => formData.bonificacionesIds.includes(b.idBonificacion));
-  const selectedDeducciones = deducciones.filter(d => formData.deduccionesIds.includes(d.idDeduccion));
+  const selectedBonificaciones = bonificaciones.filter((b) =>
+    formData.bonificacionesIds.includes(b.idBonificacion)
+  );
+  const selectedDeducciones = deducciones.filter((d) =>
+    formData.deduccionesIds.includes(d.idDeduccion)
+  );
 
   return (
     <Paper elevation={3} sx={{ p: 4, maxWidth: 800, margin: 'auto' }}>
@@ -67,7 +69,9 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             <Dropdown
               label="Período de Nómina"
               options={periodos.map((p) => ({
-                label: `Del ${new Date(p.fechaInicio).toLocaleDateString()} al ${new Date(p.fechaFin).toLocaleDateString()}`,
+                label: `Del ${new Date(p.fechaInicio).toLocaleDateString()} al ${new Date(
+                  p.fechaFin
+                ).toLocaleDateString()}`,
                 value: p.idPeriodoNomina,
               }))}
               value={formData.idPeriodoNomina}
@@ -91,13 +95,34 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
 
           {/* Horas Extras Trabajadas en el Mes */}
           <Grid item xs={6}>
-            <ReadOnlyField label="Horas Extras Trabajadas en el Mes" value={horasExtrasTrabajadasMes} />
+            <ReadOnlyField
+              label="Horas Extras Trabajadas en el Mes"
+              value={horasExtrasTrabajadasMes}
+            />
           </Grid>
 
           {/* Total a Pagar por Horas Extra */}
           <Grid item xs={6}>
-            <ReadOnlyField label="Total a Pagar por Horas Extra" value={formatNumber(totalPagarHorasExtra)} />
+            <ReadOnlyField
+              label="Total a Pagar por Horas Extra"
+              value={formatNumber(totalPagarHorasExtra)}
+            />
           </Grid>
+
+          {/* Deduciones Automáticas */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Deducciones Automáticas
+            </Typography>
+          </Grid>
+          {formData.deduccionesAutomaticas.map((deduccion) => (
+            <Grid item xs={6} key={deduccion.idDeduccion}>
+              <ReadOnlyField
+                label={deduccion.tipoDeduccion}
+                value={formatNumber(deduccion.monto)}
+              />
+            </Grid>
+          ))}
 
           {/* Bonificaciones */}
           <Grid item xs={6}>
