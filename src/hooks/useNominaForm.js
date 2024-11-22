@@ -5,7 +5,7 @@ import { getEmpleados } from '../services/FuncionarioAPI';
 import { getTodasBonificaciones } from '../services/nomina/BonificacionAPI';
 import { getTodasDeducciones } from '../services/nomina/DeduccionAPI';
 import { getTodosPeriodosNomina } from '../services/nomina/PeriodoNominaAPI';
-import { createNomina } from '../services/NominaAPI';
+import { createNomina, validarNominaPorPeriodo } from '../services/NominaAPI';
 
 const useNominaForm = (onClose) => {
   const [formData, setFormData] = useState({
@@ -34,16 +34,13 @@ const useNominaForm = (onClose) => {
     const empleado = empleados.find((e) => e.idEmpleado === idEmpleado);
     if (empleado && empleado.infoContratoFuncionario) {
       setFormData({
+        ...formData,
         idEmpleado,
         salarioBase: empleado.infoContratoFuncionario.salarioBase || 0,
         bonificaciones: [],
         deducciones: [],
         salarioBruto: 0,
         salarioNeto: 100,
-        idPeriodoNomina: formData.idPeriodoNomina,
-        fechaGeneracion: formData.fechaGeneracion,
-        activa: formData.activa,
-        pagada: formData.pagada,
       });
     } else {
       setFormData({
@@ -79,17 +76,30 @@ const useNominaForm = (onClose) => {
   };
 
   // Maneja el envío del formulario
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await createNomina(formData); // Crea la nómina usando la API
-      setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
-      onClose(); // Cierra el formulario después de guardar
-    } catch (error) {
-      console.error('Error al crear la nómina:', error);
-      setSnackbar({ open: true, message: 'Error al guardar la nómina', severity: 'error' });
+  // useNominaForm.js
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Validar si ya existe una nómina para el empleado en el período seleccionado
+    const validacion = await validarNominaPorPeriodo(formData.idEmpleado, formData.idPeriodoNomina);
+    
+    if (validacion.existe) {
+      // Si la nómina ya existe, mostramos el mensaje proporcionado por el endpoint y no continuamos
+      setSnackbar({ open: true, message: validacion.mensaje, severity: 'error' });
+      return;
     }
-  };
+    
+    // Si no existe, procedemos a crear la nómina
+    await createNomina(formData);
+    setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
+    onClose(); // Cierra el formulario después de guardar
+  } catch (error) {
+    console.error('Error al crear la nómina:', error);
+    const errorMessage = error.response?.data?.mensaje || 'Error al guardar la nómina';
+    setSnackbar({ open: true, message: errorMessage, severity: 'error' });
+  }
+};
 
   return {
     formData,

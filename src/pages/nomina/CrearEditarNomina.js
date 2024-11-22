@@ -93,7 +93,14 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             <ReadOnlyField label="Salario Neto" value={formData.salarioNeto} />
           </Grid>
         </Grid>
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 3 }}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: 3 }}
+          disabled={!formData.idEmpleado || !formData.idPeriodoNomina}
+        >
           Guardar Nómina
         </Button>
       </form>
