@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';  
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -15,15 +15,22 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Grid,
+  Card,
+  CardContent,
 } from '@mui/material';
 import { getNominas } from '../../services/NominaAPI';
 import { getEmpleados } from '../../services/FuncionarioAPI';
 import { getTodosPeriodosNomina } from '../../services/nomina/PeriodoNominaAPI';
+import { getTodasDeducciones } from '../../services/nomina/DeduccionAPI';
+import { getTodasBonificaciones } from '../../services/nomina/BonificacionAPI';
 
 const ConsultarNomina = () => {
   const [nominas, setNominas] = useState([]);
   const [empleados, setEmpleados] = useState([]);
   const [periodos, setPeriodos] = useState([]);
+  const [deducciones, setDeducciones] = useState([]);
+  const [bonificaciones, setBonificaciones] = useState([]);
   const [selectedPeriodo, setSelectedPeriodo] = useState('');
   const [filteredNominas, setFilteredNominas] = useState([]);
   const [selectedNomina, setSelectedNomina] = useState(null);
@@ -35,10 +42,11 @@ const ConsultarNomina = () => {
     fetchNominas();
     fetchEmpleados();
     fetchPeriodos();
+    fetchDeducciones();
+    fetchBonificaciones();
   }, []);
 
   useEffect(() => {
-    // Filtrar nóminas según el período seleccionado
     if (selectedPeriodo) {
       const filtered = nominas.filter((nomina) => nomina.idPeriodoNomina === selectedPeriodo);
       setFilteredNominas(filtered);
@@ -83,12 +91,26 @@ const ConsultarNomina = () => {
     }
   };
 
-  const handleViewNomina = (nomina) => {
-    setSelectedNomina(nomina);
+  const fetchDeducciones = async () => {
+    try {
+      const data = await getTodasDeducciones();
+      setDeducciones(data);
+    } catch (error) {
+      console.error('Error al obtener las deducciones:', error);
+    }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
+  const fetchBonificaciones = async () => {
+    try {
+      const data = await getTodasBonificaciones();
+      setBonificaciones(data);
+    } catch (error) {
+      console.error('Error al obtener las bonificaciones:', error);
+    }
+  };
+
+  const handleViewNomina = (nomina) => {
+    setSelectedNomina(nomina);
   };
 
   const getNombreEmpleado = (idEmpleado) => {
@@ -98,13 +120,23 @@ const ConsultarNomina = () => {
       : 'Empleado no encontrado';
   };
 
+  const mapDeducciones = (deduccionesIds) =>
+    deducciones.filter((deduccion) => deduccionesIds.includes(deduccion.idDeduccion));
+
+  const mapBonificaciones = (bonificacionesIds) =>
+    bonificaciones.filter((bonificacion) => bonificacionesIds.includes(bonificacion.idBonificacion));
+
+  const calcularDeduccionAutomatica = (salarioBase) => {
+    const porcentajeCCSS = 0.1067; // 10.67%
+    return salarioBase * porcentajeCCSS;
+  };
+
   return (
     <div>
       <Typography variant="h4" gutterBottom>
         Consultar Nóminas
       </Typography>
 
-      {/* Selector de Período */}
       <FormControl fullWidth sx={{ mb: 3 }}>
         <InputLabel id="select-periodo-label">Seleccionar Período</InputLabel>
         <Select
@@ -163,57 +195,77 @@ const ConsultarNomina = () => {
       </TableContainer>
 
       {selectedNomina && (
-        <div style={{ marginTop: '20px' }}>
-          <Typography variant="h5">Detalles de Nómina</Typography>
-          <Typography>ID: {selectedNomina.idNomina}</Typography>
-          <Typography>Empleado: {getNombreEmpleado(selectedNomina.idEmpleado)}</Typography>
-          <Typography>Salario Base: {selectedNomina.salarioBase}</Typography>
-          <Typography>Salario Bruto: {selectedNomina.salarioBruto}</Typography>
-          <Typography>Salario Neto: {selectedNomina.salarioNeto}</Typography>
-          <Typography>Bonificaciones:</Typography>
-          <ul>
-            {selectedNomina?.bonificaciones?.length > 0 ? (
-              selectedNomina.bonificaciones.map((b) => (
-                <li key={b.idBonificacion}>{`${b.tipoBonificacion} - ${b.monto}`}</li>
-              ))
+        <Card elevation={3} sx={{ p: 4, mt: 3 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              Detalles de Nómina
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1">
+                  <strong>ID Nómina:</strong> {selectedNomina.idNomina}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Empleado:</strong> {getNombreEmpleado(selectedNomina.idEmpleado)}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Salario Base:</strong> {selectedNomina.salarioBase.toFixed(2)}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1">
+                  <strong>Salario Bruto:</strong> {selectedNomina.salarioBruto.toFixed(2)}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Salario Neto:</strong> {selectedNomina.salarioNeto.toFixed(2)}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Deducción Automática CCSS:</strong>{' '}
+                  {calcularDeduccionAutomatica(selectedNomina.salarioBase).toFixed(2)}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Typography variant="h6" mt={3}>
+              Bonificaciones
+            </Typography>
+            {mapBonificaciones(selectedNomina.bonificacionesIds).length > 0 ? (
+              <ul>
+                {mapBonificaciones(selectedNomina.bonificacionesIds).map((b) => (
+                  <li key={b.idBonificacion}>
+                    {b.tipoBonificacion}: {b.monto.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <li>No hay bonificaciones registradas</li>
+              <Typography>No hay bonificaciones registradas</Typography>
             )}
-          </ul>
-          <Typography>Deducciones:</Typography>
-          <ul>
-            {selectedNomina?.deducciones?.length > 0 ? (
-              selectedNomina.deducciones.map((d) => (
-                <li key={d.tipoDeduccion}>{`${d.tipoDeduccion} - ${d.monto}`}</li>
-              ))
+
+            <Typography variant="h6" mt={3}>
+              Deducciones Manuales
+            </Typography>
+            {mapDeducciones(selectedNomina.deduccionesIds).length > 0 ? (
+              <ul>
+                {mapDeducciones(selectedNomina.deduccionesIds).map((d) => (
+                  <li key={d.idDeduccion}>
+                    {d.tipoDeduccion}: {d.monto.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <li>No hay deducciones registradas</li>
+              <Typography>No hay deducciones manuales registradas</Typography>
             )}
-          </ul>
-          <Typography>Horas Extras:</Typography>
-          <ul>
-            {selectedNomina?.horasExtras?.length > 0 ? (
-              selectedNomina.horasExtras.map((he, index) => (
-                <li key={index}>{`Horas: ${he.horasExtrasTrabajadasMes}, Total: ${he.totalPagarHorasExtra}`}</li>
-              ))
-            ) : (
-              <li>No hay horas extras registradas</li>
-            )}
-          </ul>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
-        onClose={handleSnackbarClose}
+        onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-        >
+        <Alert severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
