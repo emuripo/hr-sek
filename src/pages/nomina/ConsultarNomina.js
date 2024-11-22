@@ -227,6 +227,22 @@ const ConsultarNomina = () => {
             </Grid>
 
             <Typography variant="h6" mt={3}>
+              Horas Extras
+            </Typography>
+            {selectedNomina.horasExtras?.length > 0 ? (
+              <ul>
+                {selectedNomina.horasExtras.map((he, index) => (
+                  <li key={index}>
+                    <strong>Horas:</strong> {he.horasExtrasTrabajadasMes},{' '}
+                    <strong>Total:</strong> {he.totalPagarHorasExtra.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>No hay horas extras registradas</Typography>
+            )}
+
+            <Typography variant="h6" mt={3}>
               Bonificaciones
             </Typography>
             {mapBonificaciones(selectedNomina.bonificacionesIds).length > 0 ? (
