@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';  
 import {
   Table,
   TableBody,
@@ -11,13 +11,21 @@ import {
   Button,
   Snackbar,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { getNominas } from '../../services/NominaAPI';
-import { getEmpleados } from '../../services/FuncionarioAPI'; // Importamos el servicio para obtener los empleados
+import { getEmpleados } from '../../services/FuncionarioAPI';
+import { getTodosPeriodosNomina } from '../../services/nomina/PeriodoNominaAPI';
 
 const ConsultarNomina = () => {
   const [nominas, setNominas] = useState([]);
   const [empleados, setEmpleados] = useState([]);
+  const [periodos, setPeriodos] = useState([]);
+  const [selectedPeriodo, setSelectedPeriodo] = useState('');
+  const [filteredNominas, setFilteredNominas] = useState([]);
   const [selectedNomina, setSelectedNomina] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -25,8 +33,19 @@ const ConsultarNomina = () => {
 
   useEffect(() => {
     fetchNominas();
-    fetchEmpleados(); // Cargamos los datos de los empleados al inicio
+    fetchEmpleados();
+    fetchPeriodos();
   }, []);
+
+  useEffect(() => {
+    // Filtrar nóminas según el período seleccionado
+    if (selectedPeriodo) {
+      const filtered = nominas.filter((nomina) => nomina.idPeriodoNomina === selectedPeriodo);
+      setFilteredNominas(filtered);
+    } else {
+      setFilteredNominas(nominas);
+    }
+  }, [selectedPeriodo, nominas]);
 
   const fetchNominas = async () => {
     try {
@@ -52,6 +71,18 @@ const ConsultarNomina = () => {
     }
   };
 
+  const fetchPeriodos = async () => {
+    try {
+      const data = await getTodosPeriodosNomina();
+      setPeriodos(data);
+    } catch (error) {
+      console.error('Error al obtener los períodos:', error);
+      setSnackbarMessage('Error al cargar los períodos.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   const handleViewNomina = (nomina) => {
     setSelectedNomina(nomina);
   };
@@ -60,7 +91,6 @@ const ConsultarNomina = () => {
     setSnackbarOpen(false);
   };
 
-  // Obtener el nombre completo del empleado basado en el idEmpleado
   const getNombreEmpleado = (idEmpleado) => {
     const empleado = empleados.find((emp) => emp.idEmpleado === idEmpleado);
     return empleado
@@ -73,6 +103,28 @@ const ConsultarNomina = () => {
       <Typography variant="h4" gutterBottom>
         Consultar Nóminas
       </Typography>
+
+      {/* Selector de Período */}
+      <FormControl fullWidth sx={{ mb: 3 }}>
+        <InputLabel id="select-periodo-label">Seleccionar Período</InputLabel>
+        <Select
+          labelId="select-periodo-label"
+          value={selectedPeriodo}
+          onChange={(e) => setSelectedPeriodo(e.target.value)}
+        >
+          <MenuItem value="">
+            <em>Todos los Períodos</em>
+          </MenuItem>
+          {periodos.map((periodo) => (
+            <MenuItem key={periodo.idPeriodoNomina} value={periodo.idPeriodoNomina}>
+              {`Del ${new Date(periodo.fechaInicio).toLocaleDateString()} al ${new Date(
+                periodo.fechaFin
+              ).toLocaleDateString()}`}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -87,7 +139,7 @@ const ConsultarNomina = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {nominas.map((nomina) => (
+            {filteredNominas.map((nomina) => (
               <TableRow key={nomina.idNomina}>
                 <TableCell>{nomina.idNomina}</TableCell>
                 <TableCell>{getNombreEmpleado(nomina.idEmpleado)}</TableCell>
@@ -120,15 +172,33 @@ const ConsultarNomina = () => {
           <Typography>Salario Neto: {selectedNomina.salarioNeto}</Typography>
           <Typography>Bonificaciones:</Typography>
           <ul>
-            {selectedNomina.bonificaciones.map((b) => (
-              <li key={b.idBonificacion}>{`${b.tipoBonificacion} - ${b.monto}`}</li>
-            ))}
+            {selectedNomina?.bonificaciones?.length > 0 ? (
+              selectedNomina.bonificaciones.map((b) => (
+                <li key={b.idBonificacion}>{`${b.tipoBonificacion} - ${b.monto}`}</li>
+              ))
+            ) : (
+              <li>No hay bonificaciones registradas</li>
+            )}
           </ul>
           <Typography>Deducciones:</Typography>
           <ul>
-            {selectedNomina.deducciones.map((d) => (
-              <li key={d.tipoDeduccion}>{`${d.tipoDeduccion} - ${d.monto}`}</li>
-            ))}
+            {selectedNomina?.deducciones?.length > 0 ? (
+              selectedNomina.deducciones.map((d) => (
+                <li key={d.tipoDeduccion}>{`${d.tipoDeduccion} - ${d.monto}`}</li>
+              ))
+            ) : (
+              <li>No hay deducciones registradas</li>
+            )}
+          </ul>
+          <Typography>Horas Extras:</Typography>
+          <ul>
+            {selectedNomina?.horasExtras?.length > 0 ? (
+              selectedNomina.horasExtras.map((he, index) => (
+                <li key={index}>{`Horas: ${he.horasExtrasTrabajadasMes}, Total: ${he.totalPagarHorasExtra}`}</li>
+              ))
+            ) : (
+              <li>No hay horas extras registradas</li>
+            )}
           </ul>
         </div>
       )}
