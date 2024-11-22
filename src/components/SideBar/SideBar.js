@@ -56,17 +56,17 @@ function Sidebar() {
             {/* Gestión de Nómina */}
             <li onClick={toggleMenu(setOpenGestionNomina)}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <ListItemText primary="Gestión de Nómina" />
+                <ListItemText primary="Gestión de Nómina" style={{ color: 'white' }}/>
                 {openGestionNomina ? <ExpandLess /> : <ExpandMore />}
               </div>
             </li>
             <Collapse in={openGestionNomina} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/ConsultarNomina">
-                  <ListItemText primary="Consultar Nómina" />
+                  <ListItemText primary="Consultar Nómina" style={{ color: 'white' }}/>
                 </ListItem>
                 <ListItem button component={Link} to="/CrearEditarNomina">
-                  <ListItemText primary="Crear una Nómina/Editar" />
+                  <ListItemText primary="Crear una Nómina/Editar" style={{ color: 'white' }}/>
                 </ListItem>
               </List>
             </Collapse>
@@ -81,10 +81,10 @@ function Sidebar() {
             <Collapse in={openGestionPeriodos} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/ConsultarPeriodos">
-                  <ListItemText primary="Consultar Periodos" />
+                  <ListItemText primary="Consultar Periodos" style={{ color: 'white' }}/>
                 </ListItem>
                 <ListItem button component={Link} to="/CrearEditarPeriodo">
-                  <ListItemText primary="Crear un Periodo" />
+                  <ListItemText primary="Crear un Periodo" style={{ color: 'white' }}/>
                 </ListItem>
               </List>
             </Collapse>
@@ -92,17 +92,17 @@ function Sidebar() {
             {/* Gestión de Deducciones */}
             <li onClick={toggleMenu(setOpenGestionDeducciones)}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <ListItemText primary="Gestión de Deducciones" />
+                <ListItemText primary="Gestión de Deducciones" style={{ color: 'white' }}/>
                 {openGestionDeducciones ? <ExpandLess /> : <ExpandMore />}
               </div>
             </li>
             <Collapse in={openGestionDeducciones} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/ConsultarDeducciones">
-                  <ListItemText primary="Consultar Deducciones" />
+                  <ListItemText primary="Consultar Deducciones" style={{ color: 'white' }} />
                 </ListItem>
                 <ListItem button component={Link} to="/CrearEditarDeduccion">
-                  <ListItemText primary="Crear una Deducción/Editar" />
+                  <ListItemText primary="Crear una Deducción/Editar" style={{ color: 'white' }}/>
                 </ListItem>
               </List>
             </Collapse>
@@ -110,17 +110,17 @@ function Sidebar() {
             {/* Gestión de Bonificaciones */}
             <li onClick={toggleMenu(setOpenGestionBonificaciones)}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <ListItemText primary="Gestión de Bonificaciones" />
+                <ListItemText primary="Gestión de Bonificaciones" style={{ color: 'white' }}/>
                 {openGestionBonificaciones ? <ExpandLess /> : <ExpandMore />}
               </div>
             </li>
             <Collapse in={openGestionBonificaciones} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/ConsultarBonificaciones">
-                  <ListItemText primary="Consultar Bonificaciones" />
+                  <ListItemText primary="Consultar Bonificaciones" style={{ color: 'white' }} />
                 </ListItem>
                 <ListItem button component={Link} to="/CrearEditarBonificacion">
-                  <ListItemText primary="Crear una Bonificación/Editar" />
+                  <ListItemText primary="Crear una Bonificación/Editar" style={{ color: 'white' }} />
                 </ListItem>
               </List>
             </Collapse>
@@ -135,10 +135,10 @@ function Sidebar() {
             <Collapse in={openGestionAguinaldos} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/ConsultarAguinaldos">
-                  <ListItemText primary="Consultar Aguinaldos" />
+                  <ListItemText primary="Consultar Aguinaldos" style={{ color: 'white' }}/>
                 </ListItem>
                 <ListItem button component={Link} to="/CrearEditarAguinaldo">
-                  <ListItemText primary="Crear Aguinaldos/Editar" />
+                  <ListItemText primary="Crear Aguinaldos/Editar" style={{ color: 'white' }}/>
                 </ListItem>
               </List>
             </Collapse>
@@ -146,17 +146,17 @@ function Sidebar() {
             {/* Gestión de Cesantías */}
             <li onClick={toggleMenu(setOpenGestionCesantias)}>
               <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <ListItemText primary="Gestión de Cesantías" />
+                <ListItemText primary="Gestión de Cesantías" style={{ color: 'white' }}/>
                 {openGestionCesantias ? <ExpandLess /> : <ExpandMore />}
               </div>
             </li>
             <Collapse in={openGestionCesantias} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/ConsultarCesantias">
-                  <ListItemText primary="Consultar Cesantías" />
+                  <ListItemText primary="Consultar Cesantías" style={{ color: 'white' }}/>
                 </ListItem>
                 <ListItem button component={Link} to="/CrearEditarCesantia">
-                  <ListItemText primary="Crear Cesantías/Editar" />
+                  <ListItemText primary="Crear Cesantías/Editar" style={{ color: 'white' }}/>
                 </ListItem>
               </List>
             </Collapse>
@@ -171,13 +171,13 @@ function Sidebar() {
             <Collapse in={openGestionHorarios} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button component={Link} to="/RegistrarTurno">
-                  <ListItemText primary="Turno" />
+                  <ListItemText primary="Turno" style={{ color: 'white' }}/>
                 </ListItem>
                 <ListItem button component={Link} to="/RegistrarHorario">
-                  <ListItemText primary="Horario" />
+                  <ListItemText primary="Horario" style={{ color: 'white' }}/>
                 </ListItem>
                 <ListItem button component={Link} to="/EmpleadoTurno">
-                  <ListItemText primary="Empleado Turno" />
+                  <ListItemText primary="Empleado Turno" style={{ color: 'white' }}/>
                 </ListItem>
               </List>
             </Collapse>
