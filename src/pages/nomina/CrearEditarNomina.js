@@ -1,4 +1,5 @@
 // CrearEditarNomina.js
+
 import React from 'react';
 import { Paper, Button, Grid, Typography } from '@mui/material';
 import EmpleadoSelect from '../../components/planillaForm/EmpleadoSelect';
@@ -19,6 +20,8 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     bonificaciones,
     deducciones,
     periodos,
+    horasExtrasTrabajadasMes, // Agregamos aquí
+    totalPagarHorasExtra,     // Agregamos aquí
     handleEmpleadoChange,
     handleBonificacionesChange,
     handleDeduccionesChange,
@@ -60,8 +63,17 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             />
           </Grid>
           <Grid item xs={6}>
-            <ReadOnlyField label="Salario Base" value={formData.salarioBase} />
+            <ReadOnlyField label="Salario Base" value={`$${formData.salarioBase}`} />
           </Grid>
+
+          {/* Agregamos aquí los nuevos campos */}
+          <Grid item xs={6}>
+            <ReadOnlyField label="Horas Extras Trabajadas en el Mes" value={horasExtrasTrabajadasMes} />
+          </Grid>
+          <Grid item xs={6}>
+            <ReadOnlyField label="Total a Pagar por Horas Extra" value={`$${totalPagarHorasExtra.toFixed(2)}`} />
+          </Grid>
+
           <Grid item xs={6}>
             <Dropdown
               label="Bonificaciones"
@@ -87,10 +99,10 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             />
           </Grid>
           <Grid item xs={6}>
-            <ReadOnlyField label="Salario Bruto" value={formData.salarioBruto} />
+            <ReadOnlyField label="Salario Bruto" value={`$${formData.salarioBruto}`} />
           </Grid>
           <Grid item xs={6}>
-            <ReadOnlyField label="Salario Neto" value={formData.salarioNeto} />
+            <ReadOnlyField label="Salario Neto" value={`$${formData.salarioNeto}`} />
           </Grid>
         </Grid>
         <Button
