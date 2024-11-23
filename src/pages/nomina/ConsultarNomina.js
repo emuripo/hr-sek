@@ -19,6 +19,7 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
+import { saveAs } from 'file-saver';
 import { getNominas } from '../../services/NominaAPI';
 import { getEmpleados } from '../../services/FuncionarioAPI';
 import { getTodosPeriodosNomina } from '../../services/nomina/PeriodoNominaAPI';
@@ -139,6 +140,82 @@ const ConsultarNomina = () => {
   const mapBonificaciones = (bonificacionesIds) =>
     bonificaciones.filter((bonificacion) => bonificacionesIds.includes(bonificacion.idBonificacion));
 
+  const handleGenerateReport = () => {
+    const headers = [
+      'Empleado',
+      'Período',
+      'Salario Base',
+      'Salario Bruto',
+      'Salario Neto',
+      'Bonificaciones',
+      'Deducciones',
+      'Horas Extras',
+      'Deducciones Automáticas',
+      'Otras Deducciones',
+    ];
+  
+    const csvContent = [
+      headers.join(','),
+      ...filteredNominas.map((nomina) => {
+        const empleado = getNombreEmpleado(nomina.idEmpleado);
+        const periodo = periodos.find((p) => p.idPeriodoNomina === nomina.idPeriodoNomina);
+        const fechaPeriodo = periodo
+          ? `Del ${new Date(periodo.fechaInicio).toLocaleDateString()} al ${new Date(
+              periodo.fechaFin
+            ).toLocaleDateString()}`
+          : 'Período no encontrado';
+  
+        const bonificacionesData = mapBonificaciones(nomina.bonificacionesIds)
+          .map((b) => `${b.tipoBonificacion}: ${b.monto.toFixed(2)}`)
+          .join('; ');
+  
+        const deduccionesData = mapDeducciones(nomina.deduccionesIds)
+          .map((d) => `${d.tipoDeduccion}: ${d.monto.toFixed(2)}`)
+          .join('; ');
+  
+        const horasExtrasData = nomina.horasExtras
+          ? nomina.horasExtras
+              .map(
+                (extra) =>
+                  `Horas: ${extra.horasExtrasTrabajadasMes}, Tarifa: ${extra.tarifaHorasExtra.toFixed(
+                    2
+                  )}, Total: ${extra.totalPagarHorasExtra.toFixed(2)}`
+              )
+              .join('; ')
+          : 'N/A';
+  
+        const deduccionesAutomaticasData = nomina.deduccionesAutomaticas
+          ? nomina.deduccionesAutomaticas
+              .map((deduccion) => `${deduccion.tipoDeduccion}: ${deduccion.monto.toFixed(2)}`)
+              .join('; ')
+          : 'N/A';
+  
+        const otrasDeduccionesData = nomina.otrasDeducciones
+          ? nomina.otrasDeducciones
+              .map((deduccion) => `${deduccion.descripcion}: ${deduccion.monto.toFixed(2)}`)
+              .join('; ')
+          : 'N/A';
+  
+        return [
+          `"${empleado}"`,
+          `"${fechaPeriodo}"`,
+          nomina.salarioBase.toFixed(2),
+          nomina.salarioBruto.toFixed(2),
+          nomina.salarioNeto.toFixed(2),
+          bonificacionesData || 'N/A',
+          deduccionesData || 'N/A',
+          horasExtrasData,
+          deduccionesAutomaticasData,
+          otrasDeduccionesData,
+        ].join(',');
+      }),
+    ].join('\n');
+  
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'reporte_nominas.csv');
+  };
+  
+
   return (
     <div>
       <Typography variant="h4" gutterBottom>
@@ -164,6 +241,16 @@ const ConsultarNomina = () => {
           ))}
         </Select>
       </FormControl>
+
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mb: 3 }}
+        onClick={handleGenerateReport}
+        disabled={filteredNominas.length === 0}
+      >
+        Generar Reporte CSV
+      </Button>
 
       <TableContainer component={Paper}>
         <Table>
