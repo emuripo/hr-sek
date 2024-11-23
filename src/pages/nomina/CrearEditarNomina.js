@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Paper, Button, Grid, Typography } from '@mui/material';
 import EmpleadoSelect from '../../components/planillaForm/EmpleadoSelect';
 import ReadOnlyField from '../../components/planillaForm/ReadOnlyField';
@@ -39,6 +39,49 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     handleSubmit,
   } = useNominaForm(onClose);
 
+  const [extraBonificaciones, setExtraBonificaciones] = useState([]);
+  const [extraDeducciones, setExtraDeducciones] = useState([]);
+
+  const handleAddDropdown = (type) => {
+    if (type === 'bonificacion') {
+      setExtraBonificaciones([...extraBonificaciones, null]);
+    } else if (type === 'deduccion') {
+      setExtraDeducciones([...extraDeducciones, null]);
+    }
+  };
+
+  const handleDropdownChange = (type, index, value) => {
+    if (type === 'bonificacion') {
+      const updatedBonificaciones = [...extraBonificaciones];
+      updatedBonificaciones[index] = value;
+      setExtraBonificaciones(updatedBonificaciones);
+
+      const validBonificaciones = updatedBonificaciones.filter((b) => b);
+      const bonificacionesIds = validBonificaciones.map((b) => b.idBonificacion);
+
+      handleBonificacionesChange(validBonificaciones);
+
+      setFormData((prev) => ({
+        ...prev,
+        bonificacionesIds,
+      }));
+    } else if (type === 'deduccion') {
+      const updatedDeducciones = [...extraDeducciones];
+      updatedDeducciones[index] = value;
+      setExtraDeducciones(updatedDeducciones);
+
+      const validDeducciones = updatedDeducciones.filter((d) => d);
+      const deduccionesIds = validDeducciones.map((d) => d.idDeduccion);
+
+      handleDeduccionesChange(validDeducciones);
+
+      setFormData((prev) => ({
+        ...prev,
+        deduccionesIds,
+      }));
+    }
+  };
+
   if (empleadosLoading) {
     return <div>Cargando empleados...</div>;
   }
@@ -46,13 +89,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
   if (empleadosError) {
     return <div>Error al cargar empleados: {empleadosError}</div>;
   }
-
-  const selectedBonificaciones = bonificaciones.filter((b) =>
-    formData.bonificacionesIds.includes(b.idBonificacion)
-  );
-  const selectedDeducciones = deducciones.filter((d) =>
-    formData.deduccionesIds.includes(d.idDeduccion)
-  );
 
   return (
     <Paper elevation={3} sx={{ p: 4, maxWidth: 800, margin: 'auto' }}>
@@ -115,6 +151,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Grid>
           )}
 
+          {/* Deducciones automáticas */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
               Deducciones Automáticas
@@ -129,30 +166,62 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Grid>
           ))}
 
-          <Grid item xs={6}>
-            <Dropdown
-              label="Bonificaciones"
-              options={bonificaciones.map((b) => ({
-                label: `${b.tipoBonificacion} - ${formatNumber(b.monto)}`,
-                value: b,
-              }))}
-              value={selectedBonificaciones}
-              onChange={handleBonificacionesChange}
-              multiple
-            />
+          {/* Bonificaciones dinámicas */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Bonificaciones
+            </Typography>
+          </Grid>
+          {extraBonificaciones.map((_, index) => (
+            <Grid item xs={6} key={`extra-bonificacion-${index}`}>
+              <Dropdown
+                label={`Bonificación Extra ${index + 1}`}
+                options={bonificaciones.map((b) => ({
+                  label: `${b.tipoBonificacion} - ${formatNumber(b.monto)}`,
+                  value: b,
+                }))}
+                value={extraBonificaciones[index]}
+                onChange={(value) => handleDropdownChange('bonificacion', index, value)}
+              />
+            </Grid>
+          ))}
+          <Grid item xs={12}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => handleAddDropdown('bonificacion')}
+            >
+              Agregar Bonificación
+            </Button>
           </Grid>
 
-          <Grid item xs={6}>
-            <Dropdown
-              label="Deducciones"
-              options={deducciones.map((d) => ({
-                label: `${d.tipoDeduccion} - ${formatNumber(d.monto)}`,
-                value: d,
-              }))}
-              value={selectedDeducciones}
-              onChange={handleDeduccionesChange}
-              multiple
-            />
+          {/* Deducciones dinámicas */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Deducciones
+            </Typography>
+          </Grid>
+          {extraDeducciones.map((_, index) => (
+            <Grid item xs={6} key={`extra-deduccion-${index}`}>
+              <Dropdown
+                label={`Deducción Extra ${index + 1}`}
+                options={deducciones.map((d) => ({
+                  label: `${d.tipoDeduccion} - ${formatNumber(d.monto)}`,
+                  value: d,
+                }))}
+                value={extraDeducciones[index]}
+                onChange={(value) => handleDropdownChange('deduccion', index, value)}
+              />
+            </Grid>
+          ))}
+          <Grid item xs={12}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => handleAddDropdown('deduccion')}
+            >
+              Agregar Deducción
+            </Button>
           </Grid>
 
           <Grid item xs={6}>
