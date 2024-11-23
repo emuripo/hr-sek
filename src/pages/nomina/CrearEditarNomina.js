@@ -16,7 +16,6 @@ const formatNumber = (number) => {
     useGrouping: true,
   }).format(number);
 
-  // Reemplaza los separadores de miles por espacios
   return formatted.replace(/\./g, ' ').replace(/,/g, ' ');
 };
 
@@ -40,7 +39,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     handleSubmit,
   } = useNominaForm(onClose);
 
-  // Verifica estado de carga o errores en empleados
   if (empleadosLoading) {
     return <div>Cargando empleados...</div>;
   }
@@ -49,7 +47,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     return <div>Error al cargar empleados: {empleadosError}</div>;
   }
 
-  // Mapea los IDs a los objetos seleccionados para deducciones y bonificaciones
   const selectedBonificaciones = bonificaciones.filter((b) =>
     formData.bonificacionesIds.includes(b.idBonificacion)
   );
@@ -64,7 +61,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
       </Typography>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          {/* Período de Nómina */}
           <Grid item xs={12}>
             <Dropdown
               label="Período de Nómina"
@@ -79,7 +75,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             />
           </Grid>
 
-          {/* Selección de Empleado */}
           <Grid item xs={12}>
             <EmpleadoSelect
               empleados={empleados}
@@ -88,28 +83,38 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             />
           </Grid>
 
-          {/* Salario Base */}
           <Grid item xs={6}>
             <ReadOnlyField label="Salario Base" value={formatNumber(formData.salarioBase)} />
           </Grid>
 
-          {/* Horas Extras Trabajadas en el Mes */}
-          <Grid item xs={6}>
-            <ReadOnlyField
-              label="Horas Extras Trabajadas en el Mes"
-              value={horasExtrasTrabajadasMes}
-            />
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Horas Extras
+            </Typography>
           </Grid>
+          {formData.horasExtras.length > 0 ? (
+            formData.horasExtras.map((extra, index) => (
+              <Grid item xs={6} key={index}>
+                <Typography variant="body1">
+                  <strong>Horas Trabajadas:</strong> {extra.horasExtrasTrabajadasMes}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Salario por Hora:</strong> {formatNumber(extra.salarioPorHora)}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Tarifa Horas Extra:</strong> {formatNumber(extra.tarifaHorasExtra)}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Total Horas Extra:</strong> {formatNumber(extra.totalPagarHorasExtra)}
+                </Typography>
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Typography variant="body2">No hay horas extras registradas</Typography>
+            </Grid>
+          )}
 
-          {/* Total a Pagar por Horas Extra */}
-          <Grid item xs={6}>
-            <ReadOnlyField
-              label="Total a Pagar por Horas Extra"
-              value={formatNumber(totalPagarHorasExtra)}
-            />
-          </Grid>
-
-          {/* Deduciones Automáticas */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
               Deducciones Automáticas
@@ -124,7 +129,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Grid>
           ))}
 
-          {/* Bonificaciones */}
           <Grid item xs={6}>
             <Dropdown
               label="Bonificaciones"
@@ -132,13 +136,12 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
                 label: `${b.tipoBonificacion} - ${formatNumber(b.monto)}`,
                 value: b,
               }))}
-              value={selectedBonificaciones} // Usamos los objetos seleccionados
+              value={selectedBonificaciones}
               onChange={handleBonificacionesChange}
               multiple
             />
           </Grid>
 
-          {/* Deducciones */}
           <Grid item xs={6}>
             <Dropdown
               label="Deducciones"
@@ -146,24 +149,21 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
                 label: `${d.tipoDeduccion} - ${formatNumber(d.monto)}`,
                 value: d,
               }))}
-              value={selectedDeducciones} // Usamos los objetos seleccionados
+              value={selectedDeducciones}
               onChange={handleDeduccionesChange}
               multiple
             />
           </Grid>
 
-          {/* Salario Bruto */}
           <Grid item xs={6}>
             <ReadOnlyField label="Salario Bruto" value={formatNumber(formData.salarioBruto)} />
           </Grid>
 
-          {/* Salario Neto */}
           <Grid item xs={6}>
             <ReadOnlyField label="Salario Neto" value={formatNumber(formData.salarioNeto)} />
           </Grid>
         </Grid>
 
-        {/* Botón de Guardar Nómina */}
         <Button
           type="submit"
           variant="contained"
@@ -176,7 +176,6 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
         </Button>
       </form>
 
-      {/* Snackbar para mensajes */}
       <SnackbarAlert
         open={snackbar.open}
         message={snackbar.message}
