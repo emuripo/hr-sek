@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Paper, Button, Grid, Typography } from '@mui/material';
+import { Paper, Button, Grid, Typography, IconButton, TextField } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import EmpleadoSelect from '../../components/planillaForm/EmpleadoSelect';
 import ReadOnlyField from '../../components/planillaForm/ReadOnlyField';
 import Dropdown from '../../components/planillaForm/Dropdown';
@@ -41,6 +42,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
 
   const [extraBonificaciones, setExtraBonificaciones] = useState([]);
   const [extraDeducciones, setExtraDeducciones] = useState([]);
+  const [otrasDeducciones, setOtrasDeducciones] = useState([]);
 
   const handleAddDropdown = (type) => {
     if (type === 'bonificacion') {
@@ -82,6 +84,73 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
     }
   };
 
+  const handleRemoveDropdown = (type, index) => {
+    if (type === 'bonificacion') {
+      const updatedBonificaciones = extraBonificaciones.filter((_, i) => i !== index);
+      setExtraBonificaciones(updatedBonificaciones);
+
+      const validBonificaciones = updatedBonificaciones.filter((b) => b);
+      handleBonificacionesChange(validBonificaciones);
+
+      setFormData((prev) => ({
+        ...prev,
+        bonificacionesIds: validBonificaciones.map((b) => b.idBonificacion),
+      }));
+    } else if (type === 'deduccion') {
+      const updatedDeducciones = extraDeducciones.filter((_, i) => i !== index);
+      setExtraDeducciones(updatedDeducciones);
+
+      const validDeducciones = updatedDeducciones.filter((d) => d);
+      handleDeduccionesChange(validDeducciones);
+
+      setFormData((prev) => ({
+        ...prev,
+        deduccionesIds: validDeducciones.map((d) => d.idDeduccion),
+      }));
+    }
+  };
+
+  const handleAddDeduccion = () => {
+    setOtrasDeducciones([...otrasDeducciones, { descripcion: '', monto: 0 }]);
+  };
+
+  const handleRemoveDeduccion = (index) => {
+    const updatedDeducciones = otrasDeducciones.filter((_, i) => i !== index);
+    setOtrasDeducciones(updatedDeducciones);
+    updateSalarioNeto(updatedDeducciones);
+  };
+
+  const handleChangeDeduccion = (index, field, value) => {
+    const updatedDeducciones = otrasDeducciones.map((deduccion, i) =>
+        i === index
+            ? {
+                  ...deduccion,
+                  [field]:
+                      field === 'monto'
+                          ? value === '' // Si el usuario borra todo, dejamos el input vacío
+                              ? ''
+                              : parseFloat(value) || 0 // Convertimos a número solo si es válido
+                          : value,
+              }
+            : deduccion
+    );
+    setOtrasDeducciones(updatedDeducciones);
+    updateSalarioNeto(updatedDeducciones);
+};
+    const updateSalarioNeto = (deducciones) => {
+      // Validamos y calculamos correctamente asegurando que el monto siempre sea numérico
+      const totalOtrasDeducciones = deducciones.reduce(
+          (acc, curr) => acc + (parseFloat(curr.monto) || 0), // Convertimos a número solo si es válido
+          0
+      );
+      const salarioNeto = formData.salarioBruto - totalOtrasDeducciones - (formData.totalDeducciones || 0);
+
+      setFormData((prev) => ({
+          ...prev,
+          salarioNeto: isNaN(salarioNeto) ? 0 : salarioNeto, // Prevenimos NaN
+      }));
+    };
+
   if (empleadosLoading) {
     return <div>Cargando empleados...</div>;
   }
@@ -97,6 +166,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
       </Typography>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
+          {/* Período y Empleado */}
           <Grid item xs={12}>
             <Dropdown
               label="Período de Nómina"
@@ -123,6 +193,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             <ReadOnlyField label="Salario Base" value={formatNumber(formData.salarioBase)} />
           </Grid>
 
+          {/* Horas Extras */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
               Horas Extras
@@ -151,7 +222,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Grid>
           )}
 
-          {/* Deducciones automáticas */}
+          {/* Deducciones Automáticas */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
               Deducciones Automáticas
@@ -173,7 +244,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Typography>
           </Grid>
           {extraBonificaciones.map((_, index) => (
-            <Grid item xs={6} key={`extra-bonificacion-${index}`}>
+            <Grid item xs={6} key={`extra-bonificacion-${index}`} container alignItems="center">
               <Dropdown
                 label={`Bonificación Extra ${index + 1}`}
                 options={bonificaciones.map((b) => ({
@@ -183,6 +254,12 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
                 value={extraBonificaciones[index]}
                 onChange={(value) => handleDropdownChange('bonificacion', index, value)}
               />
+              <IconButton
+                color="secondary"
+                onClick={() => handleRemoveDropdown('bonificacion', index)}
+              >
+                <DeleteIcon />
+              </IconButton>
             </Grid>
           ))}
           <Grid item xs={12}>
@@ -202,7 +279,7 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Typography>
           </Grid>
           {extraDeducciones.map((_, index) => (
-            <Grid item xs={6} key={`extra-deduccion-${index}`}>
+            <Grid item xs={6} key={`extra-deduccion-${index}`} container alignItems="center">
               <Dropdown
                 label={`Deducción Extra ${index + 1}`}
                 options={deducciones.map((d) => ({
@@ -212,6 +289,12 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
                 value={extraDeducciones[index]}
                 onChange={(value) => handleDropdownChange('deduccion', index, value)}
               />
+              <IconButton
+                color="secondary"
+                onClick={() => handleRemoveDropdown('deduccion', index)}
+              >
+                <DeleteIcon />
+              </IconButton>
             </Grid>
           ))}
           <Grid item xs={12}>
@@ -224,6 +307,62 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
             </Button>
           </Grid>
 
+          {/* Otras Deducciones */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Otras Deducciones
+            </Typography>
+          </Grid>
+          {otrasDeducciones.map((deduccion, index) => (
+            <Grid item xs={12} container spacing={2} alignItems="center" key={`deduccion-${index}`}>
+              <Grid item xs={6}>
+                <TextField
+                  label="Descripción"
+                  variant="outlined"
+                  fullWidth
+                  value={deduccion.descripcion}
+                  onChange={(e) =>
+                    handleChangeDeduccion(index, 'descripcion', e.target.value)
+                  }
+                  error={!deduccion.descripcion}
+                  helperText={!deduccion.descripcion ? 'Requerido' : ''}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  label="Monto"
+                  variant="outlined"
+                  fullWidth
+                  type="number"
+                  value={deduccion.monto}
+                  onChange={(e) =>
+                    handleChangeDeduccion(index, 'monto', e.target.value)
+                  }
+                  error={deduccion.monto <= 0}
+                  helperText={deduccion.monto <= 0 ? 'Debe ser mayor a 0' : ''}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <IconButton
+                  color="secondary"
+                  onClick={() => handleRemoveDeduccion(index)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+          ))}
+          <Grid item xs={12}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleAddDeduccion}
+            >
+              Agregar Deducción
+            </Button>
+          </Grid>
+
+          {/* Salarios */}
           <Grid item xs={6}>
             <ReadOnlyField label="Salario Bruto" value={formatNumber(formData.salarioBruto)} />
           </Grid>

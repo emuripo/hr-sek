@@ -109,8 +109,21 @@ const ConsultarNomina = () => {
     }
   };
 
+  const calcularDeduccionesAutomaticas = (salarioBase) => {
+    return [
+      { tipoDeduccion: 'Seguro Social (CCSS)', monto: salarioBase * 0.1067 },
+      { tipoDeduccion: 'Banco Popular', monto: salarioBase * 0.01 },
+    ];
+  };
+
   const handleViewNomina = (nomina) => {
-    setSelectedNomina(nomina);
+    const deduccionesAutomaticas = calcularDeduccionesAutomaticas(nomina.salarioBase);
+    const otrasDeducciones = nomina.otrasDeducciones || [
+      { descripcion: 'Préstamo Personal', monto: 12000 },
+      { descripcion: 'Seguro Médico', monto: 8000 },
+    ];
+
+    setSelectedNomina({ ...nomina, deduccionesAutomaticas, otrasDeducciones });
   };
 
   const getNombreEmpleado = (idEmpleado) => {
@@ -170,9 +183,9 @@ const ConsultarNomina = () => {
               <TableRow key={nomina.idNomina}>
                 <TableCell>{nomina.idNomina}</TableCell>
                 <TableCell>{getNombreEmpleado(nomina.idEmpleado)}</TableCell>
-                <TableCell>{nomina.salarioBase}</TableCell>
-                <TableCell>{nomina.salarioBruto}</TableCell>
-                <TableCell>{nomina.salarioNeto}</TableCell>
+                <TableCell>{nomina.salarioBase.toFixed(2)}</TableCell>
+                <TableCell>{nomina.salarioBruto.toFixed(2)}</TableCell>
+                <TableCell>{nomina.salarioNeto.toFixed(2)}</TableCell>
                 <TableCell>{nomina.activa ? 'Activa' : 'Inactiva'}</TableCell>
                 <TableCell>
                   <Button
@@ -218,6 +231,21 @@ const ConsultarNomina = () => {
             </Grid>
 
             <Typography variant="h6" mt={3}>
+              Horas Extras
+            </Typography>
+            {selectedNomina.horasExtras?.length > 0 ? (
+              <ul>
+                {selectedNomina.horasExtras.map((extra, index) => (
+                  <li key={index}>
+                    Horas Trabajadas: {extra.horasExtrasTrabajadasMes}, Tarifa Horas Extra: {extra.tarifaHorasExtra.toFixed(2)}, Total: {extra.totalPagarHorasExtra.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>No hay horas extras registradas</Typography>
+            )}
+
+            <Typography variant="h6" mt={3}>
               Bonificaciones
             </Typography>
             {mapBonificaciones(selectedNomina.bonificacionesIds).length > 0 ? (
@@ -245,6 +273,36 @@ const ConsultarNomina = () => {
               </ul>
             ) : (
               <Typography>No hay deducciones registradas</Typography>
+            )}
+
+            <Typography variant="h6" mt={3}>
+              Deducciones Automáticas
+            </Typography>
+            {selectedNomina.deduccionesAutomaticas?.length > 0 ? (
+              <ul>
+                {selectedNomina.deduccionesAutomaticas.map((deduccion, index) => (
+                  <li key={index}>
+                    {deduccion.tipoDeduccion}: {deduccion.monto.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>No hay deducciones automáticas registradas</Typography>
+            )}
+
+            <Typography variant="h6" mt={3}>
+              Otras Deducciones
+            </Typography>
+            {selectedNomina.otrasDeducciones?.length > 0 ? (
+              <ul>
+                {selectedNomina.otrasDeducciones.map((deduccion, index) => (
+                  <li key={index}>
+                    {deduccion.descripcion}: {deduccion.monto.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>No hay otras deducciones registradas</Typography>
             )}
           </CardContent>
         </Card>

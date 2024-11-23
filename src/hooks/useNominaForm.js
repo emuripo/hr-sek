@@ -21,6 +21,7 @@ const useNominaForm = (onClose) => {
     idPeriodoNomina: '',
     horasExtras: [],
     deduccionesAutomaticas: [], // Nuevas deducciones calculadas
+    otrasDeducciones: [], // Maneja "Otras Deducciones"
   });
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -65,6 +66,7 @@ const useNominaForm = (onClose) => {
       salarioBruto: salarioBase,
       salarioNeto: salarioBase - deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0),
       horasExtras: [],
+      otrasDeducciones: [], // Reinicia "Otras Deducciones"
     });
 
     setHorasExtrasTrabajadasMes(0);
@@ -124,9 +126,37 @@ const useNominaForm = (onClose) => {
       ...prevFormData,
       deduccionesIds,
       salarioNeto:
-        prevFormData.salarioBruto -
-        totalDeducciones -
-        prevFormData.deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0),
+        prevFormData.salarioBruto - totalDeducciones -
+        prevFormData.deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0) -
+        prevFormData.otrasDeducciones.reduce((sum, d) => sum + d.monto, 0), // Incluye "Otras Deducciones"
+    }));
+  };
+
+  // Maneja "Otras Deducciones"
+  const handleAddOtraDeduccion = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      otrasDeducciones: [...prevFormData.otrasDeducciones, { descripcion: '', monto: 0 }],
+    }));
+  };
+
+  const handleUpdateOtraDeduccion = (index, field, value) => {
+    const updatedDeducciones = formData.otrasDeducciones.map((deduccion, i) =>
+      i === index
+        ? { ...deduccion, [field]: field === 'monto' ? parseFloat(value) || 0 : value }
+        : deduccion
+    );
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      otrasDeducciones: updatedDeducciones,
+    }));
+  };
+
+  const handleRemoveOtraDeduccion = (index) => {
+    const updatedDeducciones = formData.otrasDeducciones.filter((_, i) => i !== index);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      otrasDeducciones: updatedDeducciones,
     }));
   };
 
@@ -141,11 +171,7 @@ const useNominaForm = (onClose) => {
         return;
       }
 
-      const nominaData = {
-        ...formData,
-        deduccionesIds: formData.deduccionesIds,
-        deduccionesAutomaticas: formData.deduccionesAutomaticas,
-      };
+      const nominaData = { ...formData };
 
       await createNomina(nominaData);
       setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
@@ -173,6 +199,9 @@ const useNominaForm = (onClose) => {
     handleEmpleadoChange,
     handleBonificacionesChange,
     handleDeduccionesChange,
+    handleAddOtraDeduccion,
+    handleUpdateOtraDeduccion,
+    handleRemoveOtraDeduccion,
     handleSubmit,
   };
 };
