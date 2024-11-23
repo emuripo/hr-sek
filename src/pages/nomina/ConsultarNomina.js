@@ -126,11 +126,6 @@ const ConsultarNomina = () => {
   const mapBonificaciones = (bonificacionesIds) =>
     bonificaciones.filter((bonificacion) => bonificacionesIds.includes(bonificacion.idBonificacion));
 
-  const calcularDeduccionAutomatica = (salarioBase) => {
-    const porcentajeCCSS = 0.1067; // 10.67%
-    return salarioBase * porcentajeCCSS;
-  };
-
   return (
     <div>
       <Typography variant="h4" gutterBottom>
@@ -219,28 +214,8 @@ const ConsultarNomina = () => {
                 <Typography variant="body1">
                   <strong>Salario Neto:</strong> {selectedNomina.salarioNeto.toFixed(2)}
                 </Typography>
-                <Typography variant="body1">
-                  <strong>Deducción Automática CCSS:</strong>{' '}
-                  {calcularDeduccionAutomatica(selectedNomina.salarioBase).toFixed(2)}
-                </Typography>
               </Grid>
             </Grid>
-
-            <Typography variant="h6" mt={3}>
-              Horas Extras
-            </Typography>
-            {selectedNomina.horasExtras?.length > 0 ? (
-              <ul>
-                {selectedNomina.horasExtras.map((he, index) => (
-                  <li key={index}>
-                    <strong>Horas:</strong> {he.horasExtrasTrabajadasMes},{' '}
-                    <strong>Total:</strong> {he.totalPagarHorasExtra.toFixed(2)}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Typography>No hay horas extras registradas</Typography>
-            )}
 
             <Typography variant="h6" mt={3}>
               Bonificaciones
@@ -258,7 +233,7 @@ const ConsultarNomina = () => {
             )}
 
             <Typography variant="h6" mt={3}>
-              Deducciones Manuales
+              Deducciones
             </Typography>
             {mapDeducciones(selectedNomina.deduccionesIds).length > 0 ? (
               <ul>
@@ -269,7 +244,7 @@ const ConsultarNomina = () => {
                 ))}
               </ul>
             ) : (
-              <Typography>No hay deducciones manuales registradas</Typography>
+              <Typography>No hay deducciones registradas</Typography>
             )}
           </CardContent>
         </Card>
