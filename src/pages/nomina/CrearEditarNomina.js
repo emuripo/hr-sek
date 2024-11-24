@@ -7,7 +7,6 @@ import Dropdown from '../../components/planillaForm/Dropdown';
 import SnackbarAlert from '../../components/planillaForm/SnackbarAlert';
 import useNominaForm from '../../hooks/useNominaForm';
 
-// Define la función personalizada para formatear números
 const formatNumber = (number) => {
   const formatted = new Intl.NumberFormat('es-CR', {
     style: 'currency',
@@ -127,29 +126,47 @@ const CrearEditarNomina = ({ onClose = () => {} }) => {
                   ...deduccion,
                   [field]:
                       field === 'monto'
-                          ? value === '' // Si el usuario borra todo, dejamos el input vacío
+                          ? value === ''
                               ? ''
-                              : parseFloat(value) || 0 // Convertimos a número solo si es válido
+                              : parseFloat(value) || 0
                           : value,
               }
             : deduccion
     );
-    setOtrasDeducciones(updatedDeducciones);
-    updateSalarioNeto(updatedDeducciones);
-};
-    const updateSalarioNeto = (deducciones) => {
-      // Validamos y calculamos correctamente asegurando que el monto siempre sea numérico
-      const totalOtrasDeducciones = deducciones.reduce(
-          (acc, curr) => acc + (parseFloat(curr.monto) || 0), // Convertimos a número solo si es válido
-          0
-      );
-      const salarioNeto = formData.salarioBruto - totalOtrasDeducciones - (formData.totalDeducciones || 0);
 
-      setFormData((prev) => ({
-          ...prev,
-          salarioNeto: isNaN(salarioNeto) ? 0 : salarioNeto, // Prevenimos NaN
-      }));
-    };
+    // Actualizar estado de otrasDeducciones
+    setOtrasDeducciones(updatedDeducciones);
+
+    // Recalcular salario neto considerando todas las deducciones
+    updateSalarioNeto({ ...formData, otrasDeducciones: updatedDeducciones });
+};
+
+const updateSalarioNeto = (updatedFormData) => {
+  const totalOtrasDeducciones = updatedFormData.otrasDeducciones.reduce(
+      (sum, deduccion) => sum + (parseFloat(deduccion.monto) || 0),
+      0
+  );
+
+  const totalDeduccionesSeleccionadas = updatedFormData.deduccionesIds.reduce((sum, id) => {
+      const deduccion = deducciones.find((d) => d.idDeduccion === id);
+      return sum + (deduccion ? deduccion.monto : 0);
+  }, 0);
+
+  const totalDeduccionesAutomaticas = updatedFormData.deduccionesAutomaticas.reduce(
+      (sum, deduccion) => sum + (parseFloat(deduccion.monto) || 0),
+      0
+  );
+
+  setFormData((prevFormData) => ({
+      ...prevFormData,
+      ...updatedFormData, // Asegurar que se usa el estado más reciente
+      salarioNeto:
+          prevFormData.salarioBruto -
+          totalOtrasDeducciones -
+          totalDeduccionesSeleccionadas -
+          totalDeduccionesAutomaticas,
+  }));
+};
 
   if (empleadosLoading) {
     return <div>Cargando empleados...</div>;

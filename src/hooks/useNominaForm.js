@@ -14,14 +14,14 @@ const useNominaForm = (onClose) => {
     bonificacionesIds: [],
     deduccionesIds: [],
     salarioBruto: 0,
-    salarioNeto: 100, // Fijo según requerimiento
+    salarioNeto: 100, 
     fechaGeneracion: new Date().toISOString(),
     activa: true,
     pagada: true,
     idPeriodoNomina: '',
     horasExtras: [],
-    deduccionesAutomaticas: [], // Nuevas deducciones calculadas
-    otrasDeducciones: [], // Maneja "Otras Deducciones"
+    deduccionesAutomaticas: [], 
+    otrasDeducciones: [], 
   });
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -146,11 +146,25 @@ const useNominaForm = (onClose) => {
         ? { ...deduccion, [field]: field === 'monto' ? parseFloat(value) || 0 : value }
         : deduccion
     );
+  
+    const totalOtrasDeducciones = updatedDeducciones.reduce(
+      (sum, deduccion) => sum + (parseFloat(deduccion.monto) || 0),
+      0
+    );
+  
     setFormData((prevFormData) => ({
       ...prevFormData,
       otrasDeducciones: updatedDeducciones,
+      salarioNeto:
+        prevFormData.salarioBruto -
+        totalOtrasDeducciones -
+        prevFormData.deduccionesAutomaticas.reduce((sum, d) => sum + d.monto, 0) -
+        prevFormData.deduccionesIds.reduce((sum, id) => {
+          const deduccion = deducciones.find((d) => d.idDeduccion === id);
+          return sum + (deduccion ? deduccion.monto : 0);
+        }, 0),
     }));
-  };
+  };  
 
   const handleRemoveOtraDeduccion = (index) => {
     const updatedDeducciones = formData.otrasDeducciones.filter((_, i) => i !== index);
