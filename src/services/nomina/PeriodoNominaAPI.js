@@ -14,6 +14,7 @@ export const getTodosPeriodosNomina = async () => {
   }
 };
 
+
 // Obtener un período de nómina por ID
 export const getPeriodoNominaPorId = async (idPeriodoNomina) => {
   try {
@@ -21,6 +22,17 @@ export const getPeriodoNominaPorId = async (idPeriodoNomina) => {
     return response.data;
   } catch (error) {
     console.error(`Error al obtener el período de nómina con ID ${idPeriodoNomina}:`, error);
+    throw error;
+  }
+};
+
+// Obtener un período de nómina junto con sus aguinaldos
+export const getPeriodoNominaConAguinaldos = async (idPeriodoNomina) => {
+  try {
+    const response = await axios.get(`${API_URL}/${idPeriodoNomina}/aguinaldos`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener el período de nómina con sus aguinaldos para el ID ${idPeriodoNomina}:`, error);
     throw error;
   }
 };
