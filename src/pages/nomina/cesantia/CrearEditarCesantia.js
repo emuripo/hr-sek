@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -8,32 +8,29 @@ import {
   Typography,
   Paper,
   Alert,
-  Select,
+  CircularProgress,
   MenuItem,
-  InputLabel,
-  FormControl,
 } from '@mui/material';
 import { getEmpleados } from '../../../services/FuncionarioAPI';
-import { createCesantia } from '../../../services/nomina/CesantiaAPI';
-import AuthContext from '../../../context/AuthContext';
+import { getAguinaldoPorEmpleado } from '../../../services/nomina/AguinaldoAPI';
+import { crearLiquidacion } from '../../../services/nomina/LiquidacionAPI';
+import { getSolicitudesVacacionesPorEmpleado } from '../../../services/solicitudesService/SolicitudVacacionesService';
 
-const CrearEditarCesantia = ({ cesantiaId, onClose = () => {} }) => {
-  const { username } = useContext(AuthContext);
-
+const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
   const [empleados, setEmpleados] = useState([]);
-  const [formData, setFormData] = useState({
-    idLiquidacion: 0,
-    idEmpleado: '',
-    fechaInicio: '',
-    fechaFin: '',
-    salariosBrutosUltimosSeisMeses: '',
-    diasLaboradosUltimosSeisMeses: '',
-    diasCesantia: '',
-    salarioPromedioDiario: '',
-    montoCesantia: '',
-    fechaGeneracion: new Date().toISOString(),
-    generadoPor: username,
-  });
+  const [idEmpleado, setIdEmpleado] = useState('');
+  const [fechaIngreso, setFechaIngreso] = useState('');
+  const [fechaSalida, setFechaSalida] = useState('');
+  const [diasPreaviso, setDiasPreaviso] = useState(0);
+  const [diasTrabajadosPreaviso, setDiasTrabajadosPreaviso] = useState(0);
+  const [salariosSeisMeses, setSalariosSeisMeses] = useState(Array(6).fill(''));
+  const [salarioPromedioDiario, setSalarioPromedioDiario] = useState(0);
+  const [montoPreaviso, setMontoPreaviso] = useState(0);
+  const [montoCesantia, setMontoCesantia] = useState(0);
+  const [montoVacaciones, setMontoVacaciones] = useState(0);
+  const [montoAguinaldo, setMontoAguinaldo] = useState(0);
+  const [totalLiquidacion, setTotalLiquidacion] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -42,39 +39,183 @@ const CrearEditarCesantia = ({ cesantiaId, onClose = () => {} }) => {
     fetchEmpleados();
   }, []);
 
+  useEffect(() => {
+    if (idEmpleado) {
+      autoFillFechaIngreso();
+      calcularMontoAguinaldo();
+      calcularMontoVacaciones();
+    }
+  }, [idEmpleado]);
+
+  useEffect(() => {
+    calcularSalarioPromedioDiario();
+  }, [salariosSeisMeses]);
+
+  useEffect(() => {
+    calcularMontoPreaviso();
+  }, [diasPreaviso, diasTrabajadosPreaviso, salarioPromedioDiario]);
+
+  useEffect(() => {
+    calcularMontoCesantia();
+  }, [fechaIngreso, fechaSalida, salarioPromedioDiario]);
+
+  useEffect(() => {
+    calcularTotalLiquidacion();
+  }, [montoPreaviso, montoCesantia, montoVacaciones, montoAguinaldo]);
+
   const fetchEmpleados = async () => {
     try {
       const data = await getEmpleados();
       setEmpleados(data);
     } catch (error) {
-      console.error('Error al cargar los empleados:', error);
-      setSnackbarMessage('Error al cargar la lista de empleados.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      mostrarErrorSnackbar('Error al cargar la lista de empleados.');
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const autoFillFechaIngreso = () => {
+    const empleadoSeleccionado = empleados.find((emp) => emp.idEmpleado === idEmpleado);
+    if (empleadoSeleccionado) {
+      const fechaContratacion = empleadoSeleccionado.infoContratoFuncionario.fechaContratacion;
+      setFechaIngreso(fechaContratacion.split('T')[0]);
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const calcularSalarioPromedioDiario = () => {
+    const salariosValidos = salariosSeisMeses.map((salario) => parseFloat(salario) || 0);
+    const totalSalarios = salariosValidos.reduce((acc, salario) => acc + salario, 0);
+    const promedioMensual = totalSalarios / salariosValidos.length;
+    setSalarioPromedioDiario((promedioMensual / 30).toFixed(2));
+  };
+
+  const calcularMontoPreaviso = () => {
+    const diasPendientes = Math.max(diasPreaviso - diasTrabajadosPreaviso, 0);
+    const monto = diasPendientes * salarioPromedioDiario;
+    setMontoPreaviso(monto.toFixed(2));
+  };
+
+  const calcularMontoCesantia = () => {
+    if (!fechaIngreso || !fechaSalida) return;
+
+    const antiguedad = Math.floor(
+      (new Date(fechaSalida) - new Date(fechaIngreso)) / (1000 * 60 * 60 * 24 * 365)
+    );
+
+    let diasCesantia = 0;
+    if (antiguedad === 1) diasCesantia = 19;
+    else if (antiguedad > 1 && antiguedad <= 8) diasCesantia = 20 * antiguedad;
+    else if (antiguedad > 8) diasCesantia = 20 * 8;
+
+    const monto = diasCesantia * salarioPromedioDiario;
+    setMontoCesantia(monto.toFixed(2));
+  };
+
+  const calcularMontoVacaciones = async () => {
+    try {
+      // Obtener el empleado seleccionado
+      const empleadoSeleccionado = empleados.find((emp) => emp.idEmpleado === idEmpleado);
+  
+      if (!empleadoSeleccionado || !empleadoSeleccionado.infoContratoFuncionario) {
+        setMontoVacaciones(0);
+        mostrarErrorSnackbar('No se pudo obtener el salario base del empleado.');
+        return;
+      }
+  
+      const salarioBase = parseFloat(empleadoSeleccionado.infoContratoFuncionario.salarioBase || 0);
+  
+      if (salarioBase <= 0) {
+        setMontoVacaciones(0);
+        mostrarErrorSnackbar('El salario base del empleado no es válido.');
+        return;
+      }
+  
+      const salarioDiario = salarioBase / 30;
+  
+      // Obtener los días disponibles de vacaciones
+      const data = await getSolicitudesVacacionesPorEmpleado(idEmpleado);
+      console.log('Datos de vacaciones:', data);
+  
+      const diasDisponibles = parseFloat(data?.diasDisponibles || 0);
+  
+      if (diasDisponibles > 0) {
+        const monto = (diasDisponibles * salarioDiario).toFixed(2);
+        setMontoVacaciones(monto);
+        console.log('Monto de vacaciones calculado:', monto);
+      } else {
+        setMontoVacaciones(0);
+        mostrarErrorSnackbar('El empleado no tiene días disponibles de vacaciones.');
+      }
+    } catch (error) {
+      console.error('Error al calcular el monto de vacaciones:', error);
+      mostrarErrorSnackbar('Error al calcular el monto de vacaciones.');
+    }
+  };
+  
+
+  const calcularMontoAguinaldo = async () => {
+    try {
+      const data = await getAguinaldoPorEmpleado(idEmpleado);
+      setMontoAguinaldo(data.aguinaldoNeto.toFixed(2));
+    } catch (error) {
+      mostrarErrorSnackbar('Error al calcular el aguinaldo.');
+    }
+  };
+
+  const calcularTotalLiquidacion = () => {
+    const total =
+      parseFloat(montoPreaviso) +
+      parseFloat(montoCesantia) +
+      parseFloat(montoVacaciones) +
+      parseFloat(montoAguinaldo);
+    setTotalLiquidacion(total.toFixed(2));
+  };
+
+  const handleGuardarLiquidacion = async () => {
+    const salariosInvalidos = salariosSeisMeses.some(
+      (salario) => salario === '' || parseFloat(salario) < 330000 || parseFloat(salario) > 950000
+    );
+
+    if (salariosInvalidos) {
+      mostrarErrorSnackbar('Todos los salarios deben estar entre 330,000 y 950,000.');
+      return;
+    }
 
     try {
-      const payload = { ...formData };
-      await createCesantia(payload);
-      setSnackbarMessage('Cesantía registrada exitosamente.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      setLoading(true);
+      const payload = {
+        idEmpleado,
+        fechaIngreso,
+        fechaSalida,
+        salarioPromedioSeisMeses: salariosSeisMeses.reduce((acc, salario) => acc + parseFloat(salario || 0), 0),
+        salarioPromedioDiario,
+        diasPreaviso,
+        diasTrabajadosPreaviso,
+        montoPreaviso,
+        montoCesantia,
+        montoVacaciones,
+        montoAguinaldo,
+        totalLiquidacion,
+      };
+
+      await crearLiquidacion(payload);
+      mostrarExitoSnackbar('Liquidación guardada exitosamente.');
       onClose();
     } catch (error) {
-      console.error('Error al registrar la cesantía:', error);
-      setSnackbarMessage('Error al registrar la cesantía.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      mostrarErrorSnackbar('Error al guardar la liquidación.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const mostrarErrorSnackbar = (mensaje) => {
+    setSnackbarMessage(mensaje);
+    setSnackbarSeverity('error');
+    setSnackbarOpen(true);
+  };
+
+  const mostrarExitoSnackbar = (mensaje) => {
+    setSnackbarMessage(mensaje);
+    setSnackbarSeverity('success');
+    setSnackbarOpen(true);
   };
 
   const handleSnackbarClose = () => {
@@ -84,131 +225,136 @@ const CrearEditarCesantia = ({ cesantiaId, onClose = () => {} }) => {
   return (
     <Paper elevation={3} sx={{ p: 4, mx: 'auto', maxWidth: 800 }}>
       <Typography variant="h4" textAlign="center" gutterBottom>
-        {cesantiaId ? 'Editar Cesantía' : 'Registrar Cesantía'}
+        {isEditMode ? 'Editar Liquidación' : 'Crear Liquidación'}
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <FormControl fullWidth>
-              <InputLabel>Empleado</InputLabel>
-              <Select
-                name="idEmpleado"
-                value={formData.idEmpleado}
-                onChange={handleChange}
-                required
-              >
-                {empleados.map((empleado) => (
-                  <MenuItem key={empleado.idEmpleado} value={empleado.idEmpleado}>
-                    {`${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Fecha de Inicio"
-              name="fechaInicio"
-              type="date"
-              value={formData.fechaInicio}
-              onChange={handleChange}
-              fullWidth
-              required
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Fecha de Fin"
-              name="fechaFin"
-              type="date"
-              value={formData.fechaFin}
-              onChange={handleChange}
-              fullWidth
-              required
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Salarios Brutos Últimos 6 Meses"
-              name="salariosBrutosUltimosSeisMeses"
-              type="number"
-              value={formData.salariosBrutosUltimosSeisMeses}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Días Laborados Últimos 6 Meses"
-              name="diasLaboradosUltimosSeisMeses"
-              type="number"
-              value={formData.diasLaboradosUltimosSeisMeses}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Días de Cesantía"
-              name="diasCesantia"
-              type="number"
-              value={formData.diasCesantia}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Salario Promedio Diario"
-              name="salarioPromedioDiario"
-              type="number"
-              value={formData.salarioPromedioDiario}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Monto de Cesantía"
-              name="montoCesantia"
-              type="number"
-              value={formData.montoCesantia}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            select
+            label="Seleccionar Empleado"
+            value={idEmpleado}
+            onChange={(e) => setIdEmpleado(e.target.value)}
+            fullWidth
+          >
+            {empleados.map((empleado) => (
+              <MenuItem key={empleado.idEmpleado} value={empleado.idEmpleado}>
+                {`${empleado.nombre} ${empleado.apellidoUno} ${empleado.apellidoDos}`}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
-        <Box mt={4} textAlign="center">
-          <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
-            Guardar Cesantía
+        <Grid item xs={6}>
+          <TextField
+            label="Fecha de Ingreso"
+            type="date"
+            value={fechaIngreso}
+            fullWidth
+            disabled
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Fecha de Salida"
+            type="date"
+            value={fechaSalida}
+            onChange={(e) => setFechaSalida(e.target.value)}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        {salariosSeisMeses.map((salario, index) => (
+          <Grid item xs={6} key={index}>
+            <TextField
+              label={`Salario Mes ${index + 1}`}
+              type="number"
+              value={salario}
+              onChange={(e) =>
+                setSalariosSeisMeses((prev) => {
+                  const updated = [...prev];
+                  updated[index] = e.target.value;
+                  return updated;
+                })
+              }
+              fullWidth
+            />
+          </Grid>
+        ))}
+        <Grid item xs={6}>
+          <TextField
+            label="Días de Preaviso"
+            type="number"
+            value={diasPreaviso}
+            onChange={(e) => setDiasPreaviso(Math.max(0, parseInt(e.target.value, 10) || 0))}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Días Trabajados de Preaviso"
+            type="number"
+            value={diasTrabajadosPreaviso}
+            onChange={(e) => setDiasTrabajadosPreaviso(Math.max(0, parseInt(e.target.value, 10) || 0))}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Monto del Preaviso"
+            value={montoPreaviso}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Monto de Cesantía"
+            value={montoCesantia}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Monto de Vacaciones"
+            value={montoVacaciones}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Monto del Aguinaldo"
+            value={montoAguinaldo}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Total de Liquidación"
+            value={totalLiquidacion}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={12} textAlign="center">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleGuardarLiquidacion}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Guardar Liquidación'}
           </Button>
-          <Button variant="outlined" color="secondary" onClick={onClose}>
-            Cancelar
-          </Button>
-        </Box>
-      </form>
+        </Grid>
+      </Grid>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={6000}
       >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-        >
+        <Alert severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
@@ -216,4 +362,4 @@ const CrearEditarCesantia = ({ cesantiaId, onClose = () => {} }) => {
   );
 };
 
-export default CrearEditarCesantia;
+export default CrearEditarLiquidacion;
