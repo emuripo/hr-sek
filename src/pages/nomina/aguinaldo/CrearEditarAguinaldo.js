@@ -4,7 +4,6 @@ import {
   Button,
   Grid,
   Snackbar,
-  TextField,
   Typography,
   Paper,
   Alert,
@@ -37,10 +36,7 @@ const CrearEditarAguinaldo = ({ onClose = () => {} }) => {
       const data = await getEmpleados();
       setEmpleados(data);
     } catch (error) {
-      console.error('Error al obtener los empleados:', error);
-      setSnackbarMessage('Error al cargar la lista de empleados.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      handleSnackbar(`Error al cargar la lista de empleados: ${error.message}`, 'error');
     }
   };
 
@@ -49,10 +45,7 @@ const CrearEditarAguinaldo = ({ onClose = () => {} }) => {
       const data = await getTodosPeriodosNomina();
       setPeriodos(data);
     } catch (error) {
-      console.error('Error al obtener los períodos de nómina:', error);
-      setSnackbarMessage('Error al cargar los períodos de nómina.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      handleSnackbar(`Error al cargar los períodos de nómina: ${error.message}`, 'error');
     }
   };
 
@@ -66,9 +59,7 @@ const CrearEditarAguinaldo = ({ onClose = () => {} }) => {
 
   const handleCalcularYGuardarAguinaldo = async () => {
     if (!idEmpleado || !idPeriodoNomina) {
-      setSnackbarMessage('Por favor, seleccione un empleado y un período de nómina.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      handleSnackbar('Por favor, seleccione un empleado y un período de nómina.', 'error');
       return;
     }
 
@@ -76,15 +67,17 @@ const CrearEditarAguinaldo = ({ onClose = () => {} }) => {
       const generadoPor = 'admin'; // Cambia según el usuario autenticado
       const data = await calcularYGuardarAguinaldo(idEmpleado, idPeriodoNomina, generadoPor);
       setResultadoAguinaldo(data);
-      setSnackbarMessage('Aguinaldo calculado y guardado exitosamente.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      handleSnackbar('Aguinaldo calculado y guardado exitosamente.', 'success');
     } catch (error) {
-      console.error('Error al calcular y guardar el aguinaldo:', error);
-      setSnackbarMessage('Error al calcular y guardar el aguinaldo.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      console.error('Error al calcular y guardar el aguinaldo:', error.message);
+      handleSnackbar(`Error al calcular y guardar el aguinaldo: ${error.message}`, 'error');
     }
+  };
+
+  const handleSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
   };
 
   const handleSnackbarClose = () => {

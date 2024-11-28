@@ -8,8 +8,7 @@ export const getTodosAguinaldos = async () => {
     const response = await axios.get(`${API_URL}/todos`);
     return response.data;
   } catch (error) {
-    console.error('Error al obtener todos los aguinaldos:', error);
-    throw error;
+    handleAxiosError(error, 'Error al obtener todos los aguinaldos');
   }
 };
 
@@ -19,8 +18,7 @@ export const calcularAguinaldo = async (idEmpleado) => {
     const response = await axios.post(`${API_URL}/calcular?idEmpleado=${idEmpleado}`);
     return response.data;
   } catch (error) {
-    console.error(`Error al calcular el aguinaldo para el empleado ${idEmpleado}:`, error);
-    throw error;
+    handleAxiosError(error, `Error al calcular el aguinaldo para el empleado ${idEmpleado}`);
   }
 };
 
@@ -30,8 +28,7 @@ export const getAguinaldoPorEmpleado = async (idEmpleado) => {
     const response = await axios.get(`${API_URL}/empleado/${idEmpleado}`);
     return response.data;
   } catch (error) {
-    console.error(`Error al obtener el aguinaldo para el empleado ${idEmpleado}:`, error);
-    throw error;
+    handleAxiosError(error, `Error al obtener el aguinaldo para el empleado ${idEmpleado}`);
   }
 };
 
@@ -46,10 +43,27 @@ export const calcularYGuardarAguinaldo = async (idEmpleado, idPeriodoNomina, gen
     });
     return response.data;
   } catch (error) {
-    console.error(
-      `Error al calcular y guardar el aguinaldo para el empleado ${idEmpleado} en el período ${idPeriodoNomina}:`,
-      error
-    );
-    throw error;
+    // Captura y manejo detallado de errores
+    const backendMessage = error.response?.data?.message || error.response?.data || error.message;
+    console.error('Error al calcular y guardar el aguinaldo:', backendMessage);
+    throw new Error(backendMessage);
+  }
+};
+
+// Manejo centralizado de errores
+const handleAxiosError = (error, defaultMessage) => {
+  if (error.response) {
+    // Error del servidor con respuesta
+    const backendMessage = error.response.data?.message || error.response.statusText || defaultMessage;
+    console.error(backendMessage);
+    throw new Error(backendMessage);
+  } else if (error.request) {
+    // Error de red o sin respuesta del servidor
+    console.error('Error de red o sin respuesta del servidor:', error.message);
+    throw new Error('Error de red o sin respuesta del servidor.');
+  } else {
+    // Otros errores
+    console.error(defaultMessage, error.message);
+    throw new Error(defaultMessage);
   }
 };
