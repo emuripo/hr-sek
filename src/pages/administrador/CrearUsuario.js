@@ -78,11 +78,11 @@ const CrearUsuario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validate()) {
       return;
     }
-
+  
     try {
       await registerUser({
         username,
@@ -92,9 +92,12 @@ const CrearUsuario = () => {
         roleIds: selectedRoleIds.map(roleId => parseInt(roleId)),
         idEmpleado: selectedEmpleadoId ? parseInt(selectedEmpleadoId) : null,
       });
+  
       setAlertMessage('Usuario registrado exitosamente');
       setAlertSeverity('success');
       setAlertOpen(true);
+  
+      // Resetear campos
       setUsername('');
       setNamePart('');
       setPassword('');
@@ -102,10 +105,15 @@ const CrearUsuario = () => {
       setSelectedEmpleadoId('');
       setErrors({});
     } catch (error) {
-      setAlertMessage('Error al registrar usuario');
+      console.error("Error al registrar usuario:", error);
+  
+      // Verificar si el backend devuelve un mensaje de error
+      const backendMessage = error.response?.data || 'Error al registrar usuario';
+  
+      // Mostrar mensaje específico en la alerta
+      setAlertMessage(backendMessage);
       setAlertSeverity('error');
       setAlertOpen(true);
-      console.error("Error al registrar usuario:", error);
     }
   };
 

@@ -1,3 +1,4 @@
+/* Estilo base del sidebar */
 .sidebar {
   width: 240px;
   height: 100vh;
@@ -7,6 +8,26 @@
   left: 0;
   top: 0;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Habilitar scroll vertical */
+  overflow-x: hidden; /* Ocultar scroll horizontal */
+}
+
+/* Personalización del scroll */
+.sidebar::-webkit-scrollbar {
+  width: 8px; /* Ancho del scroll */
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #263060; /* Color de fondo del track del scroll */
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #c2c1bd; /* Color de la barra de desplazamiento */
+  border-radius: 10px; /* Bordes redondeados */
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #ffcc33; /* Color al pasar el mouse */
 }
 
 .sidebar-logo {
@@ -50,8 +71,26 @@
   border-radius: 15px; /* Ajusta la redondez del hover */
 }
 
-.logout-button, text{
-  color: red;
+/* Estilo para los submenús */
+.sidebar ul li .MuiCollapse-root .MuiList-root .MuiListItem-root {
+  background-color: #1e2747; /* Fondo del submenú */
+  margin: 5px 0; /* Espaciado entre los ítems del submenú */
+  padding: 5px 15px; /* Espaciado interno del submenú */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: background-color 0.3s, color 0.3s;
 }
 
+.sidebar ul li .MuiCollapse-root .MuiList-root .MuiListItem-root:hover {
+  background-color: #f0af00; /* Fondo del submenú en hover */
+}
+
+.sidebar ul li .MuiCollapse-root .MuiList-root .MuiListItemText-root {
+  color: #c2c1bd; /* Color del texto en el submenú */
+  font-size: 14px; /* Tamaño de fuente más pequeño para submenús */
+  transition: color 0.3s;
+}
+
+.sidebar ul li .MuiCollapse-root .MuiList-root .MuiListItemText-root:hover {
+  color: #000; /* Color del texto en hover */
+}
 

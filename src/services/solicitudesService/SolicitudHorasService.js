@@ -13,6 +13,17 @@ export const createSolicitudHorasExtra = async (solicitudData) => {
   }
 };
 
+// Obtener el saldo de horas extras de un empleado
+export const getSaldoHorasExtraPorEmpleado = async (idEmpleado) => {
+  try {
+    const response = await axios.get(`${API_URL}/empleado/${idEmpleado}/saldo`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener el saldo de horas extras del empleado:', error);
+    throw error;
+  }
+};
+
 // Obtener una solicitud de horas extra por ID
 export const getSolicitudHorasExtraById = async (id) => {
   try {

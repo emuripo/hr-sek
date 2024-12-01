@@ -27,6 +27,13 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
 
   const emailDomain = "@sekcostarica.com";
 
+  // Función para normalizar texto
+  const capitalize = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -115,8 +122,12 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
     }
 
     try {
+      // Normalizar datos antes de guardar
       const empleadoData = {
         ...nuevoEmpleado,
+        nombre: capitalize(nuevoEmpleado.nombre),
+        apellidoUno: capitalize(nuevoEmpleado.apellidoUno),
+        apellidoDos: capitalize(nuevoEmpleado.apellidoDos),
         correoElectronico: `${nuevoEmpleado.correoElectronico}${emailDomain}`,
         cedula: nuevoEmpleado.cedula.toString(),
         fechaNacimiento: new Date(nuevoEmpleado.fechaNacimiento).toISOString(),

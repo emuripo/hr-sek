@@ -29,7 +29,7 @@ export const getSolicitudVacacionesById = async (id) => {
 // Obtener todas las solicitudes de vacaciones de un empleado
 export const getSolicitudesVacacionesPorEmpleado = async (idEmpleado) => {
   try {
-    const response = await axios.get(`${API_URL}/empleado/${idEmpleado}`);
+    const response = await axios.get(`${API_URL}/empleado/${idEmpleado}/vacaciones`);
     return response.data;
   } catch (error) {
     console.error('Error al obtener las solicitudes de vacaciones del empleado:', error);
