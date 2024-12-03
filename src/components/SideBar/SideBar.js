@@ -35,13 +35,14 @@ function Sidebar() {
       </div>
 
       <ul>
-        <li>
-          <Link to="/">Dashboard</Link>
-        </li>
 
         {/* Opciones para RRHH */}
         {userRole === 'RRHH' && (
           <>
+            <li>
+              <Link to="/">Dashboard</Link>
+            </li>
+
             <li>
               <Link to="/empleados">Gestion Empleados</Link>
             </li>
@@ -191,6 +192,9 @@ function Sidebar() {
         {/* Opciones para Jefatura */}
         {userRole === 'Jefatura' && (
           <>
+            <li>
+              <Link to="/">Dashboard</Link>
+            </li>
             <li>
               <Link to="/empleados">Empleados</Link>
             </li>

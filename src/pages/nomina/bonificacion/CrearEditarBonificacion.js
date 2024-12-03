@@ -15,6 +15,8 @@ import {
   getBonificacionPorId,
   updateBonificacion,
 } from '../../../services/nomina/BonificacionAPI';
+import { logEvent } from '../../../services/LogService';
+
 
 const CrearEditarBonificacion = ({ bonificacionId, onClose = () => {} }) => {
   const { idEmpleado } = useContext(AuthContext);
@@ -78,27 +80,43 @@ const CrearEditarBonificacion = ({ bonificacionId, onClose = () => {} }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateFields();
-
+  
     if (Object.keys(validationErrors).length > 0) {
       setSnackbarMessage('Por favor, corrija los errores en el formulario.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-
+  
     try {
       const payload = {
         ...formData,
         fechaRegistro: new Date().toISOString(),
       };
-
+  
       if (isEditMode) {
         await updateBonificacion(bonificacionId, payload);
         setSnackbarMessage('Bonificación actualizada exitosamente.');
+  
+        // Registrar el log de actualización
+        await logEvent('ActualizarBonificacion', {
+          bonificacionId,
+          tipoBonificacion: formData.tipoBonificacion,
+          monto: formData.monto,
+          registradoPor: formData.registradoPor,
+        });
       } else {
         await createBonificacion(payload);
         setSnackbarMessage('Bonificación creada exitosamente.');
+  
+        // Registrar el log de creación
+        await logEvent('CrearBonificacion', {
+          tipoBonificacion: formData.tipoBonificacion,
+          monto: formData.monto,
+          registradoPor: formData.registradoPor,
+        });
       }
+  
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       onClose(); // Llama a onClose para cerrar el modal o resetear el formulario
@@ -109,7 +127,7 @@ const CrearEditarBonificacion = ({ bonificacionId, onClose = () => {} }) => {
       setSnackbarOpen(true);
     }
   };
-
+  
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };

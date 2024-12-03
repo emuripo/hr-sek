@@ -15,6 +15,8 @@ import {
 import { getEmpleados } from '../../../services/FuncionarioAPI';
 import { calcularYGuardarAguinaldo } from '../../../services/nomina/AguinaldoAPI';
 import { getTodosPeriodosNomina } from '../../../services/nomina/PeriodoNominaAPI';
+import { logEvent } from '../../../services/LogService';
+
 
 const CrearEditarAguinaldo = ({ onClose = () => {} }) => {
   const [empleados, setEmpleados] = useState([]);
@@ -58,21 +60,28 @@ const CrearEditarAguinaldo = ({ onClose = () => {} }) => {
   };
 
   const handleCalcularYGuardarAguinaldo = async () => {
-    if (!idEmpleado || !idPeriodoNomina) {
-      handleSnackbar('Por favor, seleccione un empleado y un período de nómina.', 'error');
-      return;
-    }
+  if (!idEmpleado || !idPeriodoNomina) {
+    handleSnackbar('Por favor, seleccione un empleado y un período de nómina.', 'error');
+    return;
+  }
 
-    try {
-      const generadoPor = 'admin'; // Cambia según el usuario autenticado
-      const data = await calcularYGuardarAguinaldo(idEmpleado, idPeriodoNomina, generadoPor);
-      setResultadoAguinaldo(data);
-      handleSnackbar('Aguinaldo calculado y guardado exitosamente.', 'success');
-    } catch (error) {
-      console.error('Error al calcular y guardar el aguinaldo:', error.message);
-      handleSnackbar(`Error al calcular y guardar el aguinaldo: ${error.message}`, 'error');
-    }
-  };
+  try {
+    const generadoPor = 'admin'; // Cambia según el usuario autenticado
+    const data = await calcularYGuardarAguinaldo(idEmpleado, idPeriodoNomina, generadoPor);
+    setResultadoAguinaldo(data);
+    handleSnackbar('Aguinaldo calculado y guardado exitosamente.', 'success');
+
+    // Registrar el evento en los logs
+    await logEvent('CalcularGuardarAguinaldo', {
+      idEmpleado,
+      idPeriodoNomina,
+      resultado: data,
+    });
+  } catch (error) {
+    console.error('Error al calcular y guardar el aguinaldo:', error.message);
+    handleSnackbar(`Error al calcular y guardar el aguinaldo: ${error.message}`, 'error');
+  }
+};
 
   const handleSnackbar = (message, severity) => {
     setSnackbarMessage(message);
