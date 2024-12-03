@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Typography } from '@mui/material';
 import HorarioAPI from '../../services/asistencia/HorarioAPI';
 import TurnoAPI from '../../services/asistencia/TurnoAPI';
+import { logEvent } from '../../services/LogService';
 
 const diasSemana = [
   { value: 1, label: 'Lunes' },
@@ -52,8 +53,8 @@ const RegistrarHorario = () => {
       horaSalida: `${horaSalida}:00`, // Formato "HH:mm:ss"
     };
 
-    console.log("Datos que se enviarán:", horarioData); // Verifica la estructura de horarioData
     try {
+      // Registrar horario en el backend
       await HorarioAPI.crearHorario(horarioData);
       setMensaje('Horario registrado correctamente.');
       setIdTurno('');
@@ -61,6 +62,15 @@ const RegistrarHorario = () => {
       setDiaFin('');
       setHoraEntrada('');
       setHoraSalida('');
+
+      // Registrar log del evento
+      await logEvent('RegistrarHorario', {
+        idTurno,
+        diaInicio: diasSemana.find(d => d.value === parseInt(diaInicio))?.label || diaInicio,
+        diaFin: diasSemana.find(d => d.value === parseInt(diaFin))?.label || diaFin,
+        horaEntrada,
+        horaSalida,
+      });
     } catch (error) {
       console.error(error);
       setError('Error al registrar el horario. Intente de nuevo.');

@@ -3,6 +3,7 @@ import React, { useState, useContext } from 'react';
 import { Button, Typography, Alert } from '@mui/material';
 import AsistenciaAPI from '../../services/asistencia/AsistenciaAPI';
 import AuthContext from '../../context/AuthContext';
+import { logEvent } from '../../services/LogService';
 
 const RegistroAsistencia = () => {
   const { idEmpleado } = useContext(AuthContext);
@@ -26,8 +27,12 @@ const RegistroAsistencia = () => {
     };
 
     try {
+      // Registrar la asistencia
       await AsistenciaAPI.registrarAsistencia(asistenciaData);
       setMensaje(`Asistencia de ${esEntrada ? 'entrada' : 'salida'} registrada correctamente.`);
+
+      // Registrar el evento en los logs
+      await logEvent('RegistrarAsistencia', asistenciaData);
     } catch (error) {
       setError('Error al registrar la asistencia. Intente de nuevo.');
     }

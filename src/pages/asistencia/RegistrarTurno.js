@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Typography } from '@mui/material';
 import TurnoAPI from '../../services/asistencia/TurnoAPI';
+import { logEvent } from '../../services/LogService';
 
 const RegistrarTurno = () => {
   const [nombre, setNombre] = useState(''); // Nombre del turno, e.g., "Diurno" o "Nocturno"
@@ -29,12 +30,16 @@ const RegistrarTurno = () => {
     console.log("Datos que se enviarán:", turnoData); // Verifica la estructura de turnoData
 
     try {
+      // Registrar turno en el backend
       await TurnoAPI.crearTurno(turnoData);
       setMensaje('Turno registrado correctamente.');
       setNombre('');
       setDescripcion('');
       setHoraInicio('');
       setHoraFin('');
+
+      // Registrar log del evento
+      await logEvent('RegistrarTurno', turnoData);
     } catch (error) {
       console.error(error);
       setError('Error al registrar el turno. Intente de nuevo.');

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Grid, Select, MenuItem, InputLabel, FormControl, Snackbar, Alert, Typography } from '@mui/material';
 import { createEmpleado } from '../../services/FuncionarioAPI';
+import { logEvent } from '../../services/LogService';
 
 function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
@@ -92,35 +93,35 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!nuevoEmpleado.cedula || nuevoEmpleado.cedula.length !== 9) {
       setSnackbarMessage('La cédula debe tener exactamente 9 dígitos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-
+  
     if (!nuevoEmpleado.nombre || !nuevoEmpleado.apellidoUno || !nuevoEmpleado.apellidoDos) {
       setSnackbarMessage('Todos los nombres y apellidos son requeridos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-
+  
     if (!nuevoEmpleado.correoElectronico || !isEmailValid(nuevoEmpleado.correoElectronico)) {
       setSnackbarMessage('El correo debe tener el formato nombre.apellido');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-
+  
     if (!nuevoEmpleado.fechaNacimiento || !nuevoEmpleado.numeroCelular || nuevoEmpleado.numeroCelular.length !== 8) {
       setSnackbarMessage('Fecha de nacimiento y celular válidos son requeridos.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       return;
     }
-
+  
     try {
       // Normalizar datos antes de guardar
       const empleadoData = {
@@ -134,9 +135,13 @@ function FormularioEmpleado({ open, onClose, setEmpleados, empleados }) {
         fechaInicioContrato: new Date(nuevoEmpleado.fechaInicioContrato).toISOString(),
         fechaFinContrato: null
       };
-
+  
       const createdEmpleado = await createEmpleado(empleadoData);
       setEmpleados([...empleados, createdEmpleado]);
+  
+      // Registrar el evento en los logs
+      await logEvent('CrearEmpleado', empleadoData);
+  
       setSnackbarMessage('Empleado añadido con éxito');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);

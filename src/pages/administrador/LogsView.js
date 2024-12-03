@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getLogs } from "../../services/LogService";
-import { Table, TableBody, TableCell, TableHead, TableRow, Button, Paper, Typography, CircularProgress, Box, TablePagination } from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow, Button, Paper, Typography, CircularProgress, Box, TablePagination, Tooltip } from "@mui/material";
 
 const LogsView = () => {
   const [logs, setLogs] = useState([]);
@@ -100,7 +100,11 @@ const LogsView = () => {
                 .map((log, index) => (
                   <TableRow key={index}>
                     <TableCell>{log.eventName}</TableCell>
-                    <TableCell>{log.eventDetails}</TableCell>
+                    <TableCell sx={{ maxWidth: 300, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <Tooltip title={log.eventDetails} arrow>
+                        <span>{log.eventDetails}</span>
+                      </Tooltip>
+                    </TableCell>
                     <TableCell>{log.username}</TableCell>
                     <TableCell>{log.userRole}</TableCell>
                     <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
