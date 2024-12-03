@@ -39,6 +39,7 @@ import EmpleadoTurno from '../pages/asistencia/EmpleadoTurno';
 //Adminsitracion
 import CrearUsuario from '../pages/administrador/CrearUsuario';
 import ListaUsuarios from '../pages/administrador/ListaUsuarios';
+import LogsView from '../pages/administrador/LogsView';
 //Vacaciones
 import MisVacaciones from '../pages/empleados/MisVacaciones';
 
@@ -89,8 +90,9 @@ function AppRoutes() {
             {/* Rutas para Administrador */}
             <Route path="/CrearUsuario" element={<CrearUsuario />} />
             <Route path="/ListaUsuarios" element={<ListaUsuarios />} />
+            <Route path="/LogsView" element={<LogsView />} />
 
-            {/* Rutas para Administrador */}
+            {/* Rutas para vacaciones */}
             <Route path="/MisVacaciones" element={<MisVacaciones />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />

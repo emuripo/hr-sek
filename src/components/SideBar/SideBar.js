@@ -236,6 +236,9 @@ function Sidebar() {
             <li>
               <Link to="/CrearUsuario">Crear Usuarios</Link>
             </li>
+            <li>
+              <Link to="/LogsView">Logs del Sistema</Link>
+            </li>
           </>
         )}
 

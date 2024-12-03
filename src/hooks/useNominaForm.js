@@ -6,6 +6,8 @@ import { getTodasDeducciones } from '../services/nomina/DeduccionAPI';
 import { getTodosPeriodosNomina } from '../services/nomina/PeriodoNominaAPI';
 import { createNomina, validarNominaPorPeriodo } from '../services/NominaAPI';
 import { getSaldoHorasExtraPorEmpleado } from '../services/solicitudesService/SolicitudHorasService';
+import { logEvent } from '../services/LogService';
+
 
 const useNominaForm = (onClose) => {
   const [formData, setFormData] = useState({
@@ -177,25 +179,42 @@ const useNominaForm = (onClose) => {
   // Maneja el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("handleSubmit iniciado");
+  
     try {
       const validacion = await validarNominaPorPeriodo(formData.idEmpleado, formData.idPeriodoNomina);
-
+  
       if (validacion.existe) {
         setSnackbar({ open: true, message: validacion.mensaje, severity: 'error' });
         return;
       }
-
+  
       const nominaData = { ...formData };
-
+      console.log("Datos de la nómina antes de crear:", nominaData);
+  
       await createNomina(nominaData);
+      console.log("Nómina creada con éxito");
+  
+      console.log("Llamando a logEvent");
+      await logEvent('CrearNomina', {
+        idEmpleado: formData.idEmpleado,
+        idPeriodoNomina: formData.idPeriodoNomina,
+        salarioBruto: formData.salarioBruto,
+        salarioNeto: formData.salarioNeto,
+        bonificacionesIds: formData.bonificacionesIds,
+        deduccionesIds: formData.deduccionesIds,
+        otrasDeducciones: formData.otrasDeducciones,
+      });
+      console.log("logEvent completado");
+  
       setSnackbar({ open: true, message: 'Nómina creada con éxito', severity: 'success' });
       onClose();
     } catch (error) {
-      console.error('Error al crear la nómina:', error);
-      const errorMessage = error.response?.data?.mensaje || 'Error al guardar la nómina';
+      console.error("Error al crear la nómina:", error);
+      const errorMessage = error.response?.data?.mensaje || "Error al guardar la nómina";
       setSnackbar({ open: true, message: errorMessage, severity: 'error' });
     }
-  };
+  };  
 
   return {
     formData,
