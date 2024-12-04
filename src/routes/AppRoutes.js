@@ -42,6 +42,11 @@ import ListaUsuarios from '../pages/administrador/ListaUsuarios';
 import LogsView from '../pages/administrador/LogsView';
 //Vacaciones
 import MisVacaciones from '../pages/empleados/MisVacaciones';
+//horas Extra
+import MisHorasExtra from '../pages/empleados/MisHorasExtra';
+import HorasExtraEmpleados from '../pages/empleados/HorasExtraEmpleados';
+import VacacionesEmpleados from '../pages/empleados/VacacionesEmpleados';
+
 
 function AppRoutes() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -94,6 +99,12 @@ function AppRoutes() {
 
             {/* Rutas para vacaciones */}
             <Route path="/MisVacaciones" element={<MisVacaciones />} />
+            <Route path="/VacacionesEmpleados" element={<VacacionesEmpleados />} />
+
+            {/* Rutas para Horas Extra */}
+            <Route path="/MisHorasExtra" element={<MisHorasExtra />} />
+            <Route path="/HorasExtraEmpleados" element={<HorasExtraEmpleados />} />
+            
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

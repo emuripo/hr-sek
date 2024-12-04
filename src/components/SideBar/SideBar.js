@@ -48,9 +48,6 @@ function Sidebar() {
             </li>
             
             <li>
-              <Link to="/SolicitudesRRHH">Solicitudes</Link>
-            </li>
-            <li>
               <Link to="/AsistenciasEmpleado">Asistencia</Link>
             </li>
 
@@ -205,6 +202,12 @@ function Sidebar() {
               <Link to="/VistaJefatura">Solicitudes</Link>
             </li>
             <li>
+              <Link to="/HorasExtraEmpleados">Consulta Horas Extra</Link>
+            </li>
+            <li>
+              <Link to="/VacacionesEmpleados">Consulta Vacaciones</Link>
+            </li>
+            <li>
               <Link to="/reportes">Reportes</Link>
             </li>
           </>
@@ -224,6 +227,9 @@ function Sidebar() {
             </li>
             <li>
               <Link to="/MisVacaciones">Consulta de Vacaciones</Link>
+            </li>
+            <li>
+              <Link to="/MisHorasExtra">ver Horas Extra</Link>
             </li>
           </>
         )}
