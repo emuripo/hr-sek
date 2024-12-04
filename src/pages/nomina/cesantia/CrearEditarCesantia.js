@@ -21,8 +21,8 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
   const [idEmpleado, setIdEmpleado] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [fechaSalida, setFechaSalida] = useState('');
-  const [diasPreaviso, setDiasPreaviso] = useState(0);
-  const [diasTrabajadosPreaviso, setDiasTrabajadosPreaviso] = useState(0);
+  const [diasPreaviso, setDiasPreaviso] = useState('');
+  const [diasTrabajadosPreaviso, setDiasTrabajadosPreaviso] = useState('');
   const [salariosSeisMeses, setSalariosSeisMeses] = useState(Array(6).fill(''));
   const [salarioPromedioDiario, setSalarioPromedioDiario] = useState(0);
   const [montoPreaviso, setMontoPreaviso] = useState(0);
@@ -34,6 +34,13 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // Estados para errores de validación
+  const [idEmpleadoError, setIdEmpleadoError] = useState('');
+  const [fechaSalidaError, setFechaSalidaError] = useState('');
+  const [diasPreavisoError, setDiasPreavisoError] = useState('');
+  const [diasTrabajadosPreavisoError, setDiasTrabajadosPreavisoError] = useState('');
+  const [salariosSeisMesesErrors, setSalariosSeisMesesErrors] = useState(Array(6).fill(''));
 
   useEffect(() => {
     fetchEmpleados();
@@ -111,35 +118,30 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
 
   const calcularMontoVacaciones = async () => {
     try {
-      // Obtener el empleado seleccionado
       const empleadoSeleccionado = empleados.find((emp) => emp.idEmpleado === idEmpleado);
-  
+
       if (!empleadoSeleccionado || !empleadoSeleccionado.infoContratoFuncionario) {
         setMontoVacaciones(0);
         mostrarErrorSnackbar('No se pudo obtener el salario base del empleado.');
         return;
       }
-  
+
       const salarioBase = parseFloat(empleadoSeleccionado.infoContratoFuncionario.salarioBase || 0);
-  
+
       if (salarioBase <= 0) {
         setMontoVacaciones(0);
         mostrarErrorSnackbar('El salario base del empleado no es válido.');
         return;
       }
-  
+
       const salarioDiario = salarioBase / 30;
-  
-      // Obtener los días disponibles de vacaciones
+
       const data = await getSolicitudesVacacionesPorEmpleado(idEmpleado);
-      console.log('Datos de vacaciones:', data);
-  
       const diasDisponibles = parseFloat(data?.diasDisponibles || 0);
-  
+
       if (diasDisponibles > 0) {
         const monto = (diasDisponibles * salarioDiario).toFixed(2);
         setMontoVacaciones(monto);
-        console.log('Monto de vacaciones calculado:', monto);
       } else {
         setMontoVacaciones(0);
         mostrarErrorSnackbar('El empleado no tiene días disponibles de vacaciones.');
@@ -149,7 +151,6 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
       mostrarErrorSnackbar('Error al calcular el monto de vacaciones.');
     }
   };
-  
 
   const calcularMontoAguinaldo = async () => {
     try {
@@ -170,12 +171,70 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
   };
 
   const handleGuardarLiquidacion = async () => {
-    const salariosInvalidos = salariosSeisMeses.some(
-      (salario) => salario === '' || parseFloat(salario) < 330000 || parseFloat(salario) > 950000
-    );
+    let isValid = true;
 
-    if (salariosInvalidos) {
-      mostrarErrorSnackbar('Todos los salarios deben estar entre 330,000 y 950,000.');
+    // Validación del empleado
+    if (!idEmpleado) {
+      setIdEmpleadoError('Debe seleccionar un empleado.');
+      isValid = false;
+    } else {
+      setIdEmpleadoError('');
+    }
+
+    // Validación de fecha de salida
+    if (!fechaSalida) {
+      setFechaSalidaError('Debe ingresar la fecha de salida.');
+      isValid = false;
+    } else if (fechaIngreso && fechaSalida < fechaIngreso) {
+      setFechaSalidaError('La fecha de salida no puede ser anterior a la fecha de ingreso.');
+      isValid = false;
+    } else {
+      setFechaSalidaError('');
+    }
+
+    // Validación de días de preaviso
+    if (diasPreaviso === '' || diasPreaviso === null) {
+      setDiasPreavisoError('Debe ingresar los días de preaviso.');
+      isValid = false;
+    } else if (diasPreaviso < 0) {
+      setDiasPreavisoError('Los días de preaviso no pueden ser negativos.');
+      isValid = false;
+    } else {
+      setDiasPreavisoError('');
+    }
+
+    // Validación de días trabajados de preaviso
+    if (diasTrabajadosPreaviso === '' || diasTrabajadosPreaviso === null) {
+      setDiasTrabajadosPreavisoError('Debe ingresar los días trabajados de preaviso.');
+      isValid = false;
+    } else if (diasTrabajadosPreaviso < 0) {
+      setDiasTrabajadosPreavisoError('Los días trabajados de preaviso no pueden ser negativos.');
+      isValid = false;
+    } else if (parseInt(diasTrabajadosPreaviso) > parseInt(diasPreaviso)) {
+      setDiasTrabajadosPreavisoError(
+        'Los días trabajados de preaviso no pueden ser mayores que los días de preaviso.'
+      );
+      isValid = false;
+    } else {
+      setDiasTrabajadosPreavisoError('');
+    }
+
+    // Validación de salarios de los seis meses
+    const salariosErrors = salariosSeisMeses.map((salario, index) => {
+      if (salario === '' || salario === null) {
+        isValid = false;
+        return 'Este campo es requerido.';
+      } else if (parseFloat(salario) < 330000 || parseFloat(salario) > 950000) {
+        isValid = false;
+        return 'El salario debe estar entre 330,000 y 950,000.';
+      } else {
+        return '';
+      }
+    });
+    setSalariosSeisMesesErrors(salariosErrors);
+
+    if (!isValid) {
+      mostrarErrorSnackbar('Por favor, corrija los errores antes de continuar.');
       return;
     }
 
@@ -185,7 +244,10 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
         idEmpleado,
         fechaIngreso,
         fechaSalida,
-        salarioPromedioSeisMeses: salariosSeisMeses.reduce((acc, salario) => acc + parseFloat(salario || 0), 0),
+        salarioPromedioSeisMeses: salariosSeisMeses.reduce(
+          (acc, salario) => acc + parseFloat(salario || 0),
+          0
+        ),
         salarioPromedioDiario,
         diasPreaviso,
         diasTrabajadosPreaviso,
@@ -233,8 +295,15 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
             select
             label="Seleccionar Empleado"
             value={idEmpleado}
-            onChange={(e) => setIdEmpleado(e.target.value)}
+            onChange={(e) => {
+              setIdEmpleado(e.target.value);
+              if (e.target.value) {
+                setIdEmpleadoError('');
+              }
+            }}
             fullWidth
+            error={Boolean(idEmpleadoError)}
+            helperText={idEmpleadoError}
           >
             {empleados.map((empleado) => (
               <MenuItem key={empleado.idEmpleado} value={empleado.idEmpleado}>
@@ -258,9 +327,16 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
             label="Fecha de Salida"
             type="date"
             value={fechaSalida}
-            onChange={(e) => setFechaSalida(e.target.value)}
+            onChange={(e) => {
+              setFechaSalida(e.target.value);
+              if (e.target.value) {
+                setFechaSalidaError('');
+              }
+            }}
             fullWidth
             InputLabelProps={{ shrink: true }}
+            error={Boolean(fechaSalidaError)}
+            helperText={fechaSalidaError}
           />
         </Grid>
         {salariosSeisMeses.map((salario, index) => (
@@ -269,14 +345,22 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
               label={`Salario Mes ${index + 1}`}
               type="number"
               value={salario}
-              onChange={(e) =>
+              onChange={(e) => {
+                const value = e.target.value;
                 setSalariosSeisMeses((prev) => {
                   const updated = [...prev];
-                  updated[index] = e.target.value;
+                  updated[index] = value;
                   return updated;
-                })
-              }
+                });
+                setSalariosSeisMesesErrors((prevErrors) => {
+                  const updatedErrors = [...prevErrors];
+                  updatedErrors[index] = '';
+                  return updatedErrors;
+                });
+              }}
               fullWidth
+              error={Boolean(salariosSeisMesesErrors[index])}
+              helperText={salariosSeisMesesErrors[index]}
             />
           </Grid>
         ))}
@@ -285,8 +369,16 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
             label="Días de Preaviso"
             type="number"
             value={diasPreaviso}
-            onChange={(e) => setDiasPreaviso(Math.max(0, parseInt(e.target.value, 10) || 0))}
+            onChange={(e) => {
+              const value = Math.max(0, parseInt(e.target.value, 10) || 0);
+              setDiasPreaviso(value);
+              if (value !== '' && value >= 0) {
+                setDiasPreavisoError('');
+              }
+            }}
             fullWidth
+            error={Boolean(diasPreavisoError)}
+            helperText={diasPreavisoError}
           />
         </Grid>
         <Grid item xs={6}>
@@ -294,8 +386,16 @@ const CrearEditarLiquidacion = ({ onClose = () => {}, isEditMode = false }) => {
             label="Días Trabajados de Preaviso"
             type="number"
             value={diasTrabajadosPreaviso}
-            onChange={(e) => setDiasTrabajadosPreaviso(Math.max(0, parseInt(e.target.value, 10) || 0))}
+            onChange={(e) => {
+              const value = Math.max(0, parseInt(e.target.value, 10) || 0);
+              setDiasTrabajadosPreaviso(value);
+              if (value !== '' && value >= 0 && value <= diasPreaviso) {
+                setDiasTrabajadosPreavisoError('');
+              }
+            }}
             fullWidth
+            error={Boolean(diasTrabajadosPreavisoError)}
+            helperText={diasTrabajadosPreavisoError}
           />
         </Grid>
         <Grid item xs={6}>
